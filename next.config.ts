@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
       (process.env.SUPABASE_URL ?? "").replace("https://", ""),
     ],
   },
+  redirects: async () => {
+    return [
+      {
+        source: "/empresas",
+        destination: "/pessoas",
+        permanent: true,
+      },
+    ];
+  },
   reactStrictMode: true,
 };
 
