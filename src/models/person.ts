@@ -1,12 +1,13 @@
+import { Role } from "@prisma/client";
+
 import { NotFoundError } from "@/errors";
 import { prisma } from "@/infra/prisma";
-import { Role } from "@prisma/client";
 
 import password from "./password";
 import validator from "./validator";
 
 async function findAll() {
-  const persons = await prisma.person.findMany({
+  const people = await prisma.person.findMany({
     select: {
       id: true,
       name: true,
@@ -24,7 +25,7 @@ async function findAll() {
     },
   });
 
-  return persons.map((item) => ({
+  return people.map((item) => ({
     ...item,
     password: undefined,
     activated: Boolean(item.password),

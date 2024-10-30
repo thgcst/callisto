@@ -6,39 +6,29 @@ import { toast } from "react-toastify";
 
 import api from "@/services/api";
 
-type CreateSessionBody = {
-  email: string;
-  password: string;
-};
-
-function useCreateSession() {
-  const { push, query } = useRouter();
+function useRecoverPassword() {
+  const { push } = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const createSession = async (body: CreateSessionBody) => {
+  const recoverPassword = async (tokenId: string, password: string) => {
     setLoading(true);
 
     try {
       await toast.promise(
-        api.post("/api/sessions", {
-          email: body.email,
-          password: body.password,
+        api.patch(`/api/recovery/${tokenId}`, {
+          password,
         }),
         {
           pending: "Carregando...",
           error: {
             render({ data }) {
-              // @ts-ignore
+              // @ts-expect-error
               return data.response?.data?.message || data.message;
             },
           },
         }
       );
-      if (query?.redirect) {
-        push(query.redirect as string);
-      } else {
-        push(`/empresas`);
-      }
+      push(`/empresas`);
     } catch (error) {
       //
     }
@@ -46,7 +36,7 @@ function useCreateSession() {
     setLoading(false);
   };
 
-  return { createSession, loading };
+  return { recoverPassword, loading };
 }
 
-export default useCreateSession;
+export default useRecoverPassword;

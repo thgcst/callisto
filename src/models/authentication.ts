@@ -1,9 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextHandler } from "next-connect";
 
+import { Person } from "@prisma/client";
+
 import { UnauthorizedError } from "@/errors";
 import InjectedRequest from "@/types/InjectedRequest";
-import { Person } from "@prisma/client";
 
 import password from "./password";
 import person from "./person";

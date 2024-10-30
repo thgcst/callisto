@@ -1,6 +1,8 @@
 import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
+import { Person } from "@prisma/client";
+
 import { ForbiddenError, UnauthorizedError } from "@/errors";
 import activation from "@/models/activation";
 import authentication from "@/models/authentication";
@@ -8,7 +10,6 @@ import controller from "@/models/controller";
 import person from "@/models/person";
 import session from "@/models/session";
 import InjectedRequest from "@/types/InjectedRequest";
-import { Person } from "@prisma/client";
 
 export default nextConnect({
   attachParams: true,

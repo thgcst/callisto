@@ -1,6 +1,7 @@
-import { ValidationError } from "@/errors";
 import { Role } from "@prisma/client";
 import Joi from "joi";
+
+import { ValidationError } from "@/errors";
 
 type ValidatorSchemas = keyof typeof schemas;
 

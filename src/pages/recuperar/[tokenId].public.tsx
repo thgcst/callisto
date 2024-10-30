@@ -1,20 +1,23 @@
 import { GetServerSideProps } from "next";
 import Image from "next/image";
+import Link from "next/link";
 
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { parse } from "cookie";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
 import Input from "@/components/Input";
 import { NotFoundError } from "@/errors";
-import activation from "@/models/activation";
 import person from "@/models/person";
+import recovery from "@/models/recovery";
 import validator from "@/models/validator";
-import { useActivateAccount } from "@/swr/activation";
+import { useRecoverPassword } from "@/swr/recovery";
 
 const validationSchema = yup.object().shape({
   password: yup
     .string()
-    .min(8, "Mínimo de 8 dígitos")
+    .min(6, "Mínimo de 6 dígitos")
     .required("Campo obrigatório"),
   confirmPassword: yup
     .string()
@@ -38,7 +41,7 @@ const ActivatePassword: React.FC<ActivatePasswordProps> = ({
   email,
   tokenId,
 }) => {
-  const { activateAccount, loading } = useActivateAccount();
+  const { recoverPassword, loading } = useRecoverPassword();
 
   const { handleChange, values, handleSubmit, touched, errors } = useFormik({
     initialValues: {
@@ -47,7 +50,7 @@ const ActivatePassword: React.FC<ActivatePasswordProps> = ({
     },
     onSubmit: async (e) => {
       if (tokenId) {
-        await activateAccount(tokenId, e.password);
+        await recoverPassword(tokenId, e.password);
       }
     },
     validationSchema,
@@ -67,21 +70,37 @@ const ActivatePassword: React.FC<ActivatePasswordProps> = ({
               />
             </div>
             <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-              Defina sua senha
+              Recupere sua senha
             </h2>
             {email && (
               <p className="mt-2 text-center text-sm text-gray-600">
-                para{" "}
+                Usuário:{" "}
                 <span className="rounded-[2px] bg-gray-200 px-1">{email}</span>
               </p>
             )}
           </div>
           {error ? (
             <div className="mt-8 flex flex-col gap-2 bg-white px-4 py-5 shadow sm:rounded-md sm:p-6">
-              <h2 className="text-center text-xl font-bold tracking-tight text-red-600">
-                Erro
-              </h2>
-              <p className="text-center text-gray-900">{error}</p>
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
+                  <ExclamationTriangleIcon
+                    className="h-6 w-6 text-red-600"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold leading-6 text-gray-900">
+                    {error}
+                  </h3>
+                  <Link
+                    className="cursor-pointer text-sm font-normal text-indigo-600 hover:underline"
+                    href="/recuperar"
+                  >
+                    <span aria-hidden="true">&larr;</span> Voltar à tela de
+                    recuperação
+                  </Link>
+                </div>
+              </div>
             </div>
           ) : (
             <form
@@ -127,6 +146,17 @@ const ActivatePassword: React.FC<ActivatePasswordProps> = ({
 export default ActivatePassword;
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const parsedCookies = parse(ctx.req.headers?.cookie || "");
+
+  if (parsedCookies?.sessionId) {
+    return {
+      redirect: {
+        destination: "/empresas",
+        permanent: true,
+      },
+    };
+  }
+
   try {
     const cleanValues = validator(ctx.query, {
       tokenId: "required",
@@ -134,14 +164,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     const tokenId = cleanValues.tokenId as string;
 
-    const tokenObject = await activation.findValidUnusedTokenById(tokenId);
+    const tokenObject = await recovery.findValidUnusedTokenById(tokenId);
 
-    const userObject = await person.findOneById(tokenObject.personId);
+    const personObject = await person.findOneById(tokenObject.personId);
 
     return {
       props: {
         tokenId,
-        email: userObject.email,
+        email: personObject.email,
       },
     };
   } catch (error) {

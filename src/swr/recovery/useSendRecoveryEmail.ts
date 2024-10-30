@@ -1,25 +1,29 @@
 import { useState } from "react";
 
-import { useRouter } from "next/router";
-
 import { toast } from "react-toastify";
 
 import api from "@/services/api";
 
-function useActivateAccount() {
-  const { push } = useRouter();
+function useSendRecoveryEmail() {
   const [loading, setLoading] = useState(false);
 
-  const activateAccount = async (tokenId: string, password: string) => {
+  const sendRecoveryEmail = async (email: string) => {
     setLoading(true);
 
     try {
       await toast.promise(
-        api.patch(`/api/activation/${tokenId}`, {
-          password,
-        }),
+        api.post(
+          `/api/recovery`,
+          {
+            email,
+          },
+          {
+            timeout: 60000,
+          }
+        ),
         {
           pending: "Carregando...",
+          success: "E-mail de recuperação enviado!",
           error: {
             render({ data }) {
               // @ts-expect-error
@@ -28,7 +32,6 @@ function useActivateAccount() {
           },
         }
       );
-      push(`/empresas`);
     } catch (error) {
       //
     }
@@ -36,7 +39,7 @@ function useActivateAccount() {
     setLoading(false);
   };
 
-  return { activateAccount, loading };
+  return { sendRecoveryEmail, loading };
 }
 
-export default useActivateAccount;
+export default useSendRecoveryEmail;

@@ -7,10 +7,11 @@ import { useEffect } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 
-import fetcher from "@/services/fetcher";
 import NProgress from "nprogress";
 import { toast, ToastContainer } from "react-toastify";
 import { SWRConfig } from "swr";
+
+import fetcher from "@/services/fetcher";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();

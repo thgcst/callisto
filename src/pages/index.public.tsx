@@ -3,12 +3,13 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 
-import Input from "@/components/Input";
-import session from "@/models/session";
-import { useCreateSession } from "@/swr/sessions";
 import { parse } from "cookie";
 import { useFormik } from "formik";
 import * as yup from "yup";
+
+import Input from "@/components/Input";
+import session from "@/models/session";
+import { useCreateSession } from "@/swr/sessions";
 
 const validationSchema = yup.object().shape({
   email: yup.string().email("E-mail inválido").required("Campo obrigatório"),
@@ -109,7 +110,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (sessionValid) {
     return {
       redirect: {
-        destination: "/classes",
+        destination: "/empresas",
         permanent: true,
       },
     };

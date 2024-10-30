@@ -3,9 +3,10 @@ import {} from "cookie";
 
 import { useRouter } from "next/router";
 
-import api from "@/services/api";
 import nProgress from "nprogress";
 import { toast } from "react-toastify";
+
+import api from "@/services/api";
 
 function useDeleteSession() {
   const { push } = useRouter();

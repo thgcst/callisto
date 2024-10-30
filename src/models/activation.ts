@@ -1,8 +1,9 @@
+import { ActivateAccountToken, Person } from "@prisma/client";
+
 import { ForbiddenError, NotFoundError, ServiceError } from "@/errors";
 import email from "@/infra/email";
 import { prisma } from "@/infra/prisma";
 import webserver from "@/infra/webserver";
-import { ActivateAccountToken, Person } from "@prisma/client";
 
 async function createAndSendActivationEmail(person: Person) {
   const token = await prisma.activateAccountToken.findFirst({
@@ -51,7 +52,7 @@ async function sendEmailToUser(
     await email.send({
       from: {
         name: "Callisto",
-        address: "nao_responda@callisto.com",
+        address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
       },
       to: person.email,
       subject: "Cadastre sua senha no Callisto",

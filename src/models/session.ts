@@ -1,12 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { NotFoundError, UnauthorizedError } from "@/errors";
-import { prisma } from "@/infra/prisma";
 import { Person } from "@prisma/client";
 import cookie from "cookie";
 import crypto from "crypto";
 import { ServerResponse } from "http";
 import { UAParser } from "ua-parser-js";
+
+import { NotFoundError, UnauthorizedError } from "@/errors";
+import { prisma } from "@/infra/prisma";
 
 import validator from "./validator";
 

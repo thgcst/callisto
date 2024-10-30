@@ -3,6 +3,7 @@
   "plugins": ["eslint-plugin-import-helpers", "unused-imports"],
   "rules": {
     "@typescript-eslint/ban-ts-comment": "warn",
+    "@typescript-eslint/no-explicit-any": "warn",
     "import-helpers/order-imports": [
       "warn",
       {
@@ -11,7 +12,7 @@
           "/^react$/",
           "/^next/",
           "module",
-          "/^~/",
+          "/^@//",
           ["sibling", "index"],
           "parent",
           "/^./styles/"
