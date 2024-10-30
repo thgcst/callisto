@@ -10,8 +10,8 @@ import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
 import authorization from "@/models/authorization";
-import { usePerson } from "@/swr/people";
 import useDeleteSession from "@/swr/sessions/useDeleteSession";
+import { useUser } from "@/swr/users";
 
 type LayoutProps = PropsWithChildren & {
   label?: string;
@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   rightAccessory,
 }) => {
-  const { person } = usePerson();
+  const { user } = useUser();
   const { pathname, push } = useRouter();
   const showNotificationsMenu = false;
   const { deleteSession } = useDeleteSession();
@@ -35,7 +35,7 @@ const Layout: React.FC<LayoutProps> = ({
       name: "Pessoas",
       href: "/pessoas",
       regExp: /^\/pessoas.*/,
-      hide: person ? !authorization.roleIsAdmin(person) : true,
+      hide: user ? !authorization.roleIsAdmin(user) : true,
     },
     {
       name: "Empresas",
@@ -44,7 +44,7 @@ const Layout: React.FC<LayoutProps> = ({
     },
   ];
 
-  const personNavigation = [
+  const userNavigation = [
     {
       name: "Minha conta",
       onClick: () => {
@@ -127,13 +127,13 @@ const Layout: React.FC<LayoutProps> = ({
                       <Menu as="div" className="relative ml-4">
                         <div>
                           <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                            <span className="sr-only">Open person menu</span>
+                            <span className="sr-only">Open user menu</span>
                             <div className="relative h-8 w-8">
                               <Image
                                 className="h-8 w-8 rounded-full object-cover"
                                 src={
-                                  person?.avatar ||
-                                  "https://i.ibb.co/k0tSSCy/person.png"
+                                  user?.avatar ||
+                                  "https://i.ibb.co/k0tSSCy/user.png"
                                 }
                                 alt=""
                                 width={32}
@@ -152,7 +152,7 @@ const Layout: React.FC<LayoutProps> = ({
                           leaveTo="transform opacity-0 scale-95"
                         >
                           <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            {personNavigation.map((item) => (
+                            {userNavigation.map((item) => (
                               <Menu.Item key={item.name}>
                                 {({ active }) => (
                                   <div
@@ -220,8 +220,7 @@ const Layout: React.FC<LayoutProps> = ({
                         <Image
                           className="h-10 w-10 rounded-full object-cover"
                           src={
-                            person?.avatar ||
-                            "https://i.ibb.co/k0tSSCy/person.png"
+                            user?.avatar || "https://i.ibb.co/k0tSSCy/user.png"
                           }
                           alt=""
                           width={40}
@@ -231,10 +230,10 @@ const Layout: React.FC<LayoutProps> = ({
                     </div>
                     <div className="ml-3 flex h-10 flex-1 flex-col justify-evenly">
                       <div className="text-base font-medium leading-none text-white">
-                        {person?.email}
+                        {user?.email}
                       </div>
                       <div className="text-xs font-medium leading-none text-gray-400">
-                        {person?.name}
+                        {user?.name}
                       </div>
                     </div>
                     {showNotificationsMenu && (
@@ -248,7 +247,7 @@ const Layout: React.FC<LayoutProps> = ({
                     )}
                   </div>
                   <div className="mt-3 space-y-1 px-2">
-                    {personNavigation.map((item) => (
+                    {userNavigation.map((item) => (
                       <Disclosure.Button
                         key={item.name}
                         as="a"

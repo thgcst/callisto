@@ -10,11 +10,11 @@ export default nextConnect({
   onNoMatch: controller.onNoMatchHandler,
   onError: controller.onErrorHandler,
 })
-  .use(authentication.injectPerson)
+  .use(authentication.injectUser)
   .get(getHandler);
 
 async function getHandler(request: InjectedRequest, response: NextApiResponse) {
-  const authenticatedUser = request.context.person;
+  const authenticatedUser = request.context.user;
 
   return response.status(200).json({
     ...authenticatedUser,

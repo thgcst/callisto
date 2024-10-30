@@ -1,13 +1,13 @@
 import { NextApiResponse } from "next";
 import { NextHandler } from "next-connect";
 
-import { Person, Role } from "@prisma/client";
+import { User, Role } from "@prisma/client";
 
 import { ForbiddenError } from "@/errors";
 import InjectedRequest from "@/types/InjectedRequest";
 
-function roleIsAdmin(person: Omit<Person, "password">) {
-  return person.role === Role.ADMIN;
+function roleIsAdmin(user: Omit<User, "password">) {
+  return user.role === Role.ADMIN;
 }
 
 function isRequestFromAdmin() {
@@ -16,7 +16,7 @@ function isRequestFromAdmin() {
     response: NextApiResponse,
     next: NextHandler
   ) {
-    const userTryingToRequest = request.context.person;
+    const userTryingToRequest = request.context.user;
 
     if (!roleIsAdmin(userTryingToRequest)) {
       throw new ForbiddenError({

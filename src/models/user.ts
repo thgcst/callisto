@@ -7,7 +7,7 @@ import password from "./password";
 import validator from "./validator";
 
 async function findAll() {
-  const people = await prisma.person.findMany({
+  const users = await prisma.user.findMany({
     select: {
       id: true,
       name: true,
@@ -25,55 +25,55 @@ async function findAll() {
     },
   });
 
-  return people.map((item) => ({
+  return users.map((item) => ({
     ...item,
     password: undefined,
     activated: Boolean(item.password),
   }));
 }
 
-async function findOneById(personId: string) {
-  validator({ id: personId }, { id: "required" });
+async function findOneById(userId: string) {
+  validator({ id: userId }, { id: "required" });
 
-  const person = await prisma.person.findFirst({
+  const user = await prisma.user.findFirst({
     where: {
-      id: personId,
+      id: userId,
     },
   });
 
-  if (!person) {
+  if (!user) {
     throw new NotFoundError({
-      message: `O id "${personId}" não foi encontrado no sistema.`,
+      message: `O id "${userId}" não foi encontrado no sistema.`,
       errorLocationCode: "MODEL:USER:FIND_ONE_BY_ID:USER_NOT_FOUND",
     });
   }
 
-  return person;
+  return user;
 }
 
 async function findOneByEmail(email: string) {
   validator({ email }, { email: "required" });
 
-  const person = await prisma.person.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       email: email,
     },
   });
 
-  if (!person) {
+  if (!user) {
     throw new NotFoundError({
       message: `O email informado não foi encontrado no sistema.`,
       errorLocationCode: "MODEL:USER:FIND_ONE_BY_EMAIL:USER_NOT_FOUND",
     });
   }
 
-  return person;
+  return user;
 }
 
 async function create(data: { name: string; email: string; role: Role }) {
   validator(data, { email: "required", role: "required" });
 
-  const person = await prisma.person.create({
+  const user = await prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
@@ -81,27 +81,27 @@ async function create(data: { name: string; email: string; role: Role }) {
     },
   });
 
-  return person;
+  return user;
 }
 
-async function updatePersonPasswordById(personId: string, newPassword: string) {
+async function updateUserPasswordById(userId: string, newPassword: string) {
   validator(
-    { id: personId, password: newPassword },
+    { id: userId, password: newPassword },
     { id: "required", password: "required" }
   );
 
   const hashedPassword = await password.hash(newPassword);
 
-  const person = await prisma.person.update({
+  const user = await prisma.user.update({
     where: {
-      id: personId,
+      id: userId,
     },
     data: {
       password: hashedPassword,
     },
   });
 
-  return person;
+  return user;
 }
 
 async function updateById(
@@ -115,7 +115,7 @@ async function updateById(
 ) {
   validator({ id }, { id: "required" });
 
-  const person = await prisma.person.update({
+  const user = await prisma.user.update({
     where: {
       id,
     },
@@ -127,7 +127,7 @@ async function updateById(
     },
   });
 
-  return person;
+  return user;
 }
 
 export default Object.freeze({
@@ -135,6 +135,6 @@ export default Object.freeze({
   findOneById,
   findOneByEmail,
   create,
-  updatePersonPasswordById,
+  updateUserPasswordById,
   updateById,
 });

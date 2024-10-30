@@ -8,7 +8,7 @@ import webserver from "@/infra/webserver";
 async function create(email: string) {
   const token = await prisma.recoverPasswordToken.findFirst({
     where: {
-      person: {
+      user: {
         email,
       },
       used: false,
@@ -28,7 +28,7 @@ async function create(email: string) {
   try {
     const recoverPasswordToken = await prisma.recoverPasswordToken.create({
       data: {
-        person: {
+        user: {
           connect: {
             email,
           },
@@ -57,13 +57,13 @@ async function create(email: string) {
 
 async function createAndSendRecoveryEmail(email: string) {
   const tokenObject = await create(email);
-  await sendEmailToPerson(email, tokenObject.id);
+  await sendEmailToUser(email, tokenObject.id);
 
   return tokenObject;
 }
 
-async function sendEmailToPerson(
-  personEmail: string,
+async function sendEmailToUser(
+  userEmail: string,
   tokenId: RecoverPasswordToken["id"]
 ) {
   const recoverPageEndpoint = getRecoveryPageEndpoint(tokenId);
@@ -74,7 +74,7 @@ async function sendEmailToPerson(
         name: "Callisto",
         address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
       },
-      to: personEmail,
+      to: userEmail,
       subject: "Altere sua senha no Puck",
       text: `Clique no link abaixo para alterar sua senha no Puck:
       
@@ -139,10 +139,10 @@ async function markTokenAsUsed(tokenId: string) {
   return tokenObject;
 }
 
-async function findOneValidTokenByPersonId(personId: string) {
+async function findOneValidTokenByUserId(userId: string) {
   const token = await prisma.recoverPasswordToken.findFirst({
     where: {
-      personId,
+      userId,
       expiresAt: {
         gte: new Date(),
       },
@@ -200,6 +200,6 @@ export default Object.freeze({
   getRecoveryPageEndpoint,
   findOneValidTokenById,
   markTokenAsUsed,
-  findOneValidTokenByPersonId,
+  findOneValidTokenByUserId,
   findValidUnusedTokenById,
 });

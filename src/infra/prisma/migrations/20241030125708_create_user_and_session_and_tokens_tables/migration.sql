@@ -2,7 +2,7 @@
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 
 -- CreateTable
-CREATE TABLE "Person" (
+CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -12,38 +12,38 @@ CREATE TABLE "Person" (
     "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ NOT NULL,
 
-    CONSTRAINT "Person_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "ActivateAccountToken" (
+CREATE TABLE "activate_account_tokens" (
     "id" TEXT NOT NULL,
-    "personId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "used" BOOLEAN NOT NULL DEFAULT false,
     "expiresAt" TIMESTAMPTZ NOT NULL,
     "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ NOT NULL,
 
-    CONSTRAINT "ActivateAccountToken_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "activate_account_tokens_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "RecoverPasswordToken" (
+CREATE TABLE "recover_password_tokens" (
     "id" TEXT NOT NULL,
-    "personId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "used" BOOLEAN NOT NULL DEFAULT false,
     "expiresAt" TIMESTAMPTZ NOT NULL,
     "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ NOT NULL,
 
-    CONSTRAINT "RecoverPasswordToken_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "recover_password_tokens_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Session" (
+CREATE TABLE "sessions" (
     "id" TEXT NOT NULL,
     "token" TEXT NOT NULL,
-    "personId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "expiresAt" TIMESTAMPTZ NOT NULL,
     "browser" TEXT,
     "cpu" TEXT,
@@ -55,17 +55,17 @@ CREATE TABLE "Session" (
     "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ NOT NULL,
 
-    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "sessions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Person_email_key" ON "Person"("email");
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- AddForeignKey
-ALTER TABLE "ActivateAccountToken" ADD CONSTRAINT "ActivateAccountToken_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "activate_account_tokens" ADD CONSTRAINT "activate_account_tokens_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "RecoverPasswordToken" ADD CONSTRAINT "RecoverPasswordToken_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "recover_password_tokens" ADD CONSTRAINT "recover_password_tokens_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Session" ADD CONSTRAINT "Session_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

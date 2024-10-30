@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 
-const AddPersonButton: React.FC = () => {
+const AddUserButton: React.FC = () => {
   return (
     <Link
       href="/pessoas/nova-pessoa"
@@ -21,4 +21,4 @@ const AddPersonButton: React.FC = () => {
   );
 };
 
-export default AddPersonButton;
+export default AddUserButton;

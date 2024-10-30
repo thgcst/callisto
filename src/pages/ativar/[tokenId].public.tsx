@@ -7,7 +7,7 @@ import * as yup from "yup";
 import Input from "@/components/Input";
 import { NotFoundError } from "@/errors";
 import activation from "@/models/activation";
-import person from "@/models/person";
+import user from "@/models/user";
 import validator from "@/models/validator";
 import { useActivateAccount } from "@/swr/activation";
 
@@ -136,7 +136,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     const tokenObject = await activation.findValidUnusedTokenById(tokenId);
 
-    const userObject = await person.findOneById(tokenObject.personId);
+    const userObject = await user.findOneById(tokenObject.userId);
 
     return {
       props: {

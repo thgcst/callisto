@@ -18,7 +18,7 @@ enum Role {
   ADMIN
 }
 
-model Person {
+model User {
   id                   String                 @id @default(uuid())
   name                 String
   email                String                 @unique
@@ -31,35 +31,41 @@ model Person {
 
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
+
+  @@map("users")
 }
 
 model ActivateAccountToken {
   id        String   @id @default(uuid())
-  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
-  personId  String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
   used      Boolean  @default(false)
   expiresAt DateTime @db.Timestamptz
 
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
+
+  @@map("activate_account_tokens")
 }
 
 model RecoverPasswordToken {
   id        String   @id @default(uuid())
-  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
-  personId  String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
   used      Boolean  @default(false)
   expiresAt DateTime @db.Timestamptz
 
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
+
+  @@map("recover_password_tokens")
 }
 
 model Session {
   id           String   @id @default(uuid())
   token        String
-  person       Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
-  personId     String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
   expiresAt    DateTime @db.Timestamptz
   browser      String?
   cpu          String?
@@ -71,4 +77,6 @@ model Session {
 
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
+
+  @@map("sessions")
 }

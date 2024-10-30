@@ -1,13 +1,12 @@
 import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
-import { Role } from "@prisma/client";
 import formidable from "formidable";
 
 import authentication from "@/models/authentication";
 import controller from "@/models/controller";
-import person from "@/models/person";
 import supabaseModel from "@/models/supabase";
+import user from "@/models/user";
 import validator from "@/models/validator";
 import InjectedRequest from "@/types/InjectedRequest";
 import parseRequest from "@/utils/parseRequest";
@@ -17,7 +16,7 @@ export default nextConnect({
   onNoMatch: controller.onNoMatchHandler,
   onError: controller.onErrorHandler,
 })
-  .use(authentication.injectPerson)
+  .use(authentication.injectUser)
   .patch(patchHandler);
 
 async function patchHandler(
@@ -26,37 +25,26 @@ async function patchHandler(
 ) {
   const { files, fields } = await parseRequest(request);
 
-  const { id } = validator(request.query, {
-    id: "required",
-  });
-
   const body: {
     name?: string;
-    role?: Role;
     avatar?: string;
-  } = validator(
-    {
-      ...fields,
-    },
-    {
-      name: "optional",
-      role: "optional",
-    }
-  );
+  } = validator(fields, {
+    name: "optional",
+  });
 
-  let updatedPerson = await person.updateById(id, body);
+  let updatedUser = await user.updateById(request.context.user.id, body);
 
   const avatar = files.avatar?.[0] as formidable.File;
 
   if (avatar) {
-    const avatarUrl = await supabaseModel.uploadAvatar(avatar, "people");
+    const avatarUrl = await supabaseModel.uploadAvatar(avatar, "users");
 
-    updatedPerson = await person.updateById(updatedPerson.id, {
+    updatedUser = await user.updateById(updatedUser.id, {
       avatar: avatarUrl,
     });
   }
 
-  return response.status(201).json({ ...updatedPerson, password: undefined });
+  return response.status(201).json({ ...updatedUser, password: undefined });
 }
 
 export const config = {

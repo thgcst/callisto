@@ -4,8 +4,7 @@ import nextConnect from "next-connect";
 import authentication from "@/models/authentication";
 import authorization from "@/models/authorization";
 import controller from "@/models/controller";
-import session from "@/models/session";
-import validator from "@/models/validator";
+import user from "@/models/user";
 import InjectedRequest from "@/types/InjectedRequest";
 
 export default nextConnect({
@@ -13,16 +12,11 @@ export default nextConnect({
   onNoMatch: controller.onNoMatchHandler,
   onError: controller.onErrorHandler,
 })
-  .use(authentication.injectPerson)
-  .use(authorization.isRequestFromAdmin)
-  .get(getHandler);
+  .use(authentication.injectUser)
+  .get(authorization.isRequestFromAdmin(), getHandler);
 
 async function getHandler(request: InjectedRequest, response: NextApiResponse) {
-  const { id } = validator(request.query, {
-    id: "required",
-  });
+  const users = await user.findAll();
 
-  const personSessions = await session.findAllByPersonId(id);
-
-  return response.status(200).json(personSessions);
+  response.status(200).json(users);
 }

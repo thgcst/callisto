@@ -2,19 +2,19 @@ import { GetServerSideProps } from "next";
 
 import { parse } from "cookie";
 
-import AddPersonButton from "@/components/AddPersonButton";
+import AddUserButton from "@/components/AddUserButton";
 import ErrorPage from "@/components/ErrorPage";
 import Layout from "@/components/Layout";
 import authorization from "@/models/authorization";
 import session from "@/models/session";
-import { usePerson, usePeople } from "@/swr/people";
+import { useUser, useUsers } from "@/swr/users";
 
 import Loading from "./loading";
 import Page from "./page";
 
 const Users: React.FC = () => {
-  const { isLoading, error } = usePeople();
-  const { person } = usePerson();
+  const { isLoading, error } = useUsers();
+  const { user } = useUser();
 
   if (error && error.response?.status !== 401) return <ErrorPage />;
 
@@ -22,7 +22,7 @@ const Users: React.FC = () => {
     <Layout
       label="Pessoas"
       rightAccessory={
-        person && authorization.roleIsAdmin(person) ? <AddPersonButton /> : null
+        user && authorization.roleIsAdmin(user) ? <AddUserButton /> : null
       }
     >
       {isLoading ? <Loading /> : <Page />}
@@ -45,7 +45,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     };
   }
 
-  if (!authorization.roleIsAdmin(sessionValid.person)) {
+  if (!authorization.roleIsAdmin(sessionValid.user)) {
     return {
       notFound: true,
     };
