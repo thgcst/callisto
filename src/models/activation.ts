@@ -1,14 +1,14 @@
-import { ActivateAccountToken, Person } from "@prisma/client";
+import { ActivateAccountToken, User } from "@prisma/client";
 
 import { ForbiddenError, NotFoundError, ServiceError } from "@/errors";
 import email from "@/infra/email";
 import { prisma } from "@/infra/prisma";
 import webserver from "@/infra/webserver";
 
-async function createAndSendActivationEmail(person: Person) {
+async function createAndSendActivationEmail(user: User) {
   const token = await prisma.activateAccountToken.findFirst({
     where: {
-      personId: person.id,
+      userId: user.id,
       used: false,
       expiresAt: {
         gte: new Date(),
@@ -23,16 +23,16 @@ async function createAndSendActivationEmail(person: Person) {
     });
   }
 
-  const tokenObject = await create(person);
-  await sendEmailToUser(person, tokenObject.id);
+  const tokenObject = await create(user);
+  await sendEmailToUser(user, tokenObject.id);
 }
 
-async function create(person: Person) {
+async function create(user: User) {
   const activation = await prisma.activateAccountToken.create({
     data: {
-      person: {
+      user: {
         connect: {
-          id: person.id,
+          id: user.id,
         },
       },
       expiresAt: new Date(Date.now() + 1000 * 60 * 15), // 15 minutes
@@ -43,7 +43,7 @@ async function create(person: Person) {
 }
 
 async function sendEmailToUser(
-  person: Person,
+  user: User,
   tokenId: ActivateAccountToken["id"]
 ) {
   const activationPageEndpoint = getActivationPageEndpoint(tokenId);
@@ -54,7 +54,7 @@ async function sendEmailToUser(
         name: "Callisto",
         address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
       },
-      to: person.email,
+      to: user.email,
       subject: "Cadastre sua senha no Callisto",
       text: `Clique no link abaixo para cadastrar sua senha no Callisto:
       
@@ -97,10 +97,10 @@ async function findOneValidTokenById(tokenId: string) {
   return token;
 }
 
-async function findOneValidTokenByUserId(personId: string) {
+async function findOneValidTokenByUserId(userId: string) {
   const token = await prisma.activateAccountToken.findFirst({
     where: {
-      personId,
+      userId,
       expiresAt: {
         gte: new Date(),
       },

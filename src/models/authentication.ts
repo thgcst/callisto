@@ -1,17 +1,17 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextHandler } from "next-connect";
 
-import { Person } from "@prisma/client";
+import { User } from "@prisma/client";
 
 import { UnauthorizedError } from "@/errors";
 import InjectedRequest from "@/types/InjectedRequest";
 
 import password from "./password";
-import person from "./person";
 import session from "./session";
+import user from "./user";
 import validator from "./validator";
 
-async function injectPerson(
+async function injectUser(
   request: InjectedRequest,
   response: NextApiResponse,
   next: NextHandler
@@ -22,7 +22,7 @@ async function injectPerson(
     });
     request.cookies.sessionToken = cleanCookies.sessionToken;
 
-    await injectAuthenticatedPerson(request, response);
+    await injectAuthenticatedUser(request, response);
   } else {
     throw new UnauthorizedError({
       message: `Usuário não possui sessão ativa.`,
@@ -31,19 +31,19 @@ async function injectPerson(
   }
   return next();
 
-  async function injectAuthenticatedPerson(
+  async function injectAuthenticatedUser(
     request: InjectedRequest,
     response: NextApiResponse
   ) {
     const sessionObject = await session.findOneValidFromRequest(request);
 
-    const personObject = await person.findOneById(sessionObject.personId);
+    const userObject = await user.findOneById(sessionObject.userId);
 
     const sessionRenewed = await session.renew(sessionObject.id, response);
 
     request.context = {
       ...request.context,
-      person: personObject,
+      user: userObject,
       session: sessionRenewed,
     };
   }
@@ -68,17 +68,17 @@ async function comparePasswords(
 }
 
 async function createSessionAndSetCookies(
-  personId: Person["id"],
+  userId: User["id"],
   request: NextApiRequest,
   response: NextApiResponse
 ) {
-  const sessionObject = await session.create(personId, request);
+  const sessionObject = await session.create(userId, request);
   session.setSessionIdCookieInResponse(sessionObject.token, response);
   return sessionObject;
 }
 
 export default Object.freeze({
-  injectPerson,
+  injectUser,
   comparePasswords,
   createSessionAndSetCookies,
 });

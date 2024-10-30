@@ -8,8 +8,8 @@ import activation from "@/models/activation";
 import authentication from "@/models/authentication";
 import authorization from "@/models/authorization";
 import controller from "@/models/controller";
-import person from "@/models/person";
 import supabaseModel from "@/models/supabase";
+import user from "@/models/user";
 import validator from "@/models/validator";
 import InjectedRequest from "@/types/InjectedRequest";
 import parseRequest from "@/utils/parseRequest";
@@ -19,7 +19,7 @@ export default nextConnect({
   onNoMatch: controller.onNoMatchHandler,
   onError: controller.onErrorHandler,
 })
-  .use(authentication.injectPerson)
+  .use(authentication.injectUser)
   .post(authorization.isRequestFromAdmin(), postHandler);
 
 async function postHandler(
@@ -44,18 +44,18 @@ async function postHandler(
     }
   );
 
-  let newPerson = await person.create(body);
+  let newUser = await user.create(body);
 
-  await activation.createAndSendActivationEmail(newPerson);
+  await activation.createAndSendActivationEmail(newUser);
 
   const avatar = files.avatar?.[0] as formidable.File;
 
-  // when creating an person, avatar uploading errors are not critical
+  // when creating an user, avatar uploading errors are not critical
   try {
     if (avatar) {
-      const avatarUrl = await supabaseModel.uploadAvatar(avatar, "people");
+      const avatarUrl = await supabaseModel.uploadAvatar(avatar, "users");
 
-      newPerson = await person.updateById(newPerson.id, {
+      newUser = await user.updateById(newUser.id, {
         avatar: avatarUrl,
       });
     }
@@ -63,7 +63,7 @@ async function postHandler(
     console.error("Error uploading avatar to supabase", error);
   }
 
-  return response.status(201).json({ ...newPerson, password: undefined });
+  return response.status(201).json({ ...newUser, password: undefined });
 }
 
 export const config = {

@@ -3,8 +3,8 @@ import nextConnect from "next-connect";
 
 import authentication from "@/models/authentication";
 import controller from "@/models/controller";
-import person from "@/models/person";
 import recovery from "@/models/recovery";
+import user from "@/models/user";
 import validator from "@/models/validator";
 import InjectedRequest from "@/types/InjectedRequest";
 
@@ -25,11 +25,11 @@ async function getHandler(request: InjectedRequest, response: NextApiResponse) {
 
   const tokenObject = await recovery.findValidUnusedTokenById(tokenId);
 
-  const personObject = await person.findOneById(tokenObject.personId);
+  const userObject = await user.findOneById(tokenObject.userId);
 
   response.status(200).json({
     id: tokenObject.id,
-    personEmail: personObject.email,
+    userEmail: userObject.email,
     expiresAt: tokenObject.expiresAt,
   });
 }
@@ -50,13 +50,13 @@ async function patchHandler(
 
   const tokenObject = await recovery.markTokenAsUsed(tokenId);
 
-  const updatedPerson = await person.updatePersonPasswordById(
-    tokenObject.personId,
+  const updatedUser = await user.updateUserPasswordById(
+    tokenObject.userId,
     password
   );
 
   const sessionObject = await authentication.createSessionAndSetCookies(
-    updatedPerson.id,
+    updatedUser.id,
     request,
     response
   );

@@ -9,8 +9,8 @@ import * as yup from "yup";
 
 import Input from "@/components/Input";
 import { NotFoundError } from "@/errors";
-import person from "@/models/person";
 import recovery from "@/models/recovery";
+import user from "@/models/user";
 import validator from "@/models/validator";
 import { useRecoverPassword } from "@/swr/recovery";
 
@@ -166,12 +166,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     const tokenObject = await recovery.findValidUnusedTokenById(tokenId);
 
-    const personObject = await person.findOneById(tokenObject.personId);
+    const userObject = await user.findOneById(tokenObject.userId);
 
     return {
       props: {
         tokenId,
-        email: personObject.email,
+        email: userObject.email,
       },
     };
   } catch (error) {

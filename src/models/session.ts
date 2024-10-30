@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { Person } from "@prisma/client";
+import { User } from "@prisma/client";
 import cookie from "cookie";
 import crypto from "crypto";
 import { ServerResponse } from "http";
@@ -101,16 +101,16 @@ function setSessionIdCookieInResponse(
   ]);
 }
 
-async function create(personId: Person["id"], request: NextApiRequest) {
+async function create(userId: User["id"], request: NextApiRequest) {
   const sessionToken = crypto.randomBytes(48).toString("hex");
 
   const { browser, cpu, device, os } = UAParser(request.headers["user-agent"]);
 
   const session = await prisma.session.create({
     data: {
-      person: {
+      user: {
         connect: {
-          id: personId,
+          id: userId,
         },
       },
       token: sessionToken,
@@ -171,7 +171,7 @@ async function isSessionValid(sessionToken?: string) {
       },
     },
     select: {
-      person: {
+      user: {
         select: {
           id: true,
           name: true,
@@ -195,10 +195,10 @@ async function isSessionValid(sessionToken?: string) {
   return session;
 }
 
-async function findAllByPersonId(personId: Person["id"]) {
+async function findAllByUserId(userId: User["id"]) {
   const sessions = await prisma.session.findMany({
     where: {
-      personId,
+      userId,
     },
     select: {
       browser: true,
@@ -229,5 +229,5 @@ export default Object.freeze({
   create,
   expireById,
   isSessionValid,
-  findAllByPersonId,
+  findAllByUserId,
 });

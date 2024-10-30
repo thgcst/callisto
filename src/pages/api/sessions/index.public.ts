@@ -1,14 +1,14 @@
 import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
-import { Person } from "@prisma/client";
+import { User } from "@prisma/client";
 
 import { ForbiddenError, UnauthorizedError } from "@/errors";
 import activation from "@/models/activation";
 import authentication from "@/models/authentication";
 import controller from "@/models/controller";
-import person from "@/models/person";
 import session from "@/models/session";
+import user from "@/models/user";
 import InjectedRequest from "@/types/InjectedRequest";
 
 export default nextConnect({
@@ -17,7 +17,7 @@ export default nextConnect({
   onError: controller.onErrorHandler,
 })
   .post(postHandler)
-  .use(authentication.injectPerson)
+  .use(authentication.injectUser)
   .delete(deleteHandler);
 
 async function deleteHandler(
@@ -47,10 +47,10 @@ async function postHandler(
     password: request.body.password,
   };
 
-  let storedPerson: Person;
+  let storedUser: User;
 
   try {
-    storedPerson = await person.findOneByEmail(inputValues.email);
+    storedUser = await user.findOneByEmail(inputValues.email);
   } catch (error) {
     throw new UnauthorizedError({
       message: `Dados não conferem.`,
@@ -58,8 +58,8 @@ async function postHandler(
     });
   }
 
-  if (!storedPerson.password) {
-    await activation.createAndSendActivationEmail(storedPerson);
+  if (!storedUser.password) {
+    await activation.createAndSendActivationEmail(storedUser);
     throw new ForbiddenError({
       message: `Usuário não foi ativado. Enviamos um novo e-mail para ativação e cadastro de senha.`,
       errorLocationCode: `CONTROLLER:SESSIONS:POST_HANDLER:USER_WITHOUT_PASSWORD`,
@@ -69,7 +69,7 @@ async function postHandler(
   try {
     await authentication.comparePasswords(
       inputValues.password,
-      storedPerson.password
+      storedUser.password
     );
   } catch (error) {
     throw new UnauthorizedError({
@@ -79,7 +79,7 @@ async function postHandler(
   }
 
   const sessionObject = await authentication.createSessionAndSetCookies(
-    storedPerson.id,
+    storedUser.id,
     request,
     response
   );

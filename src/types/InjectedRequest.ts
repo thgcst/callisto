@@ -1,10 +1,10 @@
 import { NextApiRequest } from "next";
 
-import { Session, Person } from "@prisma/client";
+import { Session, User } from "@prisma/client";
 
 type InjectedRequest = NextApiRequest & {
   context: {
-    person: Person;
+    user: User;
     session: Session;
   };
 };

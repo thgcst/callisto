@@ -6,14 +6,14 @@ import Link from "next/link";
 import clsx from "clsx";
 
 import authorization from "@/models/authorization";
-import { usePerson, usePeople } from "@/swr/people";
+import { useUser, useUsers } from "@/swr/users";
 import { dayToDDMMYYYY, dayToLocaleString } from "@/utils/dates";
 
 const Page: React.FC = () => {
-  const { person } = usePerson();
-  const { people } = usePeople();
+  const { user } = useUser();
+  const { users } = useUsers();
 
-  const canEdit = person && authorization.roleIsAdmin(person);
+  const canEdit = user && authorization.roleIsAdmin(user);
 
   return (
     <div className="flex flex-col">
@@ -49,7 +49,7 @@ const Page: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {people.length === 0 && (
+                {users.length === 0 && (
                   <tr>
                     <td className="whitespace-nowrap px-6 py-4" colSpan={4}>
                       <div className="text-sm text-gray-500">
@@ -58,7 +58,7 @@ const Page: React.FC = () => {
                     </td>
                   </tr>
                 )}
-                {people.map((u) => (
+                {users.map((u) => (
                   <tr key={u.name}>
                     <td className="whitespace-nowrap px-6 py-4">
                       <div className="flex items-center">
