@@ -2,6 +2,7 @@
   "extends": ["next/core-web-vitals", "next/typescript"],
   "plugins": ["eslint-plugin-import-helpers", "unused-imports"],
   "rules": {
+    "@typescript-eslint/ban-ts-comment": "warn",
     "import-helpers/order-imports": [
       "warn",
       {

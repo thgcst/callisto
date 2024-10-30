@@ -6,15 +6,38 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "services:up": "docker-compose --env-file .env.local  up -d"
+  },
+  "prisma": {
+    "schema": "src/infra/prisma/schema.prisma"
   },
   "dependencies": {
+    "@prisma/client": "^5.21.1",
+    "@tailwindcss/forms": "^0.5.9",
+    "axios": "^1.7.7",
+    "bcryptjs": "^2.4.3",
+    "clsx": "^2.1.1",
+    "cookie": "^0.5.0",
+    "formik": "^2.4.6",
+    "joi": "^17.13.3",
     "next": "15.0.2",
+    "next-connect": "^0.13.0",
+    "nodemailer": "^6.9.16",
+    "nprogress": "^0.2.0",
     "react": "19.0.0-rc-02c0e824-20241028",
-    "react-dom": "19.0.0-rc-02c0e824-20241028"
+    "react-dom": "19.0.0-rc-02c0e824-20241028",
+    "react-toastify": "^10.0.6",
+    "swr": "^2.2.5",
+    "ua-parser-js": "^2.0.0-rc.1",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie": "^0.5.1",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.16",
+    "@types/nprogress": "^0.2.3",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
@@ -22,6 +45,7 @@
     "eslint-plugin-import-helpers": "^2.0.1",
     "eslint-plugin-unused-imports": "^4.1.4",
     "postcss": "^8",
+    "prisma": "^5.21.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

@@ -1,0 +1,232 @@
+import { NextApiRequest, NextApiResponse } from "next";
+
+import { NotFoundError, UnauthorizedError } from "@/errors";
+import { prisma } from "@/infra/prisma";
+import { Person } from "@prisma/client";
+import cookie from "cookie";
+import crypto from "crypto";
+import { ServerResponse } from "http";
+import { UAParser } from "ua-parser-js";
+
+import validator from "./validator";
+
+const tokenRenewalThreshold = 1000 * 60 * 60 * 24 * 7; // 7 days
+
+function clearSessionIdCookie(response: NextApiResponse | ServerResponse) {
+  response.setHeader("Set-Cookie", [
+    cookie.serialize("sessionToken", "invalid", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: -1,
+    }),
+  ]);
+}
+
+async function findOneValidFromRequest(request: NextApiRequest) {
+  validator(request.cookies, {
+    sessionToken: "required",
+  });
+
+  const sessionToken = request.cookies?.sessionToken;
+
+  if (!sessionToken) {
+    throw new UnauthorizedError({
+      message: `Usuário não possui sessão ativa.`,
+      errorLocationCode:
+        "MODEL:SESSION:FIND_ONE_VALID_FROM_REQUEST:TOKEN_NOT_FOUND",
+    });
+  }
+
+  const sessionObject = await findOneValidByToken(sessionToken);
+
+  if (!sessionObject) {
+    throw new UnauthorizedError({
+      message: `Usuário não possui sessão ativa.`,
+      errorLocationCode:
+        "MODEL:SESSION:FIND_ONE_VALID_FROM_REQUEST:SESSION_NOT_FOUND",
+    });
+  }
+
+  return sessionObject;
+}
+
+async function findOneValidByToken(sessionToken: string) {
+  validator(
+    { sessionToken },
+    {
+      sessionToken: "required",
+    }
+  );
+
+  const session = await prisma.session.findFirst({
+    where: {
+      token: sessionToken,
+      expiresAt: {
+        gt: new Date(),
+      },
+    },
+  });
+
+  return session;
+}
+
+async function renew(sessionId: string, response: NextApiResponse) {
+  const sessionObjectRenewed = await prisma.session.update({
+    where: {
+      id: sessionId,
+    },
+    data: {
+      expiresAt: new Date(Date.now() + tokenRenewalThreshold),
+    },
+  });
+
+  setSessionIdCookieInResponse(sessionObjectRenewed.token, response);
+
+  return sessionObjectRenewed;
+}
+
+function setSessionIdCookieInResponse(
+  sessionToken: string,
+  response: NextApiResponse
+) {
+  response.setHeader("Set-Cookie", [
+    cookie.serialize("sessionToken", sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: tokenRenewalThreshold / 1000, // must divide by 1000 because maxAge is in seconds
+    }),
+  ]);
+}
+
+async function create(personId: Person["id"], request: NextApiRequest) {
+  const sessionToken = crypto.randomBytes(48).toString("hex");
+
+  const { browser, cpu, device, os } = UAParser(request.headers["user-agent"]);
+
+  const session = await prisma.session.create({
+    data: {
+      person: {
+        connect: {
+          id: personId,
+        },
+      },
+      token: sessionToken,
+      browser: browser.name,
+      cpu: cpu.architecture,
+      deviceModel: device.model,
+      deviceType: device.type,
+      deviceVendor: device.vendor,
+      osName: os.name,
+      osVersion: os.version,
+      expiresAt: new Date(Date.now() + tokenRenewalThreshold),
+    },
+  });
+
+  return session;
+}
+
+async function expireById(sessionId: string) {
+  let sessionObject = await prisma.session.findUnique({
+    where: {
+      id: sessionId,
+    },
+  });
+
+  if (!sessionObject) {
+    throw new NotFoundError({
+      message: `Sessão não encontrada.`,
+      errorLocationCode: "MODEL:SESSION:EXPIRE_BY_ID:SESSION_NOT_FOUND",
+    });
+  }
+
+  const { createdAt } = sessionObject;
+  const newExpiryDate = createdAt;
+  newExpiryDate.setDate(newExpiryDate.getDate() - 1);
+
+  sessionObject = await prisma.session.update({
+    where: {
+      id: sessionId,
+    },
+    data: {
+      expiresAt: newExpiryDate,
+    },
+  });
+
+  return sessionObject;
+}
+
+async function isSessionValid(sessionToken?: string) {
+  if (!sessionToken) {
+    return false;
+  }
+
+  const session = await prisma.session.findFirst({
+    where: {
+      token: sessionToken,
+      expiresAt: {
+        gt: new Date(),
+      },
+    },
+    select: {
+      person: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
+
+  if (!session) {
+    return false;
+  }
+
+  return session;
+}
+
+async function findAllByPersonId(personId: Person["id"]) {
+  const sessions = await prisma.session.findMany({
+    where: {
+      personId,
+    },
+    select: {
+      browser: true,
+      cpu: true,
+      deviceModel: true,
+      deviceType: true,
+      deviceVendor: true,
+      osName: true,
+      osVersion: true,
+      createdAt: true,
+      updatedAt: true,
+      id: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
+
+  return sessions;
+}
+
+export default Object.freeze({
+  clearSessionIdCookie,
+  findOneValidFromRequest,
+  findOneValidByToken,
+  renew,
+  setSessionIdCookieInResponse,
+  create,
+  expireById,
+  isSessionValid,
+  findAllByPersonId,
+});
