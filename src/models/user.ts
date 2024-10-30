@@ -1,4 +1,5 @@
-import { Role } from "@prisma/client";
+import { Role, User } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 import { NotFoundError } from "@/errors";
 import { prisma } from "@/infra/prisma";
@@ -6,12 +7,38 @@ import { prisma } from "@/infra/prisma";
 import password from "./password";
 import validator from "./validator";
 
-async function findAll() {
+async function findAll(payload: { approved?: boolean }) {
+  const { approved } = payload;
+
+  const whereClause: Prisma.UserWhereInput = {
+    NOT: [],
+    AND: [],
+  };
+
+  if (typeof approved === "boolean") {
+    if (approved) {
+      (whereClause.NOT as Prisma.UserWhereInput[]).push({
+        approvedBy: null,
+      });
+    } else {
+      (whereClause.AND as Prisma.UserWhereInput[]).push({
+        approvedBy: null,
+      });
+    }
+  }
+
   const users = await prisma.user.findMany({
     select: {
       id: true,
       name: true,
       email: true,
+      motherName: true,
+      cpf: true,
+      dateOfBirth: true,
+      phoneNumber: true,
+      address: true,
+      approvedBy: true,
+      approvedAt: true,
       role: true,
       avatar: true,
       password: true,
@@ -23,6 +50,7 @@ async function findAll() {
         },
       },
     },
+    where: whereClause,
   });
 
   return users.map((item) => ({
@@ -70,13 +98,29 @@ async function findOneByEmail(email: string) {
   return user;
 }
 
-async function create(data: { name: string; email: string; role: Role }) {
+async function create(data: {
+  name: string;
+  email: string;
+  password: string;
+  motherName?: string;
+  cpf: string;
+  dateOfBirth: string;
+  phoneNumber?: string;
+  addressId?: string;
+  role: Role;
+}) {
   validator(data, { email: "required", role: "required" });
 
   const user = await prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
+      password: data.password,
+      motherName: data.motherName,
+      cpf: data.cpf,
+      dateOfBirth: data.dateOfBirth,
+      phoneNumber: data.phoneNumber,
+      addressId: data.addressId,
       role: data.role,
     },
   });
@@ -130,6 +174,20 @@ async function updateById(
   return user;
 }
 
+async function approveUser(userApproving: User, userBeingApproved: User) {
+  const user = await prisma.user.update({
+    where: {
+      id: userBeingApproved.id,
+    },
+    data: {
+      approvedById: userApproving.id,
+      approvedAt: new Date(),
+    },
+  });
+
+  return user;
+}
+
 export default Object.freeze({
   findAll,
   findOneById,
@@ -137,4 +195,5 @@ export default Object.freeze({
   create,
   updateUserPasswordById,
   updateById,
+  approveUser,
 });
