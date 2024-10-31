@@ -1,3 +1,4 @@
+import { NotFoundError } from "@/errors";
 import { prisma } from "@/infra/prisma";
 
 async function create(data: {
@@ -24,7 +25,7 @@ async function create(data: {
 
 async function updateById(
   id: string,
-  body: Partial<{
+  data: Partial<{
     cep: string;
     street: string;
     number: string;
@@ -37,10 +38,25 @@ async function updateById(
     where: {
       id,
     },
-    data: {
-      ...body,
+    data,
+  });
+
+  return address;
+}
+
+async function findOneById(addressId: string) {
+  const address = await prisma.address.findUnique({
+    where: {
+      id: addressId,
     },
   });
+
+  if (!address) {
+    throw new NotFoundError({
+      message: `O id "${addressId}" não foi encontrado no sistema.`,
+      errorLocationCode: "MODEL:ADDRESS:FIND_ONE_BY_ID:ADDRESS_NOT_FOUND",
+    });
+  }
 
   return address;
 }
@@ -48,4 +64,5 @@ async function updateById(
 export default Object.freeze({
   create,
   updateById,
+  findOneById,
 });
