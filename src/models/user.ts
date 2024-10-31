@@ -9,7 +9,7 @@ import webserver from "@/infra/webserver";
 import password from "./password";
 import validator from "./validator";
 
-async function findAll(payload: { approved?: boolean }) {
+async function findAll(payload: { approved?: boolean } = {}) {
   const { approved } = payload;
 
   const whereClause: Prisma.UserWhereInput = {
