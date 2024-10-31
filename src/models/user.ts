@@ -156,24 +156,26 @@ async function updateUserPasswordById(userId: string, newPassword: string) {
 
 async function updateById(
   id: string,
-  body: {
-    name?: string;
-    email?: string;
-    role?: Role;
-    avatar?: string;
-  }
+  data: Partial<{
+    name: string;
+    motherName: string;
+    cpf: string;
+    birthday: string;
+    phoneNumber: string;
+    role: Role;
+  }>
 ) {
-  validator({ id }, { id: "required" });
-
   const user = await prisma.user.update({
     where: {
       id,
     },
     data: {
-      name: body.name,
-      email: body.email,
-      role: body.role,
-      avatar: body.avatar,
+      name: data.name,
+      motherName: data.motherName,
+      cpf: data.cpf,
+      birthday: data.birthday,
+      phoneNumber: data.phoneNumber,
+      role: data.role,
     },
   });
 

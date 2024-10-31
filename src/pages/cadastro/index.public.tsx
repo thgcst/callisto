@@ -16,36 +16,7 @@ import Select from "@/components/Select";
 import session from "@/models/session";
 import { useCreateAddress } from "@/swr/address";
 import useCreateUser from "@/swr/users/useCreateUser";
-
-const brazilStates = [
-  { value: "AC", label: "Acre" },
-  { value: "AL", label: "Alagoas" },
-  { value: "AP", label: "Amapá" },
-  { value: "AM", label: "Amazonas" },
-  { value: "BA", label: "Bahia" },
-  { value: "CE", label: "Ceará" },
-  { value: "DF", label: "Distrito Federal" },
-  { value: "ES", label: "Espírito Santo" },
-  { value: "GO", label: "Goiás" },
-  { value: "MA", label: "Maranhão" },
-  { value: "MT", label: "Mato Grosso" },
-  { value: "MS", label: "Mato Grosso do Sul" },
-  { value: "MG", label: "Minas Gerais" },
-  { value: "PA", label: "Pará" },
-  { value: "PB", label: "Paraíba" },
-  { value: "PR", label: "Paraná" },
-  { value: "PE", label: "Pernambuco" },
-  { value: "PI", label: "Piauí" },
-  { value: "RR", label: "Roraima" },
-  { value: "RO", label: "Rondônia" },
-  { value: "RJ", label: "Rio de Janeiro" },
-  { value: "RN", label: "Rio Grande do Norte" },
-  { value: "RS", label: "Rio Grande do Sul" },
-  { value: "SC", label: "Santa Catarina" },
-  { value: "SP", label: "São Paulo" },
-  { value: "SE", label: "Sergipe" },
-  { value: "TO", label: "Tocantins" },
-];
+import { brazilStates } from "@/utils/brazilStates";
 
 const schema = z
   .object({
@@ -205,7 +176,7 @@ export default function Register() {
               Informações pessoais
             </p>
             <div className="grid grid-cols-6 gap-4">
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="Nome"
                   {...register("name")}
@@ -214,7 +185,7 @@ export default function Register() {
                 />
               </div>
 
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="E-mail"
                   type="email"
@@ -224,7 +195,7 @@ export default function Register() {
                 />
               </div>
 
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="Nome da mãe"
                   {...register("motherName")}
@@ -232,7 +203,7 @@ export default function Register() {
                   touched={touchedFields.motherName}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="CPF"
                   {...registerWithMask("cpf", "cpf")}
@@ -240,7 +211,7 @@ export default function Register() {
                   touched={touchedFields.cpf}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="Data de nascimento"
                   type="date"
@@ -249,10 +220,9 @@ export default function Register() {
                   touched={touchedFields.birthday}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="Celular"
-                  {...register("phoneNumber")}
                   {...registerWithMask("phoneNumber", [
                     "(99) 9999-9999",
                     "(99) 99999-9999",
@@ -261,7 +231,7 @@ export default function Register() {
                   touched={touchedFields.phoneNumber}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="Senha"
                   type="password"
@@ -270,7 +240,7 @@ export default function Register() {
                   touched={touchedFields.password}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="Confirmar senha"
                   type="password"
@@ -283,12 +253,12 @@ export default function Register() {
             <hr />
             <p className="m-0 text-xl font-bold text-gray-900">Endereço</p>
             <div className="grid grid-cols-6 gap-4">
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="CEP"
                   {...registerWithMask("cep", "99999-999")}
                   onChange={(e) => {
-                    register("cep").onChange(e);
+                    registerWithMask("cep", "99999-999").onChange(e);
                     const onlyNumbers = e.target.value.replace(/\D/g, "");
                     if (onlyNumbers.length === 8) {
                       fetchAddressFromCep(onlyNumbers);
@@ -308,7 +278,7 @@ export default function Register() {
                 />
               </div>
 
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="Número"
                   {...register("number")}
@@ -316,7 +286,7 @@ export default function Register() {
                   touched={touchedFields.number}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="Complemento"
                   {...register("complement")}
@@ -324,7 +294,7 @@ export default function Register() {
                   touched={touchedFields.complement}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="Cidade"
                   {...register("city")}
@@ -332,7 +302,7 @@ export default function Register() {
                   touched={touchedFields.city}
                 />
               </div>
-              <div className="col-span-3">
+              <div className="col-span-6 sm:col-span-3">
                 <Select
                   label="Estado"
                   {...register("state")}

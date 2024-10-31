@@ -2,15 +2,13 @@ import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
 import { Role } from "@prisma/client";
-import formidable from "formidable";
 
 import authentication from "@/models/authentication";
+import authorization from "@/models/authorization";
 import controller from "@/models/controller";
-import supabaseModel from "@/models/supabase";
 import user from "@/models/user";
 import validator from "@/models/validator";
 import InjectedRequest from "@/types/InjectedRequest";
-import parseRequest from "@/utils/parseRequest";
 
 export default nextConnect({
   attachParams: true,
@@ -18,49 +16,34 @@ export default nextConnect({
   onError: controller.onErrorHandler,
 })
   .use(authentication.injectUser)
+  .use(authorization.isRequestFromAdmin)
   .patch(patchHandler);
 
 async function patchHandler(
   request: InjectedRequest,
   response: NextApiResponse
 ) {
-  const { files, fields } = await parseRequest(request);
-
   const { id } = validator(request.query, {
     id: "required",
   });
 
-  const body: {
-    name?: string;
-    role?: Role;
-    avatar?: string;
-  } = validator(
-    {
-      ...fields,
-    },
-    {
-      name: "optional",
-      role: "optional",
-    }
-  );
+  const body: Partial<{
+    name: string;
+    motherName: string;
+    cpf: string;
+    birthday: string;
+    phoneNumber: string;
+    role: Role;
+  }> = validator(request.body, {
+    name: "optional",
+    motherName: "optional",
+    cpf: "optional",
+    birthday: "optional",
+    phoneNumber: "optional",
+    role: "optional",
+  });
 
-  let updatedUser = await user.updateById(id, body);
-
-  const avatar = files.avatar?.[0] as formidable.File;
-
-  if (avatar) {
-    const avatarUrl = await supabaseModel.uploadAvatar(avatar, "users");
-
-    updatedUser = await user.updateById(updatedUser.id, {
-      avatar: avatarUrl,
-    });
-  }
+  const updatedUser = await user.updateById(id, body);
 
   return response.status(201).json({ ...updatedUser, password: undefined });
 }
-
-export const config = {
-  api: {
-    bodyParser: false, // Disallow body parsing, consume as stream
-  },
-};
