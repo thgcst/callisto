@@ -24,7 +24,7 @@ const Select: React.ForwardRefRenderFunction<HTMLSelectElement, SelectProps> = (
       </label>
       <select
         className={clsx(
-          "mt-1 block w-full cursor-pointer rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:cursor-default disabled:bg-slate-100 disabled:bg-none disabled:text-slate-500 disabled:opacity-100 sm:text-sm",
+          "mt-1 block w-full cursor-pointer rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:cursor-default disabled:bg-slate-100 disabled:bg-none disabled:text-slate-500 disabled:opacity-100 sm:text-sm",
           hasError && "border-red-600 bg-red-50"
         )}
         ref={ref}
@@ -34,7 +34,7 @@ const Select: React.ForwardRefRenderFunction<HTMLSelectElement, SelectProps> = (
       </select>
       {hasError && (
         <p
-          className="absolute left-2 -bottom-6 text-sm text-red-600"
+          className="absolute -bottom-6 left-2 text-sm text-red-600"
           id="email-error"
         >
           {error}

@@ -6,7 +6,7 @@ export default function Document() {
       <Head>
         <meta name="theme-color" content={"rgb(31, 41, 55)"} />
       </Head>
-      <body className="antialiased h-full">
+      <body className="h-full antialiased">
         <Main />
         <NextScript />
       </body>

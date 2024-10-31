@@ -58,7 +58,7 @@ const ActivatePassword: React.FC<ActivatePasswordProps> = ({
 
   return (
     <>
-      <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex min-h-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div>
             <div className="relative mx-auto h-12 w-auto">
@@ -82,9 +82,9 @@ const ActivatePassword: React.FC<ActivatePasswordProps> = ({
           {error ? (
             <div className="mt-8 flex flex-col gap-2 bg-white px-4 py-5 shadow sm:rounded-md sm:p-6">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-red-100">
                   <ExclamationTriangleIcon
-                    className="h-6 w-6 text-red-600"
+                    className="size-6 text-red-600"
                     aria-hidden="true"
                   />
                 </div>
@@ -131,7 +131,7 @@ const ActivatePassword: React.FC<ActivatePasswordProps> = ({
 
               <button
                 type="submit"
-                className="group relative mt-4 flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                className="group relative mt-4 flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               >
                 {loading ? "Carregando..." : "Definir senha"}
               </button>

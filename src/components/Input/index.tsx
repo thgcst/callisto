@@ -34,7 +34,7 @@ const Input: React.ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
       />
       {hasError && (
         <p
-          className="absolute left-2 -bottom-6 text-sm text-red-600"
+          className="absolute -bottom-6 left-2 text-sm text-red-600"
           id="email-error"
         >
           {error}
