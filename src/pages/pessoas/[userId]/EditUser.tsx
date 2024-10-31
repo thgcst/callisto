@@ -167,7 +167,9 @@ const EditUser: React.FC<EditUserProps> = ({ user, address }) => {
             <h3 className="text-lg font-medium leading-6 text-gray-900">
               Informações pessoais
             </h3>
-            <p className="mt-1 text-sm text-gray-600">Mensagem temporária</p>
+            <p className="mt-1 text-sm text-gray-600">
+              Atenção ao alterar informações sensíveis.
+            </p>
           </div>
         </div>
         <div className="mt-5 md:col-span-2 md:mt-0">

@@ -4,33 +4,20 @@ import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 
 import { parse } from "cookie";
 
-import Layout from "@/components/Layout";
 import address from "@/models/address";
 import authorization from "@/models/authorization";
 import session from "@/models/session";
 import user from "@/models/user";
 
-import EditUser from "./EditUser";
+import UserInfo from "../pessoas/[userId]/index.public";
 
-const UserInfo: React.FC<
+const MyAccount: React.FC<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ user, address }) => {
-  return (
-    <Layout label={user.name}>
-      <EditUser user={user} address={address} />
-
-      <div className="hidden sm:block" aria-hidden="true">
-        <div className="py-5">
-          <div className="border-t border-gray-200" />
-        </div>
-      </div>
-
-      {/* <Companies user={user} /> */}
-    </Layout>
-  );
+  return <UserInfo user={user} address={address} />;
 };
 
-export default UserInfo;
+export default MyAccount;
 
 export const getServerSideProps = (async (ctx) => {
   const { sessionToken } = parse(ctx.req.headers.cookie || "");
@@ -52,8 +39,6 @@ export const getServerSideProps = (async (ctx) => {
     };
   }
 
-  const userId = ctx.params?.userId as string;
-
   try {
     const {
       name,
@@ -71,7 +56,7 @@ export const getServerSideProps = (async (ctx) => {
       phoneNumber,
       role,
       updatedAt,
-    } = await user.findOneById(userId);
+    } = await user.findOneById(sessionValid.user.id);
 
     const addressObject = await address.findOneById(addressId);
 
