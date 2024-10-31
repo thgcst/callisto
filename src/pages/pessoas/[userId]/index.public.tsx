@@ -25,7 +25,7 @@ const StudentInfo: React.FC<
         </div>
       </div>
 
-      {/* <Attendances student={student} /> */}
+      {/* <Companies user={user} /> */}
     </Layout>
   );
 };
