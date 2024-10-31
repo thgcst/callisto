@@ -17,7 +17,7 @@ import { useRecoverPassword } from "@/swr/recovery";
 const validationSchema = yup.object().shape({
   password: yup
     .string()
-    .min(6, "Mínimo de 6 dígitos")
+    .min(8, "Mínimo de 8 dígitos")
     .required("Campo obrigatório"),
   confirmPassword: yup
     .string()

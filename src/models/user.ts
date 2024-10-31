@@ -2,7 +2,9 @@ import { Role, User } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 
 import { NotFoundError } from "@/errors";
+import email from "@/infra/email";
 import { prisma } from "@/infra/prisma";
+import webserver from "@/infra/webserver";
 
 import password from "./password";
 import validator from "./validator";
@@ -34,7 +36,7 @@ async function findAll(payload: { approved?: boolean }) {
       email: true,
       motherName: true,
       cpf: true,
-      dateOfBirth: true,
+      birthday: true,
       phoneNumber: true,
       address: true,
       approvedBy: true,
@@ -104,12 +106,20 @@ async function create(data: {
   password: string;
   motherName?: string;
   cpf: string;
-  dateOfBirth: string;
+  birthday: string;
   phoneNumber?: string;
-  addressId?: string;
-  role: Role;
+  addressId: string;
 }) {
-  validator(data, { email: "required", role: "required" });
+  validator(data, {
+    name: "required",
+    email: "required",
+    password: "required",
+    motherName: "optional",
+    cpf: "required",
+    birthday: "required",
+    phoneNumber: "optional",
+    addressId: "required",
+  });
 
   const user = await prisma.user.create({
     data: {
@@ -118,10 +128,9 @@ async function create(data: {
       password: data.password,
       motherName: data.motherName,
       cpf: data.cpf,
-      dateOfBirth: data.dateOfBirth,
+      birthday: data.birthday,
       phoneNumber: data.phoneNumber,
       addressId: data.addressId,
-      role: data.role,
     },
   });
 
@@ -174,7 +183,8 @@ async function updateById(
   return user;
 }
 
-async function approveUser(userApproving: User, userBeingApproved: User) {
+async function approve(userApproving: User, userBeingApproved: User) {
+  const webserverHost = webserver.getHost();
   const user = await prisma.user.update({
     where: {
       id: userBeingApproved.id,
@@ -184,6 +194,25 @@ async function approveUser(userApproving: User, userBeingApproved: User) {
       approvedAt: new Date(),
     },
   });
+
+  try {
+    await email.send({
+      from: {
+        name: "Callisto",
+        address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
+      },
+      to: user.email,
+      subject: "Conta aprovada no Callisto!",
+      text: `Clique no link abaixo para acessar sua conta:
+      
+      ${webserverHost}
+      
+      Atenciosamente,
+      Equipe de TI do Callisto`,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 
   return user;
 }
@@ -195,5 +224,5 @@ export default Object.freeze({
   create,
   updateUserPasswordById,
   updateById,
-  approveUser,
+  approve,
 });

@@ -25,10 +25,10 @@ model User {
   password    String
   motherName  String?
   cpf         String   @unique
-  dateOfBirth DateTime @db.Date
+  birthday    DateTime @db.Date
   phoneNumber String?
-  address     Address? @relation(fields: [addressId], references: [id])
-  addressId   String?
+  address     Address  @relation(fields: [addressId], references: [id])
+  addressId   String
 
   approvedById  String?
   approvedBy    User?     @relation("approvedBy", fields: [approvedById], references: [id])
@@ -101,7 +101,6 @@ model Address {
   complement String?
   city       String
   state      String
-  country    String
 
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz

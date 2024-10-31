@@ -75,8 +75,8 @@ async function sendEmailToUser(
         address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
       },
       to: userEmail,
-      subject: "Altere sua senha no Puck",
-      text: `Clique no link abaixo para alterar sua senha no Puck:
+      subject: "Altere sua senha no Callisto",
+      text: `Clique no link abaixo para alterar sua senha no Callisto:
       
       ${recoverPageEndpoint}
       
