@@ -1,17 +1,46 @@
-import { Role } from "@prisma/client";
+import { Role, User } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 import { NotFoundError } from "@/errors";
+import email from "@/infra/email";
 import { prisma } from "@/infra/prisma";
+import webserver from "@/infra/webserver";
 
 import password from "./password";
 import validator from "./validator";
 
-async function findAll() {
+async function findAll(payload: { approved?: boolean } = {}) {
+  const { approved } = payload;
+
+  const whereClause: Prisma.UserWhereInput = {
+    NOT: [],
+    AND: [],
+  };
+
+  if (typeof approved === "boolean") {
+    if (approved) {
+      (whereClause.NOT as Prisma.UserWhereInput[]).push({
+        approvedBy: null,
+      });
+    } else {
+      (whereClause.AND as Prisma.UserWhereInput[]).push({
+        approvedBy: null,
+      });
+    }
+  }
+
   const users = await prisma.user.findMany({
     select: {
       id: true,
       name: true,
       email: true,
+      motherName: true,
+      cpf: true,
+      birthday: true,
+      phoneNumber: true,
+      address: true,
+      approvedBy: true,
+      approvedAt: true,
       role: true,
       avatar: true,
       password: true,
@@ -23,6 +52,7 @@ async function findAll() {
         },
       },
     },
+    where: whereClause,
   });
 
   return users.map((item) => ({
@@ -70,14 +100,37 @@ async function findOneByEmail(email: string) {
   return user;
 }
 
-async function create(data: { name: string; email: string; role: Role }) {
-  validator(data, { email: "required", role: "required" });
+async function create(data: {
+  name: string;
+  email: string;
+  password: string;
+  motherName?: string;
+  cpf: string;
+  birthday: string;
+  phoneNumber?: string;
+  addressId: string;
+}) {
+  validator(data, {
+    name: "required",
+    email: "required",
+    password: "required",
+    motherName: "optional",
+    cpf: "required",
+    birthday: "required",
+    phoneNumber: "optional",
+    addressId: "required",
+  });
 
   const user = await prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
-      role: data.role,
+      password: data.password,
+      motherName: data.motherName,
+      cpf: data.cpf,
+      birthday: data.birthday,
+      phoneNumber: data.phoneNumber,
+      addressId: data.addressId,
     },
   });
 
@@ -130,6 +183,40 @@ async function updateById(
   return user;
 }
 
+async function approve(userApproving: User, userBeingApproved: User) {
+  const webserverHost = webserver.getHost();
+  const user = await prisma.user.update({
+    where: {
+      id: userBeingApproved.id,
+    },
+    data: {
+      approvedById: userApproving.id,
+      approvedAt: new Date(),
+    },
+  });
+
+  try {
+    await email.send({
+      from: {
+        name: "Callisto",
+        address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
+      },
+      to: user.email,
+      subject: "Conta aprovada no Callisto!",
+      text: `Clique no link abaixo para acessar sua conta:
+      
+      ${webserverHost}
+      
+      Atenciosamente,
+      Equipe de TI do Callisto`,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
+  return user;
+}
+
 export default Object.freeze({
   findAll,
   findOneById,
@@ -137,4 +224,5 @@ export default Object.freeze({
   create,
   updateUserPasswordById,
   updateById,
+  approve,
 });

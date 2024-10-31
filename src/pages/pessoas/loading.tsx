@@ -38,8 +38,8 @@ const Loading: React.FC = () => {
                     <tr key={item} className="animate-pulse">
                       <td className="whitespace-nowrap px-6 py-4">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0">
-                            <div className="relative h-10 w-10 rounded-full bg-gray-200"></div>
+                          <div className="size-10 shrink-0">
+                            <div className="relative size-10 rounded-full bg-gray-200"></div>
                           </div>
                           <div className="ml-4 flex flex-1 flex-col gap-1">
                             <div className="h-5 w-44 rounded-md bg-gray-200" />

@@ -72,9 +72,9 @@ const Layout: React.FC<LayoutProps> = ({
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                   <div className="flex items-center">
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       <Link href="/" passHref>
-                        <div className="relative h-8 w-8 cursor-pointer">
+                        <div className="relative size-8 cursor-pointer">
                           <Image
                             src="/globe.svg"
                             alt="Logo"
@@ -119,7 +119,7 @@ const Layout: React.FC<LayoutProps> = ({
                           className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                         >
                           <span className="sr-only">View notifications</span>
-                          <BellIcon className="h-6 w-6" aria-hidden="true" />
+                          <BellIcon className="size-6" aria-hidden="true" />
                         </button>
                       )}
 
@@ -128,9 +128,9 @@ const Layout: React.FC<LayoutProps> = ({
                         <div>
                           <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                             <span className="sr-only">Open user menu</span>
-                            <div className="relative h-8 w-8">
+                            <div className="relative size-8">
                               <Image
-                                className="h-8 w-8 rounded-full object-cover"
+                                className="size-8 rounded-full object-cover"
                                 src={
                                   user?.avatar ||
                                   "https://i.ibb.co/k0tSSCy/user.png"
@@ -178,12 +178,12 @@ const Layout: React.FC<LayoutProps> = ({
                       <span className="sr-only">Open main menu</span>
                       {open ? (
                         <XMarkIcon
-                          className="block h-6 w-6"
+                          className="block size-6"
                           aria-hidden="true"
                         />
                       ) : (
                         <Bars3Icon
-                          className="block h-6 w-6"
+                          className="block size-6"
                           aria-hidden="true"
                         />
                       )}
@@ -193,7 +193,7 @@ const Layout: React.FC<LayoutProps> = ({
               </div>
 
               <Disclosure.Panel className="md:hidden">
-                <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
+                <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
                   {navigation.map((item) => (
                     <Link href={item.href} key={item.name} passHref>
                       <Disclosure.Button
@@ -213,12 +213,12 @@ const Layout: React.FC<LayoutProps> = ({
                     </Link>
                   ))}
                 </div>
-                <div className="border-t border-gray-700 pt-4 pb-3">
+                <div className="border-t border-gray-700 pb-3 pt-4">
                   <div className="flex items-center px-5">
-                    <div className="flex-shrink-0">
-                      <div className="relative h-10 w-10">
+                    <div className="shrink-0">
+                      <div className="relative size-10">
                         <Image
-                          className="h-10 w-10 rounded-full object-cover"
+                          className="size-10 rounded-full object-cover"
                           src={
                             user?.avatar || "https://i.ibb.co/k0tSSCy/user.png"
                           }
@@ -239,10 +239,10 @@ const Layout: React.FC<LayoutProps> = ({
                     {showNotificationsMenu && (
                       <button
                         type="button"
-                        className="ml-auto flex-shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                        className="ml-auto shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                       >
                         <span className="sr-only">View notifications</span>
-                        <BellIcon className="h-6 w-6" aria-hidden="true" />
+                        <BellIcon className="size-6" aria-hidden="true" />
                       </button>
                     )}
                   </div>
@@ -265,7 +265,7 @@ const Layout: React.FC<LayoutProps> = ({
         </Disclosure>
         {label && (
           <header className="bg-white shadow">
-            <div className="mx-auto flex max-w-7xl flex-row flex-wrap items-center justify-between gap-3 gap-y-4 py-6 px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex max-w-7xl flex-row flex-wrap items-center justify-between gap-3 gap-y-4 px-4 py-6 sm:px-6 lg:px-8">
               <h1 className="truncate text-3xl font-bold text-gray-900">
                 {label}
               </h1>
@@ -293,7 +293,7 @@ const Layout: React.FC<LayoutProps> = ({
               alt="Logo"
               width={24}
               height={24}
-              className="order-3 mt-2 filter lg:order-2 lg:mx-auto lg:mt-0"
+              className="order-3 mt-2 lg:order-2 lg:mx-auto lg:mt-0"
             />
           </div>
         </footer>

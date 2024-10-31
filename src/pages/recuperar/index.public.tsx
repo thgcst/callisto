@@ -37,7 +37,7 @@ function PasswordRecovery() {
       <Head>
         <meta name="theme-color" content="rgb(243, 244, 246)" />
       </Head>
-      <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex min-h-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div>
             <div className="relative mx-auto h-12 w-auto">
@@ -70,7 +70,7 @@ function PasswordRecovery() {
 
             <button
               type="submit"
-              className="group relative mt-4 flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="group relative mt-4 flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               {loading ? "Carregando..." : "Enviar"}
             </button>

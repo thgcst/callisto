@@ -62,13 +62,13 @@ const Page: React.FC = () => {
                   <tr key={u.name}>
                     <td className="whitespace-nowrap px-6 py-4">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0">
+                        <div className="size-10 shrink-0">
                           <Image
                             unoptimized={
                               process.env.ENVIRONMENT !== "PRODUCTION"
                             }
                             src={u.avatar}
-                            className="h-10 w-10 rounded-full object-cover"
+                            className="size-10 rounded-full object-cover"
                             alt={u.name}
                             width={40}
                             height={40}

@@ -1,8 +1,8 @@
 import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
+import address from "@/models/address";
 import controller from "@/models/controller";
-import user from "@/models/user";
 import validator from "@/models/validator";
 import InjectedRequest from "@/types/InjectedRequest";
 
@@ -17,26 +17,22 @@ async function postHandler(
   response: NextApiResponse
 ) {
   const body: {
-    name: string;
-    email: string;
-    password: string;
-    motherName?: string;
-    cpf: string;
-    birthday: string;
-    phoneNumber?: string;
-    addressId: string;
+    cep: string;
+    street: string;
+    number: string;
+    complement?: string;
+    city: string;
+    state: string;
   } = validator(request.body, {
-    name: "required",
-    email: "required",
-    password: "required",
-    motherName: "optional",
-    cpf: "required",
-    birthday: "required",
-    phoneNumber: "optional",
-    addressId: "required",
+    cep: "required",
+    street: "required",
+    number: "required",
+    complement: "optional",
+    city: "required",
+    state: "required",
   });
 
-  const newUser = await user.create(body);
+  const newAddress = await address.create(body);
 
-  return response.status(201).json({ ...newUser, password: undefined });
+  return response.status(201).json(newAddress);
 }

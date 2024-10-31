@@ -35,7 +35,7 @@ export default function Login() {
       <Head>
         <meta name="theme-color" content="rgb(243, 244, 246)" />
       </Head>
-      <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex min-h-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div>
             <div className="relative mx-auto h-12 w-auto">
@@ -49,9 +49,6 @@ export default function Login() {
             <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
               Entre na sua conta
             </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              ou solicite um usuário
-            </p>
           </div>
           <form
             className="mt-8 flex flex-col gap-6 bg-white px-4 py-5 shadow sm:rounded-md sm:p-6"
@@ -91,10 +88,16 @@ export default function Login() {
 
             <button
               type="submit"
-              className="group relative mt-4 flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               {loading ? "Carregando..." : "Entrar"}
             </button>
+            <Link
+              href="/cadastro"
+              className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            >
+              Criar conta
+            </Link>
           </form>
         </div>
       </div>

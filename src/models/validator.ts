@@ -346,4 +346,224 @@ const schemas = {
         }),
     });
   },
+
+  motherName: function () {
+    return Joi.object({
+      motherName: Joi.string()
+        .min(5)
+        .max(50)
+        .trim()
+        .invalid(null)
+        .when("$required.motherName", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"motherName" é um campo obrigatório.`,
+          "string.empty": `"motherName" não pode estar em branco.`,
+          "string.base": `"motherName" deve ser do tipo String.`,
+          "string.min": `"motherName" deve conter no mínimo {#limit} caracteres.`,
+          "string.max": `"motherName" deve conter no máximo {#limit} caracteres.`,
+          "any.invalid": `"motherName" possui o valor inválido "null".`,
+        }),
+    });
+  },
+
+  cpf: function () {
+    return Joi.object({
+      cpf: Joi.string()
+        .replace(/\D/g, "")
+        .trim()
+        .length(11)
+        .invalid(null)
+        .when("$required.cpf", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"cpf" é um campo obrigatório.`,
+          "string.empty": `"cpf" não pode estar em branco.`,
+          "string.base": `"cpf" deve ser do tipo String.`,
+          "string.length": `"cpf" deve conter {#limit} caracteres.`,
+          "any.invalid": `"cpf" possui o valor inválido "null".`,
+        }),
+    });
+  },
+
+  phoneNumber: function () {
+    return Joi.object({
+      phoneNumber: Joi.string()
+        .replace(/\D/g, "")
+        .trim()
+        .invalid(null)
+        .when("$required.phoneNumber", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"phoneNumber" é um campo obrigatório.`,
+          "string.empty": `"phoneNumber" não pode estar em branco.`,
+          "string.base": `"phoneNumber" deve ser do tipo String.`,
+          "any.invalid": `"phoneNumber" possui o valor inválido "null".`,
+        }),
+    });
+  },
+
+  addressId: function () {
+    return Joi.object({
+      addressId: Joi.string()
+        .trim()
+        .guid({ version: "uuidv4" })
+        .allow(null)
+        .when("$required.addressId", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"addressId" é um campo obrigatório.`,
+          "string.empty": `"addressId" não pode estar em branco.`,
+          "string.base": `"addressId" deve ser do tipo String.`,
+          "string.guid": `"addressId" deve possuir um token UUID na versão 4.`,
+        }),
+    });
+  },
+
+  cep: function () {
+    return Joi.object({
+      cep: Joi.string()
+        .replace(/\D/g, "")
+        .trim()
+        .length(8)
+        .invalid(null)
+        .when("$required.cep", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"cep" é um campo obrigatório.`,
+          "string.empty": `"cep" não pode estar em branco.`,
+          "string.base": `"cep" deve ser do tipo String.`,
+          "string.length": `"cep" deve conter {#limit} caracteres.`,
+          "any.invalid": `"cep" possui o valor inválido "null".`,
+        }),
+    });
+  },
+
+  street: function () {
+    return Joi.object({
+      street: Joi.string()
+        .min(5)
+        .max(100)
+        .trim()
+        .invalid(null)
+        .when("$required.street", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"street" é um campo obrigatório.`,
+          "string.empty": `"street" não pode estar em branco.`,
+          "string.base": `"street" deve ser do tipo String.`,
+          "string.min": `"street" deve conter no mínimo {#limit} caracteres.`,
+          "string.max": `"street" deve conter no máximo {#limit} caracteres.`,
+          "any.invalid": `"street" possui o valor inválido "null".`,
+        }),
+    });
+  },
+
+  number: function () {
+    return Joi.object({
+      number: Joi.string()
+        .min(1)
+        .max(12)
+        .trim()
+        .invalid(null)
+        .when("$required.number", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"number" é um campo obrigatório.`,
+          "string.empty": `"number" não pode estar em branco.`,
+          "string.base": `"number" deve ser do tipo String.`,
+          "string.min": `"number" deve conter no mínimo {#limit} caracteres.`,
+          "string.max": `"number" deve conter no máximo {#limit} caracteres.`,
+          "any.invalid": `"number" possui o valor inválido "null".`,
+        }),
+    });
+  },
+
+  complement: function () {
+    return Joi.object({
+      complement: Joi.string()
+        .min(1)
+        .max(50)
+        .trim()
+        .invalid(null)
+        .when("$required.complement", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"complement" é um campo obrigatório.`,
+          "string.empty": `"complement" não pode estar em branco.`,
+          "string.base": `"complement" deve ser do tipo String.`,
+          "string.min": `"complement" deve conter no mínimo {#limit} caracteres.`,
+          "string.max": `"complement" deve conter no máximo {#limit} caracteres.`,
+          "any.invalid": `"complement" possui o valor inválido "null".`,
+        }),
+    });
+  },
+
+  city: function () {
+    return Joi.object({
+      city: Joi.string()
+        .min(5)
+        .max(50)
+        .trim()
+        .invalid(null)
+        .when("$required.city", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"city" é um campo obrigatório.`,
+          "string.empty": `"city" não pode estar em branco.`,
+          "string.base": `"city" deve ser do tipo String.`,
+          "string.min": `"city" deve conter no mínimo {#limit} caracteres.`,
+          "string.max": `"city" deve conter no máximo {#limit} caracteres.`,
+          "any.invalid": `"city" possui o valor inválido "null".`,
+        }),
+    });
+  },
+
+  state: function () {
+    return Joi.object({
+      state: Joi.string()
+        .length(2)
+        .trim()
+        .invalid(null)
+        .when("$required.state", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"state" é um campo obrigatório.`,
+          "string.empty": `"state" não pode estar em branco.`,
+          "string.base": `"state" deve ser do tipo String.`,
+          "string.length": `"state" deve conter {#limit} caracteres.`,
+          "any.invalid": `"state" possui o valor inválido "null".`,
+        }),
+    });
+  },
 };
