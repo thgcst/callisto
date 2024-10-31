@@ -1,7 +1,7 @@
-import { Role, User } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import { Prisma, Role } from "@prisma/client";
+import { format } from "date-fns";
 
-import { NotFoundError } from "@/errors";
+import { ConflictError, NotFoundError } from "@/errors";
 import email from "@/infra/email";
 import { prisma } from "@/infra/prisma";
 import webserver from "@/infra/webserver";
@@ -39,11 +39,14 @@ async function findAll(payload: { approved?: boolean } = {}) {
       birthday: true,
       phoneNumber: true,
       address: true,
-      approvedBy: true,
+      approvedBy: {
+        select: {
+          name: true,
+        },
+      },
       approvedAt: true,
       role: true,
       avatar: true,
-      password: true,
       createdAt: true,
       updatedAt: true,
       _count: {
@@ -55,17 +58,20 @@ async function findAll(payload: { approved?: boolean } = {}) {
     where: whereClause,
   });
 
-  return users.map((item) => ({
-    ...item,
-    password: undefined,
-    activated: Boolean(item.password),
-  }));
+  return users;
 }
 
 async function findOneById(userId: string) {
   validator({ id: userId }, { id: "required" });
 
   const user = await prisma.user.findFirst({
+    include: {
+      approvedBy: {
+        select: {
+          name: true,
+        },
+      },
+    },
     where: {
       id: userId,
     },
@@ -110,22 +116,13 @@ async function create(data: {
   phoneNumber?: string;
   addressId: string;
 }) {
-  validator(data, {
-    name: "required",
-    email: "required",
-    password: "required",
-    motherName: "optional",
-    cpf: "required",
-    birthday: "required",
-    phoneNumber: "optional",
-    addressId: "required",
-  });
+  const hashedPassword = await password.hash(data.password);
 
   const user = await prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
-      password: data.password,
+      password: hashedPassword,
       motherName: data.motherName,
       cpf: data.cpf,
       birthday: data.birthday,
@@ -183,14 +180,27 @@ async function updateById(
   return user;
 }
 
-async function approve(userApproving: User, userBeingApproved: User) {
+async function approve(userIdApproving: string, userIdBeingApproved: string) {
   const webserverHost = webserver.getHost();
-  const user = await prisma.user.update({
+
+  const user = await findOneById(userIdBeingApproved);
+
+  if (user.approvedAt) {
+    throw new ConflictError({
+      message: `O cadastro já foi aprovado em ${format(
+        user.approvedAt,
+        "dd/MM/yyyy"
+      )}.`,
+      errorLocationCode: "MODEL:USER:APPROVE:USER_ALREADY_APPROVED",
+    });
+  }
+
+  const updatedUser = await prisma.user.update({
     where: {
-      id: userBeingApproved.id,
+      id: userIdBeingApproved,
     },
     data: {
-      approvedById: userApproving.id,
+      approvedById: userIdApproving,
       approvedAt: new Date(),
     },
   });
@@ -205,16 +215,16 @@ async function approve(userApproving: User, userBeingApproved: User) {
       subject: "Conta aprovada no Callisto!",
       text: `Clique no link abaixo para acessar sua conta:
       
-      ${webserverHost}
-      
-      Atenciosamente,
-      Equipe de TI do Callisto`,
+${webserverHost}
+
+Atenciosamente,
+Equipe de TI do Callisto`,
     });
   } catch (error) {
     console.log(error);
   }
 
-  return user;
+  return updatedUser;
 }
 
 export default Object.freeze({
