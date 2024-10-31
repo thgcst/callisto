@@ -13,7 +13,7 @@ const AddUserButton: React.FC = () => {
       <div className="md:hidden">
         <PlusIcon
           className={clsx(
-            "h-5 w-5 text-white transition duration-150 ease-in-out group-hover:text-opacity-80"
+            "size-5 text-white transition duration-150 ease-in-out group-hover:text-opacity-80"
           )}
         />
       </div>

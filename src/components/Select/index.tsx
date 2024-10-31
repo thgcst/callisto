@@ -2,14 +2,14 @@ import React, { forwardRef } from "react";
 
 import clsx from "clsx";
 
-export type InputProps = {
+export type SelectProps = {
   label: string;
   touched?: boolean;
   error?: string;
-} & React.ComponentPropsWithoutRef<"input">;
+} & React.ComponentPropsWithoutRef<"select">;
 
-const Input: React.ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
-  { label, touched, error, type = "text", ...rest },
+const Select: React.ForwardRefRenderFunction<HTMLSelectElement, SelectProps> = (
+  { label, touched, error, children, ...rest },
   ref
 ) => {
   const hasError = Boolean(touched && error);
@@ -22,16 +22,16 @@ const Input: React.ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
       >
         {label}
       </label>
-      <input
-        type={type}
+      <select
         className={clsx(
-          "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
-          "disabled:bg-slate-100 disabled:text-slate-500",
+          "mt-1 block w-full cursor-pointer rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:cursor-default disabled:bg-slate-100 disabled:bg-none disabled:text-slate-500 disabled:opacity-100 sm:text-sm",
           hasError && "border-red-600 bg-red-50"
         )}
         ref={ref}
         {...rest}
-      />
+      >
+        {children}
+      </select>
       {hasError && (
         <p
           className="absolute -bottom-6 left-2 text-sm text-red-600"
@@ -44,4 +44,4 @@ const Input: React.ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
   );
 };
 
-export default forwardRef(Input);
+export default forwardRef(Select);
