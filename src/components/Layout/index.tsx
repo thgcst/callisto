@@ -11,7 +11,7 @@ import clsx from "clsx";
 
 import authorization from "@/models/authorization";
 import useDeleteSession from "@/swr/sessions/useDeleteSession";
-import { useUser } from "@/swr/users";
+import { useMe } from "@/swr/users";
 
 type LayoutProps = PropsWithChildren & {
   label?: string;
@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   rightAccessory,
 }) => {
-  const { user } = useUser();
+  const { me } = useMe();
   const { pathname, push } = useRouter();
   const showNotificationsMenu = false;
   const { deleteSession } = useDeleteSession();
@@ -35,7 +35,7 @@ const Layout: React.FC<LayoutProps> = ({
       name: "Pessoas",
       href: "/pessoas",
       regExp: /^\/pessoas.*/,
-      hide: user ? !authorization.roleIsAdmin(user) : true,
+      hide: me ? !authorization.roleIsAdmin(me) : true,
     },
     {
       name: "Empresas",
@@ -132,7 +132,7 @@ const Layout: React.FC<LayoutProps> = ({
                               <Image
                                 className="size-8 rounded-full object-cover"
                                 src={
-                                  user?.avatar ||
+                                  me?.avatar ||
                                   "https://i.ibb.co/k0tSSCy/user.png"
                                 }
                                 alt=""
@@ -220,7 +220,7 @@ const Layout: React.FC<LayoutProps> = ({
                         <Image
                           className="size-10 rounded-full object-cover"
                           src={
-                            user?.avatar || "https://i.ibb.co/k0tSSCy/user.png"
+                            me?.avatar || "https://i.ibb.co/k0tSSCy/user.png"
                           }
                           alt=""
                           width={40}
@@ -230,10 +230,10 @@ const Layout: React.FC<LayoutProps> = ({
                     </div>
                     <div className="ml-3 flex h-10 flex-1 flex-col justify-evenly">
                       <div className="text-base font-medium leading-none text-white">
-                        {user?.email}
+                        {me?.email}
                       </div>
                       <div className="text-xs font-medium leading-none text-gray-400">
-                        {user?.name}
+                        {me?.name}
                       </div>
                     </div>
                     {showNotificationsMenu && (

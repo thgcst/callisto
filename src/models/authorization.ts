@@ -10,23 +10,21 @@ function roleIsAdmin(user: Omit<User, "password">) {
   return user.role === Role.ADMIN;
 }
 
-function isRequestFromAdmin() {
-  return function (
-    request: InjectedRequest,
-    response: NextApiResponse,
-    next: NextHandler
-  ) {
-    const userTryingToRequest = request.context.user;
+function isRequestFromAdmin(
+  request: InjectedRequest,
+  response: NextApiResponse,
+  next: NextHandler
+) {
+  const userTryingToRequest = request.context.user;
 
-    if (!roleIsAdmin(userTryingToRequest)) {
-      throw new ForbiddenError({
-        message: `Usuário não pode executar esta operação.`,
-        errorLocationCode: "MODEL:AUTHORIZATION:CAN_REQUEST:FEATURE_NOT_FOUND",
-      });
-    }
+  if (!roleIsAdmin(userTryingToRequest)) {
+    throw new ForbiddenError({
+      message: `Usuário não pode executar esta operação.`,
+      errorLocationCode: "MODEL:AUTHORIZATION:CAN_REQUEST:FEATURE_NOT_FOUND",
+    });
+  }
 
-    next();
-  };
+  return next();
 }
 
 export default Object.freeze({
