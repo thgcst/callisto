@@ -2,6 +2,7 @@ import { Role } from "@prisma/client";
 import Joi from "joi";
 
 import { ValidationError } from "@/errors";
+import { isValidCPF } from "@/utils/cpf";
 
 type ValidatorSchemas = keyof typeof schemas;
 
@@ -377,6 +378,12 @@ const schemas = {
         .trim()
         .length(11)
         .invalid(null)
+        .custom((value, helpers) => {
+          if (!isValidCPF(value)) {
+            return helpers.error("string.invalidCPF");
+          }
+          return value;
+        })
         .when("$required.cpf", {
           is: "required",
           then: Joi.required(),
@@ -388,6 +395,7 @@ const schemas = {
           "string.base": `"cpf" deve ser do tipo String.`,
           "string.length": `"cpf" deve conter {#limit} caracteres.`,
           "any.invalid": `"cpf" possui o valor inválido "null".`,
+          "string.invalidCPF": `"cpf" inválido.`,
         }),
     });
   },
@@ -503,10 +511,9 @@ const schemas = {
   complement: function () {
     return Joi.object({
       complement: Joi.string()
-        .min(1)
-        .max(50)
+        .allow("")
         .trim()
-        .invalid(null)
+        .max(50)
         .when("$required.complement", {
           is: "required",
           then: Joi.required(),
@@ -514,9 +521,7 @@ const schemas = {
         })
         .messages({
           "any.required": `"complement" é um campo obrigatório.`,
-          "string.empty": `"complement" não pode estar em branco.`,
           "string.base": `"complement" deve ser do tipo String.`,
-          "string.min": `"complement" deve conter no mínimo {#limit} caracteres.`,
           "string.max": `"complement" deve conter no máximo {#limit} caracteres.`,
           "any.invalid": `"complement" possui o valor inválido "null".`,
         }),

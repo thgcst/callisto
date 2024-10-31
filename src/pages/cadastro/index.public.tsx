@@ -17,6 +17,7 @@ import session from "@/models/session";
 import { useCreateAddress } from "@/swr/address";
 import useCreateUser from "@/swr/users/useCreateUser";
 import { brazilStates } from "@/utils/brazilStates";
+import { isValidCPF } from "@/utils/cpf";
 
 const schema = z
   .object({
@@ -30,9 +31,12 @@ const schema = z
       .string()
       .min(5, { message: "Mínimo de 5 caracteres" })
       .optional(),
-    cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, {
-      message: "CPF deve estar no formato 000.000.000-00",
-    }),
+    cpf: z
+      .string()
+      .regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, {
+        message: "CPF deve estar no formato 000.000.000-00",
+      })
+      .refine((val) => isValidCPF(val), { message: "CPF inválido" }),
     birthday: z
       .preprocess((val) => {
         if (typeof val === "string") {
