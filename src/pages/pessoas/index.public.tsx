@@ -7,22 +7,29 @@ import ErrorPage from "@/components/ErrorPage";
 import Layout from "@/components/Layout";
 import authorization from "@/models/authorization";
 import session from "@/models/session";
-import { useUser, useUsers } from "@/swr/users";
+import { useMe, useUsers } from "@/swr/users";
 
 import Loading from "./loading";
 import Page from "./page";
 
 const Users: React.FC = () => {
-  const { isLoading, error } = useUsers();
-  const { user } = useUser();
+  const { isLoading: notApprovedLoading, error: notApprovedError } = useUsers({
+    approved: false,
+  });
+  const { isLoading: approvedLoading, error: approvedError } = useUsers({
+    approved: true,
+  });
+  const { me } = useMe();
 
-  if (error && error.response?.status !== 401) return <ErrorPage />;
+  if (approvedError || notApprovedError) return <ErrorPage />;
+
+  const isLoading = notApprovedLoading || approvedLoading;
 
   return (
     <Layout
       label="Pessoas"
       rightAccessory={
-        user && authorization.roleIsAdmin(user) ? <AddUserButton /> : null
+        me && authorization.roleIsAdmin(me) ? <AddUserButton /> : null
       }
     >
       {isLoading ? <Loading /> : <Page />}
