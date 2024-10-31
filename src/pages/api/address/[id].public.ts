@@ -1,6 +1,7 @@
 import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
+import { ForbiddenError } from "@/errors";
 import address from "@/models/address";
 import authentication from "@/models/authentication";
 import authorization from "@/models/authorization";
@@ -14,7 +15,6 @@ export default nextConnect({
   onError: controller.onErrorHandler,
 })
   .use(authentication.injectUser)
-  .use(authorization.isRequestFromAdmin)
   .patch(patchHandler);
 
 async function patchHandler(
@@ -24,6 +24,16 @@ async function patchHandler(
   const { id } = validator(request.query, {
     id: "required",
   });
+
+  if (
+    !authorization.roleIsAdmin(request.context.user) &&
+    request.context.user.addressId !== id
+  ) {
+    throw new ForbiddenError({
+      message: `Usuário não pode executar esta operação.`,
+      errorLocationCode: "MODEL:AUTHORIZATION:CAN_REQUEST:FEATURE_NOT_FOUND",
+    });
+  }
 
   const body: Partial<{
     cep: string;
