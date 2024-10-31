@@ -3,6 +3,7 @@ import nextConnect from "next-connect";
 
 import { Role } from "@prisma/client";
 
+import { ForbiddenError } from "@/errors";
 import authentication from "@/models/authentication";
 import authorization from "@/models/authorization";
 import controller from "@/models/controller";
@@ -16,7 +17,6 @@ export default nextConnect({
   onError: controller.onErrorHandler,
 })
   .use(authentication.injectUser)
-  .use(authorization.isRequestFromAdmin)
   .patch(patchHandler);
 
 async function patchHandler(
@@ -26,6 +26,16 @@ async function patchHandler(
   const { id } = validator(request.query, {
     id: "required",
   });
+
+  if (
+    !authorization.roleIsAdmin(request.context.user) &&
+    request.context.user.id !== id
+  ) {
+    throw new ForbiddenError({
+      message: `Usuário não pode executar esta operação.`,
+      errorLocationCode: "MODEL:AUTHORIZATION:CAN_REQUEST:FEATURE_NOT_FOUND",
+    });
+  }
 
   const body: Partial<{
     name: string;
