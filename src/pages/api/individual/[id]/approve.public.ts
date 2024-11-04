@@ -2,9 +2,8 @@ import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
 import authentication from "@/models/authentication";
-import authorization from "@/models/authorization";
 import controller from "@/models/controller";
-import user from "@/models/user";
+import individual from "@/models/individual";
 import validator from "@/models/validator";
 import InjectedRequest from "@/types/InjectedRequest";
 
@@ -14,7 +13,6 @@ export default nextConnect({
   onError: controller.onErrorHandler,
 })
   .use(authentication.injectUser)
-  .use(authorization.isRequestFromAdmin)
   .patch(patchHandler);
 
 async function patchHandler(
@@ -25,7 +23,10 @@ async function patchHandler(
     id: "required",
   });
 
-  const updatedUser = await user.approve(request.context.user.id, id);
+  const updatedIndividual = await individual.approve(
+    request.context.user.id,
+    id
+  );
 
-  return response.status(200).json({ ...updatedUser, password: undefined });
+  return response.status(200).json(updatedIndividual);
 }

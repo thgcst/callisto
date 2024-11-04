@@ -3,15 +3,15 @@ import useSWR from "swr";
 
 type Data = Omit<User, "password">;
 
-function useMe() {
-  const { data, error, isValidating, isLoading } = useSWR<Data>(`/api/me`);
+function useUser() {
+  const { data, error, isValidating, isLoading } = useSWR<Data>(`/api/user`);
 
   return {
-    me: data,
+    user: data,
     isLoading,
     isValidating,
     error,
   };
 }
 
-export default useMe;
+export default useUser;

@@ -7,10 +7,12 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "services:up": "docker-compose --env-file .env.local  up -d"
+    "services:up": "docker-compose up -d",
+    "services:down": "docker-compose down"
   },
   "prisma": {
-    "schema": "src/infra/prisma/schema.prisma"
+    "schema": "src/infra/prisma/schema.prisma",
+    "seed": "tsx src/infra/prisma/seed"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.9",
@@ -59,6 +61,7 @@
     "postcss": "^8",
     "prisma": "^5.21.1",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }

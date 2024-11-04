@@ -1,8 +1,6 @@
 import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
-import * as z from "zod";
-
 import authentication from "@/models/authentication";
 import authorization from "@/models/authorization";
 import controller from "@/models/controller";
@@ -15,20 +13,10 @@ export default nextConnect({
   onError: controller.onErrorHandler,
 })
   .use(authentication.injectUser)
-  .use(authorization.isRequestFromAdmin)
-  .get(getHandler);
+  .get(authorization.canRequest("read:users"), getHandler);
 
 async function getHandler(request: InjectedRequest, response: NextApiResponse) {
-  const querySchema = z.object({
-    approved: z
-      .enum(["true", "false"])
-      .transform((value) => value === "true")
-      .optional(),
-  });
-
-  const payload = querySchema.parse(request.query);
-
-  const users = await user.findAll(payload);
+  const users = await user.findAll();
 
   response.status(200).json(users);
 }

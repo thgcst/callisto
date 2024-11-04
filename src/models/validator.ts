@@ -1,4 +1,3 @@
-import { Role } from "@prisma/client";
 import Joi from "joi";
 
 import { ValidationError } from "@/errors";
@@ -247,6 +246,25 @@ const schemas = {
     });
   },
 
+  features: function () {
+    return Joi.object({
+      features: Joi.array()
+        .items(Joi.string())
+        .when("$required.features", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"features" é um campo obrigatório.`,
+          "string.empty": `"features" não pode estar em branco.`,
+          "array.base": `"features" deve ser do tipo Array.`,
+          "array.min": `"features" deve conter no mínimo {#limit} itens.`,
+          "any.only": `"features" deve conter um dos seguintes valores: {#valids}.`,
+        }),
+    });
+  },
+
   used: function () {
     return Joi.object({
       used: Joi.boolean()
@@ -260,26 +278,6 @@ const schemas = {
           "any.required": `"used" é um campo obrigatório.`,
           "string.empty": `"used" não pode estar em branco.`,
           "boolean.base": `"used" deve ser do tipo Boolean.`,
-        }),
-    });
-  },
-
-  role: function () {
-    return Joi.object({
-      features: Joi.string()
-        .valid(...Object.values(Role))
-        .when("$required.role", {
-          is: "required",
-          then: Joi.required(),
-          otherwise: Joi.optional(),
-        })
-        .messages({
-          "any.required": `"role" é um campo obrigatório.`,
-          "string.empty": `"role" não pode estar em branco.`,
-          "string.base": `"role" deve ser do tipo String.`,
-          "any.only": `"role" deve ser um dos seguintes valores: ${Object.values(
-            Role
-          ).join(", ")}.`,
         }),
     });
   },

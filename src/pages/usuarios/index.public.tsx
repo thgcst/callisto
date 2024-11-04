@@ -7,29 +7,24 @@ import ErrorPage from "@/components/ErrorPage";
 import Layout from "@/components/Layout";
 import authorization from "@/models/authorization";
 import session from "@/models/session";
-import { useMe, useUsers } from "@/swr/users";
+import { useUser, useUsers } from "@/swr/users";
 
 import Loading from "./loading";
 import Page from "./page";
 
 const Users: React.FC = () => {
-  const { isLoading: notApprovedLoading, error: notApprovedError } = useUsers({
-    approved: false,
-  });
-  const { isLoading: approvedLoading, error: approvedError } = useUsers({
-    approved: true,
-  });
-  const { me } = useMe();
+  const { isLoading, error } = useUsers();
+  const { user } = useUser();
 
-  if (approvedError || notApprovedError) return <ErrorPage />;
-
-  const isLoading = notApprovedLoading || approvedLoading;
+  if (error && error.response?.status !== 401) return <ErrorPage />;
 
   return (
     <Layout
-      label="Pessoas"
+      label="Usuários"
       rightAccessory={
-        me && authorization.roleIsAdmin(me) ? <AddUserButton /> : null
+        user && authorization.can(user, `create:user`) ? (
+          <AddUserButton />
+        ) : null
       }
     >
       {isLoading ? <Loading /> : <Page />}
@@ -46,13 +41,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (!sessionValid) {
     return {
       redirect: {
-        destination: `/?redirect=${ctx.resolvedUrl}`,
+        destination: `/login?redirect=${ctx.resolvedUrl}`,
         permanent: false,
       },
     };
   }
 
-  if (!authorization.roleIsAdmin(sessionValid.user)) {
+  if (!authorization.can(sessionValid.user, `read:users`)) {
     return {
       notFound: true,
     };

@@ -3,20 +3,20 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 
 import { toast } from "react-toastify";
+import { mutate } from "swr";
 
 import api from "@/services/api";
 
-type UpdateUserBody = {
+type UpdateMeBody = {
   name: string;
-  features?: string[];
   avatar?: FileList | null;
 };
 
-function useUpdateUser() {
+function useUpdateMe() {
   const { push } = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const updateUser = async (id: string, body: UpdateUserBody) => {
+  const updateMe = async (body: UpdateMeBody) => {
     setLoading(true);
 
     try {
@@ -26,15 +26,11 @@ function useUpdateUser() {
         data.append("name", body.name);
       }
 
-      if (body.features) {
-        data.append("features", JSON.stringify(body.features));
-      }
-
       if (body.avatar) {
         data.append("avatar", body.avatar[0]);
       }
 
-      await toast.promise(api.patch(`/api/user/${id}/update`, data), {
+      await toast.promise(api.patch(`/api/user/update`, data), {
         pending: "Atualizando usuário...",
         success: "Usuário atualizado com sucesso!",
         error: {
@@ -44,7 +40,8 @@ function useUpdateUser() {
           },
         },
       });
-      push(`/usuarios/${id}`);
+      mutate(`/api/user`);
+      push(`/minha-conta`);
     } catch (error) {
       //
     }
@@ -52,7 +49,7 @@ function useUpdateUser() {
     setLoading(false);
   };
 
-  return { updateUser, loading };
+  return { updateMe, loading };
 }
 
-export default useUpdateUser;
+export default useUpdateMe;

@@ -113,7 +113,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (sessionValid) {
     return {
       redirect: {
-        destination: "/empresas",
+        destination: "/pessoas",
         permanent: true,
       },
     };

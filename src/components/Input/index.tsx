@@ -3,7 +3,7 @@ import React, { forwardRef } from "react";
 import clsx from "clsx";
 
 export type InputProps = {
-  label: string;
+  label?: string;
   touched?: boolean;
   error?: string;
 } & React.ComponentPropsWithoutRef<"input">;
@@ -16,12 +16,14 @@ const Input: React.ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
 
   return (
     <div className={clsx("relative transition-all", hasError && "mb-4")}>
-      <label
-        htmlFor={rest.name}
-        className="block text-sm font-medium text-gray-700"
-      >
-        {label}
-      </label>
+      {label ? (
+        <label
+          htmlFor={rest.name}
+          className="block text-sm font-medium text-gray-700"
+        >
+          {label}
+        </label>
+      ) : null}
       <input
         type={type}
         className={clsx(

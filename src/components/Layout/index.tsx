@@ -11,7 +11,7 @@ import clsx from "clsx";
 
 import authorization from "@/models/authorization";
 import useDeleteSession from "@/swr/sessions/useDeleteSession";
-import { useMe } from "@/swr/users";
+import { useUser } from "@/swr/users";
 
 type LayoutProps = PropsWithChildren & {
   label?: string;
@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   rightAccessory,
 }) => {
-  const { me } = useMe();
+  const { user } = useUser();
   const { pathname, push } = useRouter();
   const showNotificationsMenu = false;
   const { deleteSession } = useDeleteSession();
@@ -35,12 +35,19 @@ const Layout: React.FC<LayoutProps> = ({
       name: "Pessoas",
       href: "/pessoas",
       regExp: /^\/pessoas.*/,
-      hide: me ? !authorization.roleIsAdmin(me) : true,
+      hide: false,
+      // hide: me ? !authorization.roleIsAdmin(me) : true,
     },
     {
       name: "Empresas",
       href: "/empresas",
       regExp: /^\/empresas$/,
+    },
+    {
+      name: "Usuários",
+      href: "/usuarios",
+      regExp: /^\/usuarios$/,
+      hide: user ? !authorization.can(user, "read:users") : true,
     },
   ];
 
@@ -132,7 +139,7 @@ const Layout: React.FC<LayoutProps> = ({
                               <Image
                                 className="size-8 rounded-full object-cover"
                                 src={
-                                  me?.avatar ||
+                                  user?.avatar ||
                                   "https://i.ibb.co/k0tSSCy/user.png"
                                 }
                                 alt=""
@@ -220,7 +227,7 @@ const Layout: React.FC<LayoutProps> = ({
                         <Image
                           className="size-10 rounded-full object-cover"
                           src={
-                            me?.avatar || "https://i.ibb.co/k0tSSCy/user.png"
+                            user?.avatar || "https://i.ibb.co/k0tSSCy/user.png"
                           }
                           alt=""
                           width={40}
@@ -230,10 +237,10 @@ const Layout: React.FC<LayoutProps> = ({
                     </div>
                     <div className="ml-3 flex h-10 flex-1 flex-col justify-evenly">
                       <div className="text-base font-medium leading-none text-white">
-                        {me?.email}
+                        {user?.email}
                       </div>
                       <div className="text-xs font-medium leading-none text-gray-400">
-                        {me?.name}
+                        {user?.name}
                       </div>
                     </div>
                     {showNotificationsMenu && (
