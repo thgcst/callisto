@@ -20,8 +20,16 @@ const extendedPrisma = prisma.$extends({
 
 async function findAll() {
   const individuals = await extendedPrisma.individual.findMany({
-    include: {
-      address: true,
+    select: {
+      id: true,
+      name: true,
+      address: {
+        select: {
+          city: true,
+          state: true,
+        },
+      },
+      createdAt: true,
     },
   });
 
