@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker/locale/pt_BR";
 import { PrismaClient } from "@prisma/client";
 
+import authorization from "@/models/authorization";
 import individual from "@/models/individual";
 
 import password from "../../../models/password";
@@ -17,7 +18,7 @@ async function main() {
       name: "Thiago Costa",
       email: "thiagodias2708@gmail.com",
       password: await password.hash("Nov@1234"),
-      features: ["create:user", "edit:user", "read:users"],
+      features: [...authorization.systemFeaturesSet],
     },
   });
 

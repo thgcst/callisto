@@ -10,10 +10,17 @@ const systemFeaturesSet = new Set([
   "create:user",
   "edit:user",
   "read:users",
-  "edit:individual",
-]);
 
-function can(user: Omit<User, "password">, feature: string) {
+  "read:individualsDetails",
+  "read:individual",
+  "edit:individual",
+] as const);
+
+type SystemFeatureType = typeof systemFeaturesSet extends Set<infer T>
+  ? T
+  : never;
+
+function can(user: Omit<User, "password">, feature: SystemFeatureType) {
   if (user.features.includes(feature)) {
     return true;
   }
@@ -21,7 +28,7 @@ function can(user: Omit<User, "password">, feature: string) {
   return false;
 }
 
-function canRequest(feature: string) {
+function canRequest(feature: SystemFeatureType) {
   return function (
     request: InjectedRequest,
     response: NextApiResponse,

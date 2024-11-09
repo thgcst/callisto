@@ -33,6 +33,9 @@ async function findOneById(individualId: string) {
     where: {
       id: individualId,
     },
+    include: {
+      address: true,
+    },
   });
 
   if (!individual) {

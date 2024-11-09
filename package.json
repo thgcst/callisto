@@ -42,6 +42,7 @@
     "swr": "^2.2.5",
     "ua-parser-js": "^2.0.0-rc.1",
     "use-mask-input": "^3.4.0",
+    "usehooks-ts": "^3.1.0",
     "yup": "^1.4.0",
     "zod": "^3.23.8"
   },

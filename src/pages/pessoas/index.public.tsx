@@ -101,17 +101,23 @@ const Individuals: React.FC<IndividualsProps> = ({ individuals }) => {
         }),
         columnHelper.display({
           id: "actions",
-
-          cell: ({ row }) => (
-            <div className="text-right">
-              <Link
-                href={`/pessoas/${row.original.id}`}
-                className="text-indigo-600 hover:text-indigo-900"
-              >
-                {authorization.can(user!, "edit:individual") ? "Editar" : "Ver"}
-              </Link>
-            </div>
-          ),
+          cell: ({ row }) => {
+            if (!authorization.can(user!, "read:individual")) {
+              return null;
+            }
+            return (
+              <div className="text-right">
+                <Link
+                  href={`/pessoas/${row.original.id}`}
+                  className="text-indigo-600 hover:text-indigo-900"
+                >
+                  {authorization.can(user!, "edit:individual")
+                    ? "Editar"
+                    : "Ver"}
+                </Link>
+              </div>
+            );
+          },
         }),
       ];
 
@@ -143,7 +149,9 @@ const Individuals: React.FC<IndividualsProps> = ({ individuals }) => {
       }),
     ];
 
-    return user ? authenticatedColumns : unauthenticatedColumns;
+    return user && authorization.can(user, "read:individualsDetails")
+      ? authenticatedColumns
+      : unauthenticatedColumns;
   }, [user]);
 
   const table = useReactTable({

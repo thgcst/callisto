@@ -55,9 +55,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   const userId = ctx.params?.userId as string;
 
-  let studentObject;
+  let userObject;
   try {
-    studentObject = await user.findOneById(userId);
+    userObject = await user.findOneById(userId);
   } catch (err) {
     return {
       notFound: true,
@@ -68,7 +68,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     props: {
       user: JSON.parse(
         JSON.stringify({
-          ...studentObject,
+          ...userObject,
           password: undefined,
         })
       ),

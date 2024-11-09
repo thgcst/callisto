@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { NextHandler } from "next-connect";
 
 import { User } from "@prisma/client";
 import cookie from "cookie";
@@ -8,6 +9,7 @@ import { UAParser } from "ua-parser-js";
 
 import { NotFoundError, UnauthorizedError } from "@/errors";
 import { prisma } from "@/infra/prisma";
+import InjectedRequest from "@/types/InjectedRequest";
 
 import validator from "./validator";
 
@@ -70,6 +72,26 @@ async function findOneValidByToken(sessionToken: string) {
   });
 
   return session;
+}
+
+async function renewSessionIfNecessary(
+  request: InjectedRequest,
+  response: NextApiResponse,
+  next: NextHandler
+) {
+  let sessionObject = request.context.session;
+
+  // Renew session if it expires in less than 1/7 the threshold.
+  if (
+    new Date(sessionObject.expiresAt).getTime() <
+    Date.now() + tokenRenewalThreshold / 7
+  ) {
+    sessionObject = await renew(sessionObject.id, response);
+
+    request.context.session = sessionObject;
+  }
+
+  return next();
 }
 
 async function renew(sessionId: string, response: NextApiResponse) {
@@ -224,6 +246,7 @@ export default Object.freeze({
   clearSessionIdCookie,
   findOneValidFromRequest,
   findOneValidByToken,
+  renewSessionIfNecessary,
   renew,
   setSessionIdCookieInResponse,
   create,

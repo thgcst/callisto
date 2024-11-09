@@ -3,6 +3,7 @@ import nextConnect from "next-connect";
 
 import authentication from "@/models/authentication";
 import controller from "@/models/controller";
+import session from "@/models/session";
 import InjectedRequest from "@/types/InjectedRequest";
 
 export default nextConnect({
@@ -11,6 +12,7 @@ export default nextConnect({
   onError: controller.onErrorHandler,
 })
   .use(authentication.injectUser)
+  .use(session.renewSessionIfNecessary)
   .get(getHandler);
 
 async function getHandler(request: InjectedRequest, response: NextApiResponse) {
