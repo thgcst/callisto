@@ -5,6 +5,29 @@ import email from "@/infra/email";
 import { prisma } from "@/infra/prisma";
 import webserver from "@/infra/webserver";
 
+const extendedPrisma = prisma.$extends({
+  result: {
+    individual: {
+      maskedCpf: {
+        needs: { cpf: true },
+        compute({ cpf }) {
+          return `***.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-**`;
+        },
+      },
+    },
+  },
+});
+
+async function findAll() {
+  const individuals = await extendedPrisma.individual.findMany({
+    include: {
+      address: true,
+    },
+  });
+
+  return individuals;
+}
+
 async function findOneById(individualId: string) {
   const individual = await prisma.individual.findUnique({
     where: {
@@ -42,7 +65,7 @@ async function approve(userId: string, individualId: string) {
       id: individualId,
     },
     data: {
-      approvedById: userId,
+      approvedByUserId: userId,
       approvedAt: new Date(),
     },
   });
@@ -69,7 +92,38 @@ Equipe de TI do Callisto`,
   return updatedIndividual;
 }
 
+function create(payload: {
+  name: string;
+  email: string;
+  motherName?: string;
+  cpf: string;
+  birthday: Date | string;
+  phoneNumber?: string;
+  address: {
+    cep: string;
+    street: string;
+    number: string;
+    complement?: string | null;
+    city: string;
+    state: string;
+  };
+}) {
+  return prisma.individual.create({
+    data: {
+      ...payload,
+      email: payload.email.toLowerCase(),
+      cpf: payload.cpf.replace(/\D/g, ""),
+      phoneNumber: payload.phoneNumber?.replace(/\D/g, ""),
+      address: {
+        create: payload.address,
+      },
+    },
+  });
+}
+
 export default Object.freeze({
+  findAll,
   approve,
   findOneById,
+  create,
 });

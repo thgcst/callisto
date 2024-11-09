@@ -1,4 +1,7 @@
+import { faker } from "@faker-js/faker/locale/pt_BR";
 import { PrismaClient } from "@prisma/client";
+
+import individual from "@/models/individual";
 
 import password from "../../../models/password";
 
@@ -17,6 +20,25 @@ async function main() {
       features: ["create:user", "edit:user", "read:users"],
     },
   });
+
+  // create 10 individuals
+  for (let i = 0; i < 10; i++) {
+    await individual.create({
+      address: {
+        city: faker.location.city(),
+        state: faker.location.state(),
+        street: faker.location.street(),
+        number: faker.number.int({ min: 1, max: 1000 }).toString(),
+        cep: faker.location.zipCode(),
+        complement: faker.lorem.words({ min: 0, max: 1 }),
+      },
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      cpf: faker.number.int({ min: 10000000000, max: 99999999999 }).toString(),
+      phoneNumber: faker.phone.number({ style: "national" }),
+      birthday: faker.date.past({ years: 18 }),
+    });
+  }
 }
 main()
   .then(async () => {

@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -88,9 +89,9 @@ model Individual {
   address     Address  @relation(fields: [addressId], references: [id])
   addressId   String   @unique
 
-  approvedBy   User      @relation(fields: [approvedById], references: [id])
-  approvedById String
-  approvedAt   DateTime? @db.Timestamptz
+  approvedBy       User?     @relation(fields: [approvedByUserId], references: [id])
+  approvedByUserId String?
+  approvedAt       DateTime? @db.Timestamptz
 
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz

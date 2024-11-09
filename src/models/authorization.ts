@@ -6,7 +6,12 @@ import { User } from "@prisma/client";
 import { ForbiddenError } from "@/errors";
 import InjectedRequest from "@/types/InjectedRequest";
 
-const systemFeaturesSet = new Set(["create:user", "edit:user", "read:users"]);
+const systemFeaturesSet = new Set([
+  "create:user",
+  "edit:user",
+  "read:users",
+  "edit:individual",
+]);
 
 function can(user: Omit<User, "password">, feature: string) {
   if (user.features.includes(feature)) {

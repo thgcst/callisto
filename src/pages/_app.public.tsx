@@ -39,6 +39,7 @@ export default function App({ Component, pageProps }: AppProps) {
         onError(err, key) {
           const statusCode = err.response?.status;
           if (statusCode === 401) {
+            if (key === "/api/user") return;
             router.push("/");
           }
           toast.error(err.response?.data?.message || err.message, {

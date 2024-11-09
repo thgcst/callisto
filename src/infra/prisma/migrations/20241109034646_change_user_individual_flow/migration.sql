@@ -45,7 +45,7 @@ CREATE TABLE "individuals" (
     "birthday" DATE NOT NULL,
     "phoneNumber" TEXT,
     "addressId" TEXT NOT NULL,
-    "approvedById" TEXT NOT NULL,
+    "approvedByUserId" TEXT,
     "approvedAt" TIMESTAMPTZ,
     "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ NOT NULL,
@@ -66,4 +66,4 @@ CREATE UNIQUE INDEX "individuals_addressId_key" ON "individuals"("addressId");
 ALTER TABLE "individuals" ADD CONSTRAINT "individuals_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "addresses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "individuals" ADD CONSTRAINT "individuals_approvedById_fkey" FOREIGN KEY ("approvedById") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "individuals" ADD CONSTRAINT "individuals_approvedByUserId_fkey" FOREIGN KEY ("approvedByUserId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
