@@ -42,14 +42,14 @@ function useCreateUser() {
           success: "Usuário criado com sucesso!",
           error: {
             render({ data }) {
-              // @ts-ignore
+              // @ts-expect-error data is any
               return data.response?.data?.message || data.message;
             },
           },
         }
       );
       push(`/usuarios`);
-    } catch (error) {
+    } catch {
       //
     }
 

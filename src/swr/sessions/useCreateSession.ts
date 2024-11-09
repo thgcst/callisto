@@ -28,7 +28,7 @@ function useCreateSession() {
           pending: "Carregando...",
           error: {
             render({ data }) {
-              // @ts-ignore
+              // @ts-expect-error data is any
               return data.response?.data?.message || data.message;
             },
           },
@@ -39,7 +39,7 @@ function useCreateSession() {
       } else {
         push(`/empresas`);
       }
-    } catch (error) {
+    } catch {
       //
     }
 

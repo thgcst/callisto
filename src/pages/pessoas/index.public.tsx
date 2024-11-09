@@ -12,9 +12,9 @@ import {
 
 import Layout from "@/components/Layout";
 import Table from "@/components/Table";
+import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
 import individual from "@/models/individual";
-import { useUser } from "@/swr/users";
 import { dayToDDMMYYYY, dayToLocaleString } from "@/utils/dates";
 import { formatPhoneNumber } from "@/utils/format";
 import { serialize } from "@/utils/serialize";

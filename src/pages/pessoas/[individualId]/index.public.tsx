@@ -41,7 +41,7 @@ export const getServerSideProps = (async (ctx) => {
   let individualObject;
   try {
     individualObject = await individual.findOneById(individualId);
-  } catch (err) {
+  } catch {
     return {
       notFound: true,
     };

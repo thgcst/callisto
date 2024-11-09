@@ -9,9 +9,8 @@ import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
+import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
-import useDeleteSession from "@/swr/sessions/useDeleteSession";
-import { useUser } from "@/swr/users";
 
 type LayoutProps = PropsWithChildren & {
   label?: string;
@@ -25,10 +24,9 @@ const Layout: React.FC<LayoutProps> = ({
   children,
   rightAccessory,
 }) => {
-  const { user } = useUser();
+  const { user, logout } = useUser();
   const { pathname, push } = useRouter();
   const showNotificationsMenu = false;
-  const { deleteSession } = useDeleteSession();
 
   const navigation = [
     {
@@ -61,7 +59,7 @@ const Layout: React.FC<LayoutProps> = ({
     {
       name: "Sair",
       onClick: async () => {
-        await deleteSession();
+        await logout();
       },
     },
   ];
@@ -159,7 +157,7 @@ const Layout: React.FC<LayoutProps> = ({
                             leaveFrom="transform opacity-100 scale-100"
                             leaveTo="transform opacity-0 scale-95"
                           >
-                            <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
                               {userNavigation.map((item) => (
                                 <Menu.Item key={item.name}>
                                   {({ active }) => (

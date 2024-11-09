@@ -35,14 +35,14 @@ function useUpdateMe() {
         success: "Usuário atualizado com sucesso!",
         error: {
           render({ data }) {
-            // @ts-ignore
+            // @ts-expect-error data is any
             return data.response?.data?.message || data.message;
           },
         },
       });
       mutate(`/api/user`);
       push(`/minha-conta`);
-    } catch (error) {
+    } catch {
       //
     }
 

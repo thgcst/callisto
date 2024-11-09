@@ -16,7 +16,7 @@ export default function validator(
   // "object" is not a valid JSON.
   try {
     object = JSON.parse(JSON.stringify(object));
-  } catch (error) {
+  } catch {
     throw new ValidationError({
       message: "Não foi possível interpretar o valor enviado.",
       errorLocationCode: "MODEL:VALIDATOR:ERROR_PARSING_JSON",
@@ -61,7 +61,7 @@ export function sortValidator(
 ) {
   try {
     object = JSON.parse(JSON.stringify(object));
-  } catch (error) {
+  } catch {
     throw new ValidationError({
       message: "Não foi possível interpretar o valor enviado.",
       errorLocationCode: "MODEL:SORT_VALIDATOR:ERROR_PARSING_JSON",

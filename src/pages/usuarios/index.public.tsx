@@ -5,9 +5,10 @@ import { parse } from "cookie";
 import AddUserButton from "@/components/AddUserButton";
 import ErrorPage from "@/components/ErrorPage";
 import Layout from "@/components/Layout";
+import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
 import session from "@/models/session";
-import { useUser, useUsers } from "@/swr/users";
+import { useUsers } from "@/swr/users";
 
 import Loading from "./loading";
 import Page from "./page";

@@ -58,7 +58,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   let userObject;
   try {
     userObject = await user.findOneById(userId);
-  } catch (err) {
+  } catch {
     return {
       notFound: true,
     };

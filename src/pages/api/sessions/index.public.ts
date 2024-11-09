@@ -51,7 +51,7 @@ async function postHandler(
 
   try {
     storedUser = await user.findOneByEmail(inputValues.email);
-  } catch (error) {
+  } catch {
     throw new UnauthorizedError({
       message: `Dados não conferem.`,
       errorLocationCode: `CONTROLLER:SESSIONS:POST_HANDLER:DATA_MISMATCH`,
@@ -71,7 +71,7 @@ async function postHandler(
       inputValues.password,
       storedUser.password
     );
-  } catch (error) {
+  } catch {
     throw new UnauthorizedError({
       message: `Dados não conferem.`,
       errorLocationCode: `CONTROLLER:SESSIONS:POST_HANDLER:DATA_MISMATCH`,

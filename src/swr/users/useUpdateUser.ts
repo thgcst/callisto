@@ -39,13 +39,13 @@ function useUpdateUser() {
         success: "Usuário atualizado com sucesso!",
         error: {
           render({ data }) {
-            // @ts-ignore
+            // @ts-expect-error data is not null
             return data.response?.data?.message || data.message;
           },
         },
       });
       push(`/usuarios/${id}`);
-    } catch (error) {
+    } catch {
       //
     }
 

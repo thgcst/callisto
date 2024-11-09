@@ -22,14 +22,14 @@ function useActivateAccount() {
           pending: "Carregando...",
           error: {
             render({ data }) {
-              // @ts-expect-error
+              // @ts-expect-error data is not null
               return data.response?.data?.message || data.message;
             },
           },
         }
       );
       push(`/empresas`);
-    } catch (error) {
+    } catch {
       //
     }
 

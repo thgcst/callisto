@@ -10,8 +10,9 @@ import * as zod from "zod";
 
 import Input from "@/components/Input";
 import MultipleSelect from "@/components/MultipleSelect";
+import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
-import { useUpdateUser, useUser } from "@/swr/users";
+import { useUpdateUser } from "@/swr/users";
 import { capitalizeFirstLetter } from "@/utils/string";
 
 type EditUserProps = {
@@ -155,7 +156,7 @@ const EditUser: React.FC<EditUserProps> = ({ user }) => {
                           {...avatarFields}
                           ref={(instance) => {
                             avatarRef(instance);
-                            // @ts-ignore
+                            // @ts-expect-error inputAvatarRef.current is not null
                             inputAvatarRef.current = instance;
                           }}
                           type="file"

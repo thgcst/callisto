@@ -13,7 +13,7 @@ import InjectedRequest from "@/types/InjectedRequest";
 
 import validator from "./validator";
 
-const tokenRenewalThreshold = 1000 * 60 * 60 * 24 * 7; // 7 days
+const tokenRenewalThreshold = 1000 * 60 * 60 * 24 * 30; // 30 days
 
 function clearSessionIdCookie(response: NextApiResponse | ServerResponse) {
   response.setHeader("Set-Cookie", [
@@ -81,10 +81,10 @@ async function renewSessionIfNecessary(
 ) {
   let sessionObject = request.context.session;
 
-  // Renew session if it expires in less than 1/7 the threshold.
+  // Renew session if it expires in less than 1/10 (3 days) the threshold.
   if (
     new Date(sessionObject.expiresAt).getTime() <
-    Date.now() + tokenRenewalThreshold / 7
+    Date.now() + tokenRenewalThreshold / 10
   ) {
     sessionObject = await renew(sessionObject.id, response);
 

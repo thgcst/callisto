@@ -153,7 +153,7 @@ const NewUser: React.FC = () => {
                           {...avatarFields}
                           ref={(instance) => {
                             avatarRef(instance);
-                            // @ts-ignore
+                            // @ts-expect-error inputAvatarRef.current is not null
                             inputAvatarRef.current = instance;
                           }}
                           type="file"

@@ -5,8 +5,9 @@ import Link from "next/link";
 
 import clsx from "clsx";
 
+import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
-import { useUser, useUsers } from "@/swr/users";
+import { useUsers } from "@/swr/users";
 import { dayToDDMMYYYY, dayToLocaleString } from "@/utils/dates";
 
 const Page: React.FC = () => {
