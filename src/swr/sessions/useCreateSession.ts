@@ -37,7 +37,7 @@ function useCreateSession() {
       if (query?.redirect) {
         push(query.redirect as string);
       } else {
-        push(`/empresas`);
+        push(`/pessoas`);
       }
     } catch {
       //

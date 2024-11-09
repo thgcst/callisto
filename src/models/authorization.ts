@@ -21,6 +21,7 @@ type SystemFeatureType = typeof systemFeaturesSet extends Set<infer T>
   : never;
 
 function can(user: Omit<User, "password">, feature: SystemFeatureType) {
+  console.log(user);
   if (user.features.includes(feature)) {
     return true;
   }

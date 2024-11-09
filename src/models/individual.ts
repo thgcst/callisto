@@ -18,7 +18,7 @@ const extendedPrisma = prisma.$extends({
   },
 });
 
-async function findAll() {
+async function findAllPublic() {
   const individuals = await extendedPrisma.individual.findMany({
     select: {
       id: true,
@@ -30,6 +30,16 @@ async function findAll() {
         },
       },
       createdAt: true,
+    },
+  });
+
+  return individuals;
+}
+
+async function findAll() {
+  const individuals = await extendedPrisma.individual.findMany({
+    include: {
+      address: true,
     },
   });
 
@@ -133,6 +143,7 @@ function create(payload: {
 }
 
 export default Object.freeze({
+  findAllPublic,
   findAll,
   approve,
   findOneById,
