@@ -5,6 +5,8 @@ import email from "@/infra/email";
 import { prisma } from "@/infra/prisma";
 import webserver from "@/infra/webserver";
 
+import validator from "./validator";
+
 const extendedPrisma = prisma.$extends({
   result: {
     individual: {
@@ -129,14 +131,43 @@ function create(payload: {
     state: string;
   };
 }) {
+  const individualBody: {
+    name: string;
+    email: string;
+    motherName?: string;
+    cpf: string;
+    birthday: Date;
+    phoneNumber?: string;
+  } = validator(payload, {
+    name: "required",
+    email: "required",
+    motherName: "optional",
+    cpf: "required",
+    birthday: "required",
+    phoneNumber: "optional",
+  });
+
+  const addressBody: {
+    cep: string;
+    street: string;
+    number: string;
+    complement?: string | null;
+    city: string;
+    state: string;
+  } = validator(payload.address, {
+    cep: "required",
+    street: "required",
+    number: "required",
+    complement: "optional",
+    city: "required",
+    state: "required",
+  });
+
   return prisma.individual.create({
     data: {
-      ...payload,
-      email: payload.email.toLowerCase(),
-      cpf: payload.cpf.replace(/\D/g, ""),
-      phoneNumber: payload.phoneNumber?.replace(/\D/g, ""),
+      ...individualBody,
       address: {
-        create: payload.address,
+        create: addressBody,
       },
     },
   });

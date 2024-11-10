@@ -2,6 +2,7 @@ import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 
 import { parse } from "cookie";
 
+import AddIndividualButton from "@/components/AddIndividualButton";
 import Layout from "@/components/Layout";
 import authorization from "@/models/authorization";
 import individual from "@/models/individual";
@@ -45,7 +46,7 @@ const Individuals: React.FC<IndividualsProps> = ({
   detailedIndividuals,
 }) => {
   return (
-    <Layout label="Pessoas">
+    <Layout label="Pessoas" rightAccessory={<AddIndividualButton />}>
       {detailedIndividuals && (
         <DetailedTable individuals={detailedIndividuals} />
       )}

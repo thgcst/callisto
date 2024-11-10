@@ -349,10 +349,11 @@ const schemas = {
   motherName: function () {
     return Joi.object({
       motherName: Joi.string()
+        .allow("")
+        .empty("")
         .min(5)
         .max(50)
         .trim()
-        .invalid(null)
         .when("$required.motherName", {
           is: "required",
           then: Joi.required(),
@@ -401,9 +402,10 @@ const schemas = {
   phoneNumber: function () {
     return Joi.object({
       phoneNumber: Joi.string()
+        .allow("")
+        .empty("")
         .replace(/\D/g, "")
         .trim()
-        .invalid(null)
         .when("$required.phoneNumber", {
           is: "required",
           then: Joi.required(),
