@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 import {
   createColumnHelper,
@@ -9,6 +10,7 @@ import {
 } from "@tanstack/react-table";
 import { format } from "date-fns";
 
+import ApproveUserButton from "@/components/ApproveUserButton";
 import Table from "@/components/Table";
 import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
@@ -20,12 +22,26 @@ import { IndividualsProps } from "./index.public";
 const DetailedTable: React.FC<{
   individuals: Exclude<IndividualsProps["detailedIndividuals"], undefined>;
 }> = ({ individuals }) => {
+  const { reload } = useRouter();
   const { user } = useUser();
 
   const columnHelper =
     createColumnHelper<
       Exclude<IndividualsProps["detailedIndividuals"], undefined>[number]
     >();
+
+  const canReadIndividual = useMemo(
+    () => user && authorization.can(user, "read:individual"),
+    [user]
+  );
+  const canEditIndividual = useMemo(
+    () => user && authorization.can(user, "edit:individual"),
+    [user]
+  );
+  const canApproveIndividual = useMemo(
+    () => user && authorization.can(user, "approve:individual"),
+    [user]
+  );
 
   const detailedColumns = useMemo(
     () => [
@@ -91,25 +107,37 @@ const DetailedTable: React.FC<{
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
-          if (!user || !authorization.can(user, "read:individual")) {
+          if (!canReadIndividual) {
             return null;
           }
           return (
-            <div className="text-right">
+            <div className="flex items-center gap-4">
               <Link
                 href={`/pessoas/${row.original.id}`}
                 className="text-indigo-600 hover:text-indigo-900"
               >
-                {user && authorization.can(user, "edit:individual")
-                  ? "Editar"
-                  : "Ver"}
+                {canEditIndividual ? "Editar" : "Ver"}
               </Link>
+              {canApproveIndividual && row.original.approvedByUserId ? (
+                <ApproveUserButton
+                  individualId={row.original.id}
+                  onApprove={() => {
+                    reload();
+                  }}
+                />
+              ) : null}
             </div>
           );
         },
       }),
     ],
-    [columnHelper, user]
+    [
+      canApproveIndividual,
+      canEditIndividual,
+      canReadIndividual,
+      columnHelper,
+      reload,
+    ]
   );
 
   const table = useReactTable({

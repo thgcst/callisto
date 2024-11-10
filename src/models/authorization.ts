@@ -14,6 +14,7 @@ const systemFeaturesSet = new Set([
   "read:individualsDetails",
   "read:individual",
   "edit:individual",
+  "approve:individual",
 ] as const);
 
 type SystemFeatureType = typeof systemFeaturesSet extends Set<infer T>
@@ -21,7 +22,6 @@ type SystemFeatureType = typeof systemFeaturesSet extends Set<infer T>
   : never;
 
 function can(user: Omit<User, "password">, feature: SystemFeatureType) {
-  console.log(user);
   if (user.features.includes(feature)) {
     return true;
   }

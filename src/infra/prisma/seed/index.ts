@@ -8,6 +8,41 @@ import password from "../../../models/password";
 
 const prisma = new PrismaClient();
 
+const generateCpf = (masked = false) => {
+  const mod = (dividendo: number, divisor: number) =>
+    Math.round(dividendo - Math.floor(dividendo / divisor) * divisor);
+  const randNums = String(Math.random()).slice(2, 11);
+
+  let d1 =
+    11 -
+    mod(
+      randNums
+        .split("")
+        .reverse()
+        .reduce((acc, cur, idx) => acc + parseInt(cur) * (idx + 2), 0),
+      11
+    );
+  if (d1 >= 10) d1 = 0;
+
+  let d2 =
+    11 -
+    mod(
+      d1 * 2 +
+        randNums
+          .split("")
+          .reverse()
+          .reduce((acc, cur, idx) => acc + parseInt(cur) * (idx + 3), 0),
+      11
+    );
+  if (d2 >= 10) d2 = 0;
+
+  const cpfGenerated = `${randNums}${d1}${d2}`;
+
+  return masked
+    ? cpfGenerated.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
+    : cpfGenerated;
+};
+
 async function main() {
   await prisma.user.upsert({
     where: {
@@ -27,7 +62,7 @@ async function main() {
     await individual.create({
       address: {
         city: faker.location.city(),
-        state: faker.location.state(),
+        state: faker.location.state({ abbreviated: true }),
         street: faker.location.street(),
         number: faker.number.int({ min: 1, max: 1000 }).toString(),
         cep: faker.location.zipCode(),
@@ -35,7 +70,7 @@ async function main() {
       },
       name: faker.person.fullName(),
       email: faker.internet.email(),
-      cpf: faker.number.int({ min: 10000000000, max: 99999999999 }).toString(),
+      cpf: generateCpf().toString(),
       phoneNumber: faker.phone.number({ style: "national" }),
       birthday: faker.date.past({ years: 18 }),
     });

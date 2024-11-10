@@ -33,6 +33,11 @@ async function findAllPublic() {
       },
       createdAt: true,
     },
+    where: {
+      approvedBy: {
+        isNot: null,
+      },
+    },
   });
 
   return individuals;
