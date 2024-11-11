@@ -1,6 +1,7 @@
+import { Prisma } from "@prisma/client";
 import { format } from "date-fns";
 
-import { ConflictError, NotFoundError } from "@/errors";
+import { ConflictError, NotFoundError, ServiceError } from "@/errors";
 import email from "@/infra/email";
 import { prisma } from "@/infra/prisma";
 import webserver from "@/infra/webserver";
@@ -43,11 +44,24 @@ async function findAllPublic() {
   return individuals;
 }
 
-async function findAll() {
+async function findAll(payload: { approved?: boolean } = {}) {
+  const { approved } = payload;
+
+  let whereClause: Prisma.IndividualWhereInput = {};
+
+  if (approved !== undefined) {
+    whereClause = {
+      approvedBy: {
+        [approved ? "isNot" : "is"]: null,
+      },
+    };
+  }
+
   const individuals = await extendedPrisma.individual.findMany({
     include: {
       address: true,
     },
+    where: whereClause,
   });
 
   return individuals;
@@ -82,7 +96,7 @@ async function approve(userId: string, individualId: string) {
     throw new ConflictError({
       message: `O cadastro já foi aprovado em ${format(
         individual.approvedAt,
-        "dd/MM/yyyy"
+        "dd/MM/yyyy",
       )}.`,
       errorLocationCode: "MODEL:INDIVIDUAL:APPROVE:INDIVIDUAL_ALREADY_APPROVED",
     });
@@ -113,11 +127,67 @@ ${webserverHost}
 Atenciosamente,
 Equipe de TI do Callisto`,
     });
-  } catch (error) {
-    console.log(error);
+  } catch {
+    throw new ServiceError({
+      message: "Não foi possível enviar o e-mail de aprovação.",
+      errorLocationCode: "MODEL:INDIVIDUAL:APPROVE:EMAIL_SENDING_ERROR",
+    });
   }
 
   return updatedIndividual;
+}
+
+async function approveMultiple(userId: string, individualIds: string[]) {
+  const webserverHost = webserver.getHost();
+  const updatedIndividuals = await prisma.individual.updateMany({
+    where: {
+      id: {
+        in: individualIds,
+      },
+      approvedAt: null,
+    },
+    data: {
+      approvedByUserId: userId,
+      approvedAt: new Date(),
+    },
+  });
+
+  const individuals = await prisma.individual.findMany({
+    select: {
+      email: true,
+    },
+    where: {
+      id: {
+        in: individualIds,
+      },
+    },
+  });
+
+  try {
+    individuals.forEach(async (individual) => {
+      await email.send({
+        from: {
+          name: "Callisto",
+          address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
+        },
+        to: individual.email,
+        subject: "Conta aprovada no Callisto!",
+        text: `Clique no link abaixo para acessar sua conta:
+      
+${webserverHost}
+
+Atenciosamente,
+Equipe de TI do Callisto`,
+      });
+    });
+  } catch {
+    throw new ServiceError({
+      message: "Não foi possível enviar o e-mail de aprovação.",
+      errorLocationCode: "MODEL:INDIVIDUAL:APPROVE:EMAIL_SENDING_ERROR",
+    });
+  }
+
+  return updatedIndividuals;
 }
 
 function create(payload: {
@@ -182,6 +252,7 @@ export default Object.freeze({
   findAllPublic,
   findAll,
   approve,
+  approveMultiple,
   findOneById,
   create,
 });

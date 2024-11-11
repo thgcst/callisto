@@ -21,10 +21,16 @@ export const getServerSideProps = (async (ctx) => {
     sessionValid &&
     authorization.can(sessionValid.user, `read:individualsDetails`)
   ) {
-    const individuals = await individual.findAll();
+    const approvedIndividuals = await individual.findAll({ approved: true });
+    const individualsPendingApproval = await individual.findAll({
+      approved: false,
+    });
     return {
       props: {
-        detailedIndividuals: serialize(individuals),
+        detailedIndividuals: {
+          approvedIndividuals: serialize(approvedIndividuals),
+          individualsPendingApproval: serialize(individualsPendingApproval),
+        },
       },
     };
   }

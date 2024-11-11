@@ -20,7 +20,7 @@ const ApproveIndividualButton: React.FC<ApproveIndividualButtonProps> = ({
       className={clsx(
         "rounded-md bg-green-600 text-sm font-semibold text-white duration-100 ease-in hover:bg-green-700 hover:text-white",
         size === "sm" && "px-2.5 py-1",
-        size === "md" && "px-3 py-2"
+        size === "md" && "px-3 py-2",
       )}
       onClick={async () => {
         await approveIndividual({ individualId });

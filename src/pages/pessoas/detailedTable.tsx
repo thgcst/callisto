@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -6,12 +6,15 @@ import { useRouter } from "next/router";
 import {
   createColumnHelper,
   getCoreRowModel,
+  RowSelectionState,
   useReactTable,
 } from "@tanstack/react-table";
 import { format } from "date-fns";
 
-import ApproveUserButton from "@/components/ApproveUserButton";
+import ApproveIndividualsButton from "@/components/ApproveIndividualButton/multiple";
+import Checkbox from "@/components/Checkbox";
 import Table from "@/components/Table";
+import Tabs, { Tab } from "@/components/Tabs";
 import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
 import { dayToDDMMYYYY, dayToLocaleString } from "@/utils/dates";
@@ -19,16 +22,20 @@ import { formatPhoneNumber } from "@/utils/format";
 
 import { IndividualsProps } from "./index.public";
 
+type IndividualsType = Exclude<
+  IndividualsProps["detailedIndividuals"],
+  undefined
+>;
+
 const DetailedTable: React.FC<{
-  individuals: Exclude<IndividualsProps["detailedIndividuals"], undefined>;
+  individuals: IndividualsType;
 }> = ({ individuals }) => {
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const router = useRouter();
   const { user } = useUser();
 
   const columnHelper =
-    createColumnHelper<
-      Exclude<IndividualsProps["detailedIndividuals"], undefined>[number]
-    >();
+    createColumnHelper<IndividualsType["approvedIndividuals"][number]>();
 
   const canReadIndividual = useMemo(
     () => user && authorization.can(user, "read:individual"),
@@ -45,6 +52,23 @@ const DetailedTable: React.FC<{
 
   const detailedColumns = useMemo(
     () => [
+      columnHelper.display({
+        id: "checkbox",
+        header: ({ table }) => (
+          <Checkbox
+            checked={table.getIsAllRowsSelected()}
+            indeterminate={table.getIsSomeRowsSelected()}
+            onChange={table.toggleAllRowsSelected}
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            disabled={!row.getCanSelect()}
+            onChange={row.toggleSelected}
+          />
+        ),
+      }),
       columnHelper.display({
         id: "name",
         cell: ({ row }) => (
@@ -118,35 +142,67 @@ const DetailedTable: React.FC<{
               >
                 {canEditIndividual ? "Editar" : "Ver"}
               </Link>
-              {canApproveIndividual && !row.original.approvedByUserId ? (
-                <ApproveUserButton
-                  individualId={row.original.id}
-                  onApprove={() => {
-                    router.reload();
-                  }}
-                />
-              ) : null}
             </div>
           );
         },
       }),
     ],
-    [
-      canApproveIndividual,
-      canEditIndividual,
-      canReadIndividual,
-      columnHelper,
-      router,
-    ],
+    [canEditIndividual, canReadIndividual, columnHelper],
   );
 
-  const table = useReactTable({
-    data: individuals,
-    columns: detailedColumns,
+  const approvedTable = useReactTable({
+    data: individuals.approvedIndividuals,
+    columns: detailedColumns.filter((column) => column.id !== "checkbox"),
     getCoreRowModel: getCoreRowModel(),
   });
 
-  return <Table table={table} />;
+  const pendingApprovalTable = useReactTable({
+    data: individuals.individualsPendingApproval,
+    columns: detailedColumns,
+    getCoreRowModel: getCoreRowModel(),
+    getRowId: (row) => row.id,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      rowSelection,
+    },
+  });
+
+  return (
+    <Tabs
+      onChange={(e) => {
+        const tab = e === 0 ? "pendente" : "aprovados";
+        router.replace(
+          router.asPath,
+          {
+            query: { tab },
+          },
+          { shallow: false },
+        );
+      }}
+      defaultIndex={router.query.tab === "pendente" ? 0 : 1}
+      rightSection={(tab) =>
+        tab === "Pendentes" && (
+          <ApproveIndividualsButton
+            size="sm"
+            individualIds={Object.entries(rowSelection)
+              .filter(([, selected]) => selected)
+              .map(([individualId]) => individualId)}
+            onApprove={() => {
+              setRowSelection({});
+              router.replace(router.asPath);
+            }}
+          />
+        )
+      }
+    >
+      <Tab label="Pendentes">
+        <Table table={pendingApprovalTable} />
+      </Tab>
+      <Tab label="Aprovados">
+        <Table table={approvedTable} />
+      </Tab>
+    </Tabs>
+  );
 };
 
 export default DetailedTable;

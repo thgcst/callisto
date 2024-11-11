@@ -16,21 +16,25 @@ function useApproveIndividual() {
 
     try {
       await toast.promise(
-        api.patch(`/api/individuals/${body.individualId}/approve`, body, {
-          timeout: 60000,
-        }),
+        api.patch(
+          `/api/individuals/${body.individualId}/approve`,
+          {},
+          {
+            timeout: 60000,
+          },
+        ),
         {
           pending: "Aprovando cadastro...",
           success: "Cadastro aprovado com sucesso!",
           error: {
             render({ data }) {
-              // @ts-ignore
+              // @ts-expect-error - TS doesn't know about this property
               return data.response?.data?.message || data.message;
             },
           },
-        }
+        },
       );
-    } catch (error) {
+    } catch {
       //
     }
 

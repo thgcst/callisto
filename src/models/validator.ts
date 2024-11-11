@@ -8,7 +8,7 @@ type ValidatorSchemas = keyof typeof schemas;
 export default function validator(
   object: object,
   keys: { [key in ValidatorSchemas]?: "required" | "optional" },
-  canBeEmpty = true
+  canBeEmpty = true,
 ) {
   // Force the clean up of "undefined" values since JSON
   // doesn't support them and Joi doesn't clean
@@ -57,7 +57,7 @@ export default function validator(
 export function sortValidator(
   object: object,
   options: string[],
-  defaultSort?: string
+  defaultSort?: string,
 ) {
   try {
     object = JSON.parse(JSON.stringify(object));
@@ -72,11 +72,11 @@ export function sortValidator(
     sort: Joi.string()
       .valid(...options)
       .default(
-        defaultSort && options.includes(defaultSort) ? defaultSort : options[0]
+        defaultSort && options.includes(defaultSort) ? defaultSort : options[0],
       )
       .messages({
         "any.only": `"sort" deve ser um dos seguintes valores: ${options.join(
-          ", "
+          ", ",
         )}.`,
       }),
     order: Joi.string().valid("asc", "desc").default("asc").messages({
@@ -115,6 +115,25 @@ const schemas = {
           "string.empty": `"id" não pode estar em branco.`,
           "string.base": `"id" deve ser do tipo String.`,
           "string.guid": `"id" deve possuir um token UUID na versão 4.`,
+        }),
+    });
+  },
+
+  ids: function () {
+    return Joi.object({
+      ids: Joi.array()
+        .items(Joi.string().guid({ version: "uuidv4" }))
+        .when("$required.ids", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"ids" é um campo obrigatório.`,
+          "string.empty": `"ids" não pode estar em branco.`,
+          "array.base": `"ids" deve ser do tipo Array.`,
+          "array.min": `"ids" deve conter no mínimo {#limit} itens.`,
+          "string.guid": `"ids" deve possuir um token UUID na versão 4.`,
         }),
     });
   },
