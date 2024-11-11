@@ -19,7 +19,7 @@ export default nextConnect({
 
 async function patchHandler(
   request: InjectedRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   const { files, fields } = await parseRequest(request);
 

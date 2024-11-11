@@ -20,7 +20,7 @@ const generateCpf = (masked = false) => {
         .split("")
         .reverse()
         .reduce((acc, cur, idx) => acc + parseInt(cur) * (idx + 2), 0),
-      11
+      11,
     );
   if (d1 >= 10) d1 = 0;
 
@@ -32,7 +32,7 @@ const generateCpf = (masked = false) => {
           .split("")
           .reverse()
           .reduce((acc, cur, idx) => acc + parseInt(cur) * (idx + 3), 0),
-      11
+      11,
     );
   if (d2 >= 10) d2 = 0;
 

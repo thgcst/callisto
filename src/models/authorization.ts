@@ -17,9 +17,8 @@ const systemFeaturesSet = new Set([
   "approve:individual",
 ] as const);
 
-type SystemFeatureType = typeof systemFeaturesSet extends Set<infer T>
-  ? T
-  : never;
+type SystemFeatureType =
+  typeof systemFeaturesSet extends Set<infer T> ? T : never;
 
 function can(user: Omit<User, "password">, feature: SystemFeatureType) {
   if (user.features.includes(feature)) {
@@ -33,7 +32,7 @@ function canRequest(feature: SystemFeatureType) {
   return function (
     request: InjectedRequest,
     response: NextApiResponse,
-    next: NextHandler
+    next: NextHandler,
   ) {
     const userTryingToRequest = request.context.user;
 

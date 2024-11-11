@@ -32,7 +32,7 @@ function useCreateAddress() {
               return data.response?.data?.message || data.message;
             },
           },
-        }
+        },
       );
       setLoading(false);
       return address.data;

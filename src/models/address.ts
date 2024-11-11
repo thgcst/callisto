@@ -32,7 +32,7 @@ async function updateById(
     complement: string;
     city: string;
     state: string;
-  }>
+  }>,
 ) {
   const address = await prisma.address.update({
     where: {

@@ -59,7 +59,7 @@ async function findOneValidByToken(sessionToken: string) {
     { sessionToken },
     {
       sessionToken: "required",
-    }
+    },
   );
 
   const session = await prisma.session.findFirst({
@@ -77,7 +77,7 @@ async function findOneValidByToken(sessionToken: string) {
 async function renewSessionIfNecessary(
   request: InjectedRequest,
   response: NextApiResponse,
-  next: NextHandler
+  next: NextHandler,
 ) {
   let sessionObject = request.context.session;
 
@@ -111,7 +111,7 @@ async function renew(sessionId: string, response: NextApiResponse) {
 
 function setSessionIdCookieInResponse(
   sessionToken: string,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   response.setHeader("Set-Cookie", [
     cookie.serialize("sessionToken", sessionToken, {

@@ -25,7 +25,7 @@ async function getHandler(request: InjectedRequest, response: NextApiResponse) {
 
 async function postHandler(
   request: InjectedRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   const individualBody: {
     name: string;

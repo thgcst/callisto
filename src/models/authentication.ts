@@ -14,7 +14,7 @@ import validator from "./validator";
 async function injectUser(
   request: InjectedRequest,
   response: NextApiResponse,
-  next: NextHandler
+  next: NextHandler,
 ) {
   if (request.cookies?.sessionToken) {
     const cleanCookies = validator(request.cookies, {
@@ -45,11 +45,11 @@ async function injectUser(
 
 async function comparePasswords(
   providedPassword: string,
-  passwordHash: string
+  passwordHash: string,
 ) {
   const passwordMatches = await password.compare(
     providedPassword,
-    passwordHash
+    passwordHash,
   );
 
   if (!passwordMatches) {
@@ -64,7 +64,7 @@ async function comparePasswords(
 async function createSessionAndSetCookies(
   userId: User["id"],
   request: NextApiRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   const sessionObject = await session.create(userId, request);
   session.setSessionIdCookieInResponse(sessionObject.token, response);

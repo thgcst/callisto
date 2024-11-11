@@ -13,7 +13,7 @@ const AddIndividualButton: React.FC = () => {
       <div className="md:hidden">
         <PlusIcon
           className={clsx(
-            "size-5 text-white transition duration-150 ease-in-out group-hover:text-opacity-80"
+            "size-5 text-white transition duration-150 ease-in-out group-hover:text-opacity-80",
           )}
         />
       </div>

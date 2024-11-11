@@ -109,10 +109,10 @@ const NewUser: React.FC = () => {
                             options={[...authorization.systemFeaturesSet].map(
                               (feature) => ({
                                 label: capitalizeFirstLetter(
-                                  feature.replace(":", " ")
+                                  feature.replace(":", " "),
                                 ),
                                 value: feature,
-                              })
+                              }),
                             )}
                             onChange={(value) => field.onChange(value)}
                             value={field.value}

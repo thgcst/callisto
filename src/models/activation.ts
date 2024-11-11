@@ -44,7 +44,7 @@ async function create(user: User) {
 
 async function sendEmailToUser(
   user: User,
-  tokenId: ActivateAccountToken["id"]
+  tokenId: ActivateAccountToken["id"],
 ) {
   const activationPageEndpoint = getActivationPageEndpoint(tokenId);
 

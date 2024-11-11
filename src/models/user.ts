@@ -89,7 +89,7 @@ async function create(data: {
 async function updateUserPasswordById(userId: string, newPassword: string) {
   validator(
     { id: userId, password: newPassword },
-    { id: "required", password: "required" }
+    { id: "required", password: "required" },
   );
 
   const hashedPassword = await password.hash(newPassword);
@@ -113,7 +113,7 @@ async function updateById(
     email?: string;
     features?: string[];
     avatar?: string;
-  }
+  },
 ) {
   validator({ id }, { id: "required" });
 
