@@ -2,7 +2,8 @@
   "extends": [
     "next/core-web-vitals",
     "next/typescript",
-    "plugin:tailwindcss/recommended"
+    "plugin:tailwindcss/recommended",
+    "prettier"
   ],
   "plugins": ["eslint-plugin-import-helpers", "unused-imports"],
   "rules": {
