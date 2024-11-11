@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 
 import { toast } from "react-toastify";
 
+import { useUser } from "@/contexts/userContext";
 import api from "@/services/api";
 
 type CreateSessionBody = {
@@ -12,6 +13,7 @@ type CreateSessionBody = {
 };
 
 function useCreateSession() {
+  const { fetchUser } = useUser();
   const { push, query } = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -32,8 +34,9 @@ function useCreateSession() {
               return data.response?.data?.message || data.message;
             },
           },
-        }
+        },
       );
+      void fetchUser();
       if (query?.redirect) {
         push(query.redirect as string);
       } else {

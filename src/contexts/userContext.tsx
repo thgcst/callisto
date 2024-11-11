@@ -84,7 +84,11 @@ export const UserContextProvider: React.FC<PropsWithChildren> = ({
 
     function onFocus() {
       setUser((user) => (storedUser?.name ? { ...user, ...storedUser } : null));
-      if (refreshInterval < Date.now() - (storedUser?.cacheTime ?? 0))
+
+      if (
+        storedUser?.cacheTime &&
+        refreshInterval < Date.now() - (storedUser.cacheTime ?? 0)
+      )
         fetchUser();
     }
     addEventListener("focus", onFocus);
