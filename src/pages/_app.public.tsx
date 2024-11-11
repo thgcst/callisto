@@ -39,10 +39,14 @@ export default function App({ Component, pageProps }: AppProps) {
         value={{
           fetcher: fetcher(),
           onError(err, key) {
+            if (key === "/api/user") {
+              // Do nothing
+              return;
+            }
+
             const statusCode = err.response?.status;
             if (statusCode === 401) {
-              if (key === "/api/user") return;
-              router.push("/");
+              router.push("/login");
             }
             toast.error(err.response?.data?.message || err.message, {
               toastId: statusCode === 401 ? "401" : key,

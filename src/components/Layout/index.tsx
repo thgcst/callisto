@@ -1,4 +1,4 @@
-import React, { Fragment, PropsWithChildren } from "react";
+import React, { Fragment, PropsWithChildren, useMemo } from "react";
 
 import Head from "next/head";
 import Image from "next/image";
@@ -11,6 +11,8 @@ import clsx from "clsx";
 
 import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
+
+import LinkOrButton from "../LinkOrButton";
 
 type LayoutProps = PropsWithChildren & {
   label?: string;
@@ -49,20 +51,33 @@ const Layout: React.FC<LayoutProps> = ({
     },
   ];
 
-  const userNavigation = [
-    {
-      name: "Minha conta",
-      onClick: () => {
-        push("/minha-conta");
-      },
-    },
-    {
-      name: "Sair",
-      onClick: async () => {
-        await logout();
-      },
-    },
-  ];
+  const userNavigation = useMemo(() => {
+    let pages = [];
+
+    if (user) {
+      pages = [
+        {
+          name: "Minha conta",
+          href: "/minha-conta",
+        },
+        {
+          name: "Sair",
+          onClick: async () => {
+            await logout();
+          },
+        },
+      ];
+    } else {
+      pages = [
+        {
+          name: "Entrar",
+          href: "/login",
+        },
+      ];
+    }
+
+    return pages;
+  }, [logout, user]);
 
   return (
     <>
@@ -161,7 +176,8 @@ const Layout: React.FC<LayoutProps> = ({
                               {userNavigation.map((item) => (
                                 <Menu.Item key={item.name}>
                                   {({ active }) => (
-                                    <div
+                                    <LinkOrButton
+                                      href={item.href}
                                       className={clsx(
                                         active ? "bg-gray-100" : "",
                                         "block cursor-pointer px-4 py-2 text-sm text-gray-700"
@@ -169,7 +185,7 @@ const Layout: React.FC<LayoutProps> = ({
                                       onClick={item.onClick}
                                     >
                                       {item.name}
-                                    </div>
+                                    </LinkOrButton>
                                   )}
                                 </Menu.Item>
                               ))}
@@ -179,7 +195,7 @@ const Layout: React.FC<LayoutProps> = ({
                       ) : (
                         <Link
                           href="/login"
-                          className="hidden text-sm/6 font-semibold text-white md:block"
+                          className="text-sm/6 font-semibold text-white"
                         >
                           Log in <span aria-hidden="true">&rarr;</span>
                         </Link>
@@ -227,9 +243,9 @@ const Layout: React.FC<LayoutProps> = ({
                     </Link>
                   ))}
                 </div>
-                {user ? (
-                  <div className="border-t border-gray-700 pb-3 pt-4">
-                    <div className="flex items-center px-5">
+                <div className="border-t border-gray-700 pb-3 pt-4">
+                  {user ? (
+                    <div className="mb-3 flex items-center px-5">
                       <div className="shrink-0">
                         <div className="relative size-10">
                           <Image
@@ -261,32 +277,31 @@ const Layout: React.FC<LayoutProps> = ({
                           <BellIcon className="size-6" aria-hidden="true" />
                         </button>
                       )}
-                      <div className="mt-3 space-y-1 px-2">
-                        {userNavigation.map((item) => (
+                    </div>
+                  ) : null}
+                  <div className="space-y-1 px-2">
+                    {userNavigation.map((item) =>
+                      item.href ? (
+                        <Link passHref key={item.name} href={item.href}>
                           <Disclosure.Button
-                            key={item.name}
                             as="a"
                             className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
-                            onClick={item.onClick}
                           >
                             {item.name}
                           </Disclosure.Button>
-                        ))}
-                      </div>
-                    </div>
+                        </Link>
+                      ) : (
+                        <Disclosure.Button
+                          key={item.name}
+                          className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
+                          onClick={item.onClick}
+                        >
+                          {item.name}
+                        </Disclosure.Button>
+                      )
+                    )}
                   </div>
-                ) : (
-                  <div className="border-t border-gray-700 px-2 pb-3 pt-2 sm:px-3">
-                    <Link href="/login" passHref>
-                      <Disclosure.Button
-                        as="a"
-                        className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                      >
-                        Log in <span aria-hidden="true">&rarr;</span>
-                      </Disclosure.Button>
-                    </Link>
-                  </div>
-                )}
+                </div>
               </Disclosure.Panel>
             </>
           )}
