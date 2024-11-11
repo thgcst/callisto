@@ -1,64 +1,64 @@
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 
 import { parse } from "cookie";
 
-import AddUserButton from "@/components/AddUserButton";
-import ErrorPage from "@/components/ErrorPage";
+import AddIndividualButton from "@/components/AddIndividualButton";
 import Layout from "@/components/Layout";
 import authorization from "@/models/authorization";
+import individual from "@/models/individual";
 import session from "@/models/session";
-import { useMe, useUsers } from "@/swr/users";
+import { serialize } from "@/utils/serialize";
 
-import Loading from "./loading";
-import Page from "./page";
+import DefaultTable from "./defaultTable";
+import DetailedTable from "./detailedTable";
 
-const Users: React.FC = () => {
-  const { isLoading: notApprovedLoading, error: notApprovedError } = useUsers({
-    approved: false,
-  });
-  const { isLoading: approvedLoading, error: approvedError } = useUsers({
-    approved: true,
-  });
-  const { me } = useMe();
-
-  if (approvedError || notApprovedError) return <ErrorPage />;
-
-  const isLoading = notApprovedLoading || approvedLoading;
-
-  return (
-    <Layout
-      label="Pessoas"
-      rightAccessory={
-        me && authorization.roleIsAdmin(me) ? <AddUserButton /> : null
-      }
-    >
-      {isLoading ? <Loading /> : <Page />}
-    </Layout>
-  );
-};
-export default Users;
-
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps = (async (ctx) => {
   const { sessionToken } = parse(ctx.req.headers.cookie || "");
 
   const sessionValid = await session.isSessionValid(sessionToken);
 
-  if (!sessionValid) {
+  if (
+    sessionValid &&
+    authorization.can(sessionValid.user, `read:individualsDetails`)
+  ) {
+    const approvedIndividuals = await individual.findAll({ approved: true });
+    const individualsPendingApproval = await individual.findAll({
+      approved: false,
+    });
     return {
-      redirect: {
-        destination: `/?redirect=${ctx.resolvedUrl}`,
-        permanent: false,
+      props: {
+        detailedIndividuals: {
+          approvedIndividuals: serialize(approvedIndividuals),
+          individualsPendingApproval: serialize(individualsPendingApproval),
+        },
       },
     };
   }
 
-  if (!authorization.roleIsAdmin(sessionValid.user)) {
-    return {
-      notFound: true,
-    };
-  }
-
+  const individuals = await individual.findAllPublic();
   return {
-    props: {},
+    props: {
+      individuals: serialize(individuals),
+    },
   };
+}) satisfies GetServerSideProps;
+
+export type IndividualsProps = InferGetServerSidePropsType<
+  typeof getServerSideProps
+>;
+
+const Individuals: React.FC<IndividualsProps> = ({
+  individuals,
+  detailedIndividuals,
+}) => {
+  return (
+    <Layout label="Pessoas" rightAccessory={<AddIndividualButton />}>
+      {detailedIndividuals && (
+        <DetailedTable individuals={detailedIndividuals} />
+      )}
+      {individuals && <DefaultTable individuals={individuals} />}
+    </Layout>
+  );
 };
+
+export default Individuals;

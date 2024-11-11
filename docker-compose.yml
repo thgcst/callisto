@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres
+    restart: always
+    container_name: callisto-postgres
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: callisto
+      POSTGRES_USER: admin
+    ports:
+      - 5433:5432

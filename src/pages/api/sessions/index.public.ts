@@ -4,6 +4,7 @@ import nextConnect from "next-connect";
 import { User } from "@prisma/client";
 
 import { ForbiddenError, UnauthorizedError } from "@/errors";
+import activation from "@/models/activation";
 import authentication from "@/models/authentication";
 import controller from "@/models/controller";
 import session from "@/models/session";
@@ -50,10 +51,18 @@ async function postHandler(
 
   try {
     storedUser = await user.findOneByEmail(inputValues.email);
-  } catch (error) {
+  } catch {
     throw new UnauthorizedError({
       message: `Dados não conferem.`,
       errorLocationCode: `CONTROLLER:SESSIONS:POST_HANDLER:DATA_MISMATCH`,
+    });
+  }
+
+  if (!storedUser.password) {
+    await activation.createAndSendActivationEmail(storedUser);
+    throw new ForbiddenError({
+      message: `Usuário não foi ativado. Enviamos um novo e-mail para ativação e cadastro de senha.`,
+      errorLocationCode: `CONTROLLER:SESSIONS:POST_HANDLER:USER_WITHOUT_PASSWORD`,
     });
   }
 
@@ -62,17 +71,10 @@ async function postHandler(
       inputValues.password,
       storedUser.password
     );
-  } catch (error) {
+  } catch {
     throw new UnauthorizedError({
       message: `Dados não conferem.`,
       errorLocationCode: `CONTROLLER:SESSIONS:POST_HANDLER:DATA_MISMATCH`,
-    });
-  }
-
-  if (!storedUser.approvedById) {
-    throw new ForbiddenError({
-      message: `Sou usuário ainda não foi ativado. Aguarde enquanto seus dados são analisados.`,
-      errorLocationCode: `CONTROLLER:SESSIONS:POST_HANDLER:USER_WITHOUT_PASSWORD`,
     });
   }
 

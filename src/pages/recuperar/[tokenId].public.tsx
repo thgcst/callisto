@@ -151,7 +151,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (parsedCookies?.sessionId) {
     return {
       redirect: {
-        destination: "/empresas",
+        destination: "/pessoas",
         permanent: true,
       },
     };

@@ -28,7 +28,7 @@ function useCreateAddress() {
           success: "Endereço criado com sucesso!",
           error: {
             render({ data }) {
-              // @ts-ignore
+              // @ts-expect-error data is any
               return data.response?.data?.message || data.message;
             },
           },
@@ -36,7 +36,7 @@ function useCreateAddress() {
       );
       setLoading(false);
       return address.data;
-    } catch (error) {
+    } catch {
       //
     }
 

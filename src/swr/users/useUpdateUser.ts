@@ -1,43 +1,51 @@
 import { useState } from "react";
 
-import { Role } from "@prisma/client";
+import { useRouter } from "next/router";
+
 import { toast } from "react-toastify";
 
 import api from "@/services/api";
 
-type UpdateUserBody = Partial<{
+type UpdateUserBody = {
   name: string;
-  motherName: string;
-  cpf: string;
-  birthday: string;
-  phoneNumber: string;
-  role: Role;
-}>;
+  features?: string[];
+  avatar?: FileList | null;
+};
 
 function useUpdateUser() {
+  const { push } = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const updateUser = async (userId: string, body: UpdateUserBody) => {
+  const updateUser = async (id: string, body: UpdateUserBody) => {
     setLoading(true);
 
     try {
-      await toast.promise(
-        api.patch(`/api/user/${userId}`, body, {
-          timeout: 60000,
-        }),
-        {
-          pending: "Atualizando cadastro...",
-          success: "Cadastro atualizado com sucesso!",
-          error: {
-            render({ data }) {
-              // @ts-ignore
-              return data.response?.data?.message || data.message;
-            },
+      const data = new FormData();
+
+      if (body.name) {
+        data.append("name", body.name);
+      }
+
+      if (body.features) {
+        data.append("features", JSON.stringify(body.features));
+      }
+
+      if (body.avatar) {
+        data.append("avatar", body.avatar[0]);
+      }
+
+      await toast.promise(api.patch(`/api/user/${id}/update`, data), {
+        pending: "Atualizando usuário...",
+        success: "Usuário atualizado com sucesso!",
+        error: {
+          render({ data }) {
+            // @ts-expect-error data is not null
+            return data.response?.data?.message || data.message;
           },
-        }
-      );
-      setLoading(false);
-    } catch (error) {
+        },
+      });
+      push(`/usuarios/${id}`);
+    } catch {
       //
     }
 

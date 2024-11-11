@@ -22,7 +22,7 @@ async function injectUser(
     });
     request.cookies.sessionToken = cleanCookies.sessionToken;
 
-    await injectAuthenticatedUser(request, response);
+    await injectAuthenticatedUser(request);
   } else {
     throw new UnauthorizedError({
       message: `Usuário não possui sessão ativa.`,
@@ -31,20 +31,14 @@ async function injectUser(
   }
   return next();
 
-  async function injectAuthenticatedUser(
-    request: InjectedRequest,
-    response: NextApiResponse
-  ) {
+  async function injectAuthenticatedUser(request: InjectedRequest) {
     const sessionObject = await session.findOneValidFromRequest(request);
-
     const userObject = await user.findOneById(sessionObject.userId);
-
-    const sessionRenewed = await session.renew(sessionObject.id, response);
 
     request.context = {
       ...request.context,
       user: userObject,
-      session: sessionRenewed,
+      session: sessionObject,
     };
   }
 }

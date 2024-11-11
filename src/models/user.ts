@@ -1,52 +1,18 @@
-import { Prisma, Role } from "@prisma/client";
-import { format } from "date-fns";
-
-import { ConflictError, NotFoundError } from "@/errors";
-import email from "@/infra/email";
+import { NotFoundError } from "@/errors";
 import { prisma } from "@/infra/prisma";
-import webserver from "@/infra/webserver";
 
 import password from "./password";
 import validator from "./validator";
 
-async function findAll(payload: { approved?: boolean } = {}) {
-  const { approved } = payload;
-
-  const whereClause: Prisma.UserWhereInput = {
-    NOT: [],
-    AND: [],
-  };
-
-  if (typeof approved === "boolean") {
-    if (approved) {
-      (whereClause.NOT as Prisma.UserWhereInput[]).push({
-        approvedBy: null,
-      });
-    } else {
-      (whereClause.AND as Prisma.UserWhereInput[]).push({
-        approvedBy: null,
-      });
-    }
-  }
-
+async function findAll() {
   const users = await prisma.user.findMany({
     select: {
       id: true,
       name: true,
       email: true,
-      motherName: true,
-      cpf: true,
-      birthday: true,
-      phoneNumber: true,
-      address: true,
-      approvedBy: {
-        select: {
-          name: true,
-        },
-      },
-      approvedAt: true,
-      role: true,
+      features: true,
       avatar: true,
+      password: true,
       createdAt: true,
       updatedAt: true,
       _count: {
@@ -55,23 +21,19 @@ async function findAll(payload: { approved?: boolean } = {}) {
         },
       },
     },
-    where: whereClause,
   });
 
-  return users;
+  return users.map((item) => ({
+    ...item,
+    password: undefined,
+    activated: Boolean(item.password),
+  }));
 }
 
 async function findOneById(userId: string) {
   validator({ id: userId }, { id: "required" });
 
   const user = await prisma.user.findFirst({
-    include: {
-      approvedBy: {
-        select: {
-          name: true,
-        },
-      },
-    },
     where: {
       id: userId,
     },
@@ -109,25 +71,15 @@ async function findOneByEmail(email: string) {
 async function create(data: {
   name: string;
   email: string;
-  password: string;
-  motherName?: string;
-  cpf: string;
-  birthday: string;
-  phoneNumber?: string;
-  addressId: string;
+  features: string[];
 }) {
-  const hashedPassword = await password.hash(data.password);
+  validator(data, { email: "required", features: "required" });
 
   const user = await prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
-      password: hashedPassword,
-      motherName: data.motherName,
-      cpf: data.cpf,
-      birthday: data.birthday,
-      phoneNumber: data.phoneNumber,
-      addressId: data.addressId,
+      features: data.features,
     },
   });
 
@@ -156,77 +108,28 @@ async function updateUserPasswordById(userId: string, newPassword: string) {
 
 async function updateById(
   id: string,
-  data: Partial<{
-    name: string;
-    motherName: string;
-    cpf: string;
-    birthday: string;
-    phoneNumber: string;
-    role: Role;
-  }>
+  body: {
+    name?: string;
+    email?: string;
+    features?: string[];
+    avatar?: string;
+  }
 ) {
+  validator({ id }, { id: "required" });
+
   const user = await prisma.user.update({
     where: {
       id,
     },
     data: {
-      name: data.name,
-      motherName: data.motherName,
-      cpf: data.cpf,
-      birthday: data.birthday,
-      phoneNumber: data.phoneNumber,
-      role: data.role,
+      name: body.name,
+      email: body.email,
+      features: body.features,
+      avatar: body.avatar,
     },
   });
 
   return user;
-}
-
-async function approve(userIdApproving: string, userIdBeingApproved: string) {
-  const webserverHost = webserver.getHost();
-
-  const user = await findOneById(userIdBeingApproved);
-
-  if (user.approvedAt) {
-    throw new ConflictError({
-      message: `O cadastro já foi aprovado em ${format(
-        user.approvedAt,
-        "dd/MM/yyyy"
-      )}.`,
-      errorLocationCode: "MODEL:USER:APPROVE:USER_ALREADY_APPROVED",
-    });
-  }
-
-  const updatedUser = await prisma.user.update({
-    where: {
-      id: userIdBeingApproved,
-    },
-    data: {
-      approvedById: userIdApproving,
-      approvedAt: new Date(),
-    },
-  });
-
-  try {
-    await email.send({
-      from: {
-        name: "Callisto",
-        address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
-      },
-      to: user.email,
-      subject: "Conta aprovada no Callisto!",
-      text: `Clique no link abaixo para acessar sua conta:
-      
-${webserverHost}
-
-Atenciosamente,
-Equipe de TI do Callisto`,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-
-  return updatedUser;
 }
 
 export default Object.freeze({
@@ -236,5 +139,4 @@ export default Object.freeze({
   create,
   updateUserPasswordById,
   updateById,
-  approve,
 });

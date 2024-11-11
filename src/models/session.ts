@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { NextHandler } from "next-connect";
 
 import { User } from "@prisma/client";
 import cookie from "cookie";
@@ -8,10 +9,11 @@ import { UAParser } from "ua-parser-js";
 
 import { NotFoundError, UnauthorizedError } from "@/errors";
 import { prisma } from "@/infra/prisma";
+import InjectedRequest from "@/types/InjectedRequest";
 
 import validator from "./validator";
 
-const tokenRenewalThreshold = 1000 * 60 * 60 * 24 * 7; // 7 days
+const tokenRenewalThreshold = 1000 * 60 * 60 * 24 * 30; // 30 days
 
 function clearSessionIdCookie(response: NextApiResponse | ServerResponse) {
   response.setHeader("Set-Cookie", [
@@ -70,6 +72,26 @@ async function findOneValidByToken(sessionToken: string) {
   });
 
   return session;
+}
+
+async function renewSessionIfNecessary(
+  request: InjectedRequest,
+  response: NextApiResponse,
+  next: NextHandler
+) {
+  let sessionObject = request.context.session;
+
+  // Renew session if it expires in less than 1/10 (3 days) the threshold.
+  if (
+    new Date(sessionObject.expiresAt).getTime() <
+    Date.now() + tokenRenewalThreshold / 10
+  ) {
+    sessionObject = await renew(sessionObject.id, response);
+
+    request.context.session = sessionObject;
+  }
+
+  return next();
 }
 
 async function renew(sessionId: string, response: NextApiResponse) {
@@ -177,14 +199,7 @@ async function isSessionValid(sessionToken?: string) {
           name: true,
           email: true,
           avatar: true,
-          motherName: true,
-          birthday: true,
-          phoneNumber: true,
-          addressId: true,
-          approvedById: true,
-          approvedAt: true,
-          cpf: true,
-          role: true,
+          features: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -231,6 +246,7 @@ export default Object.freeze({
   clearSessionIdCookie,
   findOneValidFromRequest,
   findOneValidByToken,
+  renewSessionIfNecessary,
   renew,
   setSessionIdCookieInResponse,
   create,
