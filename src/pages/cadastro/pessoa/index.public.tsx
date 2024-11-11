@@ -22,17 +22,20 @@ const schema = z.object({
     .refine((val) => val === "" || val.length >= 5, "Mínimo de 5 caracteres"),
   cpf: z.string().refine((val) => isValidCPF(val), { message: "CPF inválido" }),
   birthday: z
-    .preprocess((val) => {
-      if (typeof val === "string") {
-        return new Date(val);
-      }
-      return val;
-    }, z.date({ message: "Data de nascimento inválida" }))
+    .preprocess(
+      (val) => {
+        if (typeof val === "string") {
+          return new Date(val);
+        }
+        return val;
+      },
+      z.date({ message: "Data de nascimento inválida" }),
+    )
     .refine(
       (val) => {
         return isBefore(val, subYears(new Date(), 18));
       },
-      { message: "Você deve ter pelo menos 18 anos" }
+      { message: "Você deve ter pelo menos 18 anos" },
     )
     .transform(String),
   phoneNumber: z.union([
@@ -109,8 +112,8 @@ export default function RegisterIndividual() {
       setValue("address.street", street);
       setValue("address.city", city);
       setValue("address.state", state);
-    } catch (error) {
-      console.error(error);
+    } catch {
+      // Do nothing
     }
   }
 
@@ -199,7 +202,7 @@ export default function RegisterIndividual() {
                     {
                       clearMaskOnLostFocus: true,
                       jitMasking: true,
-                    }
+                    },
                   )}
                   error={errors.phoneNumber?.message}
                   touched={touchedFields.phoneNumber}
