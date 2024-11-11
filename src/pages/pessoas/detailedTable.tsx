@@ -22,7 +22,7 @@ import { IndividualsProps } from "./index.public";
 const DetailedTable: React.FC<{
   individuals: Exclude<IndividualsProps["detailedIndividuals"], undefined>;
 }> = ({ individuals }) => {
-  const { reload } = useRouter();
+  const router = useRouter();
   const { user } = useUser();
 
   const columnHelper =
@@ -32,15 +32,15 @@ const DetailedTable: React.FC<{
 
   const canReadIndividual = useMemo(
     () => user && authorization.can(user, "read:individual"),
-    [user]
+    [user],
   );
   const canEditIndividual = useMemo(
     () => user && authorization.can(user, "edit:individual"),
-    [user]
+    [user],
   );
   const canApproveIndividual = useMemo(
     () => user && authorization.can(user, "approve:individual"),
-    [user]
+    [user],
   );
 
   const detailedColumns = useMemo(
@@ -118,11 +118,11 @@ const DetailedTable: React.FC<{
               >
                 {canEditIndividual ? "Editar" : "Ver"}
               </Link>
-              {canApproveIndividual && row.original.approvedByUserId ? (
+              {canApproveIndividual && !row.original.approvedByUserId ? (
                 <ApproveUserButton
                   individualId={row.original.id}
                   onApprove={() => {
-                    reload();
+                    router.reload();
                   }}
                 />
               ) : null}
@@ -136,8 +136,8 @@ const DetailedTable: React.FC<{
       canEditIndividual,
       canReadIndividual,
       columnHelper,
-      reload,
-    ]
+      router,
+    ],
   );
 
   const table = useReactTable({

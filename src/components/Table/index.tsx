@@ -15,7 +15,7 @@ function Table<TData>({
   const rows = table.getRowModel().rows;
 
   return (
-    <div className="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
+    <div className="overflow-x-auto border-b border-gray-200 shadow sm:rounded-lg">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           {table.getHeaderGroups().map((headerGroup) => (
@@ -24,13 +24,13 @@ function Table<TData>({
                 <th
                   key={header.id}
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  className="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                 >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                 </th>
               ))}
@@ -59,7 +59,7 @@ function Table<TData>({
                       </td>
                     ))}
                   </tr>
-                )
+                ),
               )
             : null}
           {!loading && rowCount === 0 && (
