@@ -1,18 +1,15 @@
+import { User } from "@prisma/client";
 import useSWR from "swr";
 
-import user from "@/models/user";
+type Data = (Omit<User, "password"> & {
+  activated: boolean;
+  _count: {
+    session: number;
+  };
+})[];
 
-type Data = Awaited<ReturnType<typeof user.findAll>>;
-
-type Payload = {
-  approved?: boolean;
-};
-
-function useUsers({ approved }: Payload = {}) {
-  const { data, error, isValidating, isLoading } = useSWR<Data>([
-    "/api/users",
-    { approved },
-  ]);
+function useUsers() {
+  const { data, error, isValidating, isLoading } = useSWR<Data>(`/api/users`);
 
   return {
     users: data || [],

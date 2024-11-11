@@ -25,12 +25,12 @@ function useUpdateAddress() {
         success: "Endereço atualizado com sucesso!",
         error: {
           render({ data }) {
-            // @ts-ignore
+            // @ts-expect-error data is any
             return data.response?.data?.message || data.message;
           },
         },
       });
-    } catch (error) {
+    } catch {
       //
     }
 

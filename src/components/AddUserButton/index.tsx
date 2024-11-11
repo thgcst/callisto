@@ -6,10 +6,10 @@ import clsx from "clsx";
 const AddUserButton: React.FC = () => {
   return (
     <Link
-      href="/pessoas/nova-pessoa"
+      href="/usuarios/novo-usuario"
       className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white duration-100 ease-in hover:bg-indigo-700 hover:text-white"
     >
-      <div className="hidden md:block">Nova pessoa</div>
+      <div className="hidden md:block">Novo usuário</div>
       <div className="md:hidden">
         <PlusIcon
           className={clsx(

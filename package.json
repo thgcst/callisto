@@ -13,15 +13,17 @@
     "prepare": "husky"
   },
   "prisma": {
-    "schema": "src/infra/prisma/schema.prisma"
+    "schema": "src/infra/prisma/schema.prisma",
+    "seed": "tsx src/infra/prisma/seed"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.9",
+    "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.0.14",
     "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "^5.21.1",
     "@supabase/supabase-js": "^2.7.1",
     "@tailwindcss/forms": "^0.5.9",
+    "@tanstack/react-table": "^8.20.5",
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "cep-promise": "^4.4.1",
@@ -42,10 +44,12 @@
     "swr": "^2.2.5",
     "ua-parser-js": "^2.0.0-rc.1",
     "use-mask-input": "^3.4.0",
+    "usehooks-ts": "^3.1.0",
     "yup": "^1.4.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.2.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie": "^0.5.1",
     "@types/formidable": "^3.4.5",
@@ -66,6 +70,7 @@
     "prettier": "3.3.3",
     "prisma": "^5.21.1",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }

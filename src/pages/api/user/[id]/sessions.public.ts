@@ -14,7 +14,7 @@ export default nextConnect({
   onError: controller.onErrorHandler,
 })
   .use(authentication.injectUser)
-  .use(authorization.isRequestFromAdmin)
+  .use(authorization.canRequest("read:users"))
   .get(getHandler);
 
 async function getHandler(request: InjectedRequest, response: NextApiResponse) {

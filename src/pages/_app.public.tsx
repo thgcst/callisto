@@ -11,6 +11,7 @@ import NProgress from "nprogress";
 import { toast, ToastContainer } from "react-toastify";
 import { SWRConfig } from "swr";
 
+import { UserContextProvider } from "@/contexts/userContext";
 import fetcher from "@/services/fetcher";
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -33,22 +34,29 @@ export default function App({ Component, pageProps }: AppProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <SWRConfig
-      value={{
-        fetcher: fetcher(),
-        onError(err, key) {
-          const statusCode = err.response?.status;
-          if (statusCode === 401) {
-            router.push("/");
-          }
-          toast.error(err.response?.data?.message || err.message, {
-            toastId: statusCode === 401 ? "401" : key,
-          });
-        },
-      }}
-    >
-      <Component {...pageProps} />
-      <ToastContainer limit={3} />
-    </SWRConfig>
+    <UserContextProvider>
+      <SWRConfig
+        value={{
+          fetcher: fetcher(),
+          onError(err, key) {
+            if (key === "/api/user") {
+              // Do nothing
+              return;
+            }
+
+            const statusCode = err.response?.status;
+            if (statusCode === 401) {
+              router.push("/login");
+            }
+            toast.error(err.response?.data?.message || err.message, {
+              toastId: statusCode === 401 ? "401" : key,
+            });
+          },
+        }}
+      >
+        <Component {...pageProps} />
+        <ToastContainer limit={3} />
+      </SWRConfig>
+    </UserContextProvider>
   );
 }

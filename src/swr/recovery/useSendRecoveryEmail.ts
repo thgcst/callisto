@@ -26,13 +26,13 @@ function useSendRecoveryEmail() {
           success: "E-mail de recuperação enviado!",
           error: {
             render({ data }) {
-              // @ts-expect-error
+              // @ts-expect-error data is not null
               return data.response?.data?.message || data.message;
             },
           },
         }
       );
-    } catch (error) {
+    } catch {
       //
     }
 

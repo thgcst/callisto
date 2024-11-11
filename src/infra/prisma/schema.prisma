@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -13,36 +14,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
 model User {
-  id          String   @id @default(uuid())
-  name        String
-  email       String   @unique
-  password    String
-  motherName  String?
-  cpf         String   @unique
-  birthday    DateTime @db.Date
-  phoneNumber String?
-  address     Address  @relation(fields: [addressId], references: [id])
-  addressId   String
-
-  approvedById  String?
-  approvedBy    User?     @relation("approvedBy", fields: [approvedById], references: [id])
-  approvedUsers User[]    @relation("approvedBy")
-  approvedAt    DateTime? @db.Timestamptz
-
-  role                 Role                   @default(USER)
+  id                   String                 @id @default(uuid())
+  name                 String
+  email                String                 @unique
+  password             String?
+  features             String[]               @default([])
   avatar               String                 @default("https://i.ibb.co/k0tSSCy/user.png")
   activateAccountToken ActivateAccountToken[]
   recoverPasswordToken RecoverPasswordToken[]
   session              Session[]
 
-  createdAt DateTime @default(now()) @db.Timestamptz
-  updatedAt DateTime @updatedAt @db.Timestamptz
+  createdAt           DateTime     @default(now()) @db.Timestamptz
+  updatedAt           DateTime     @updatedAt @db.Timestamptz
+  ApprovedIndividuals Individual[]
 
   @@map("users")
 }
@@ -93,6 +78,27 @@ model Session {
   @@map("sessions")
 }
 
+model Individual {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  motherName  String?
+  cpf         String   @unique
+  birthday    DateTime @db.Date
+  phoneNumber String?
+  address     Address  @relation(fields: [addressId], references: [id])
+  addressId   String   @unique
+
+  approvedBy       User?     @relation(fields: [approvedByUserId], references: [id])
+  approvedByUserId String?
+  approvedAt       DateTime? @db.Timestamptz
+
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+
+  @@map("individuals")
+}
+
 model Address {
   id         String  @id @default(uuid())
   cep        String
@@ -102,9 +108,9 @@ model Address {
   city       String
   state      String
 
-  createdAt DateTime @default(now()) @db.Timestamptz
-  updatedAt DateTime @updatedAt @db.Timestamptz
-  User      User[]
+  createdAt  DateTime    @default(now()) @db.Timestamptz
+  updatedAt  DateTime    @updatedAt @db.Timestamptz
+  Individual Individual?
 
   @@map("addresses")
 }

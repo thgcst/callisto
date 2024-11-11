@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-import { User } from "@prisma/client";
+import { useRouter } from "next/router";
+
 import { toast } from "react-toastify";
 
 import api from "@/services/api";
@@ -8,23 +9,32 @@ import api from "@/services/api";
 type CreateUserBody = {
   name: string;
   email: string;
-  password: string;
-  motherName?: string;
-  cpf: string;
-  birthday: string;
-  phoneNumber?: string;
-  addressId?: string;
+  features: string[];
+  avatar: FileList | null;
 };
 
 function useCreateUser() {
+  const { push } = useRouter();
   const [loading, setLoading] = useState(false);
 
   const createUser = async (body: CreateUserBody) => {
     setLoading(true);
 
     try {
-      const user = await toast.promise(
-        api.post<Omit<User, "password">>(`/api/users/create`, body, {
+      const data = new FormData();
+
+      data.append("name", body.name);
+
+      data.append("features", JSON.stringify(body.features));
+
+      data.append("email", body.email);
+
+      if (body.avatar) {
+        data.append("avatar", body.avatar[0]);
+      }
+
+      await toast.promise(
+        api.post(`/api/users/create`, data, {
           timeout: 60000,
         }),
         {
@@ -32,15 +42,14 @@ function useCreateUser() {
           success: "Usuário criado com sucesso!",
           error: {
             render({ data }) {
-              // @ts-ignore
+              // @ts-expect-error data is any
               return data.response?.data?.message || data.message;
             },
           },
         }
       );
-      setLoading(false);
-      return user.data;
-    } catch (error) {
+      push(`/usuarios`);
+    } catch {
       //
     }
 

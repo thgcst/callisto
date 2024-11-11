@@ -21,7 +21,7 @@ const parse = (request: InjectedRequest) => {
 const parseRequest = async (request: InjectedRequest) => {
   try {
     return await parse(request);
-  } catch (error) {
+  } catch {
     throw new UnprocessableEntityError({
       message: "Erro ao processar o formulário",
       errorLocationCode: "PARSE_REQUEST:FORMIDABLE",

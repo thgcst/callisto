@@ -1,4 +1,3 @@
-import { Role } from "@prisma/client";
 import Joi from "joi";
 
 import { ValidationError } from "@/errors";
@@ -9,7 +8,7 @@ type ValidatorSchemas = keyof typeof schemas;
 export default function validator(
   object: object,
   keys: { [key in ValidatorSchemas]?: "required" | "optional" },
-  canBeEmpty = true
+  canBeEmpty = true,
 ) {
   // Force the clean up of "undefined" values since JSON
   // doesn't support them and Joi doesn't clean
@@ -17,7 +16,7 @@ export default function validator(
   // "object" is not a valid JSON.
   try {
     object = JSON.parse(JSON.stringify(object));
-  } catch (error) {
+  } catch {
     throw new ValidationError({
       message: "Não foi possível interpretar o valor enviado.",
       errorLocationCode: "MODEL:VALIDATOR:ERROR_PARSING_JSON",
@@ -58,11 +57,11 @@ export default function validator(
 export function sortValidator(
   object: object,
   options: string[],
-  defaultSort?: string
+  defaultSort?: string,
 ) {
   try {
     object = JSON.parse(JSON.stringify(object));
-  } catch (error) {
+  } catch {
     throw new ValidationError({
       message: "Não foi possível interpretar o valor enviado.",
       errorLocationCode: "MODEL:SORT_VALIDATOR:ERROR_PARSING_JSON",
@@ -73,11 +72,11 @@ export function sortValidator(
     sort: Joi.string()
       .valid(...options)
       .default(
-        defaultSort && options.includes(defaultSort) ? defaultSort : options[0]
+        defaultSort && options.includes(defaultSort) ? defaultSort : options[0],
       )
       .messages({
         "any.only": `"sort" deve ser um dos seguintes valores: ${options.join(
-          ", "
+          ", ",
         )}.`,
       }),
     order: Joi.string().valid("asc", "desc").default("asc").messages({
@@ -116,6 +115,25 @@ const schemas = {
           "string.empty": `"id" não pode estar em branco.`,
           "string.base": `"id" deve ser do tipo String.`,
           "string.guid": `"id" deve possuir um token UUID na versão 4.`,
+        }),
+    });
+  },
+
+  ids: function () {
+    return Joi.object({
+      ids: Joi.array()
+        .items(Joi.string().guid({ version: "uuidv4" }))
+        .when("$required.ids", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"ids" é um campo obrigatório.`,
+          "string.empty": `"ids" não pode estar em branco.`,
+          "array.base": `"ids" deve ser do tipo Array.`,
+          "array.min": `"ids" deve conter no mínimo {#limit} itens.`,
+          "string.guid": `"ids" deve possuir um token UUID na versão 4.`,
         }),
     });
   },
@@ -247,6 +265,25 @@ const schemas = {
     });
   },
 
+  features: function () {
+    return Joi.object({
+      features: Joi.array()
+        .items(Joi.string())
+        .when("$required.features", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"features" é um campo obrigatório.`,
+          "string.empty": `"features" não pode estar em branco.`,
+          "array.base": `"features" deve ser do tipo Array.`,
+          "array.min": `"features" deve conter no mínimo {#limit} itens.`,
+          "any.only": `"features" deve conter um dos seguintes valores: {#valids}.`,
+        }),
+    });
+  },
+
   used: function () {
     return Joi.object({
       used: Joi.boolean()
@@ -260,26 +297,6 @@ const schemas = {
           "any.required": `"used" é um campo obrigatório.`,
           "string.empty": `"used" não pode estar em branco.`,
           "boolean.base": `"used" deve ser do tipo Boolean.`,
-        }),
-    });
-  },
-
-  role: function () {
-    return Joi.object({
-      features: Joi.string()
-        .valid(...Object.values(Role))
-        .when("$required.role", {
-          is: "required",
-          then: Joi.required(),
-          otherwise: Joi.optional(),
-        })
-        .messages({
-          "any.required": `"role" é um campo obrigatório.`,
-          "string.empty": `"role" não pode estar em branco.`,
-          "string.base": `"role" deve ser do tipo String.`,
-          "any.only": `"role" deve ser um dos seguintes valores: ${Object.values(
-            Role
-          ).join(", ")}.`,
         }),
     });
   },
@@ -351,10 +368,11 @@ const schemas = {
   motherName: function () {
     return Joi.object({
       motherName: Joi.string()
+        .allow("")
+        .empty("")
         .min(5)
         .max(50)
         .trim()
-        .invalid(null)
         .when("$required.motherName", {
           is: "required",
           then: Joi.required(),
@@ -403,9 +421,10 @@ const schemas = {
   phoneNumber: function () {
     return Joi.object({
       phoneNumber: Joi.string()
+        .allow("")
+        .empty("")
         .replace(/\D/g, "")
         .trim()
-        .invalid(null)
         .when("$required.phoneNumber", {
           is: "required",
           then: Joi.required(),

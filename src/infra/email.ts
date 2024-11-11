@@ -17,7 +17,7 @@ async function send({ from, to, subject, text }: SendMailOptions) {
     await transporter.sendMail({ from, to, subject, text });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.log(error);
+    console.error(error);
 
     throw new ServiceError({
       message: error.message,

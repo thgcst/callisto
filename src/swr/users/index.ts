@@ -1,5 +1,5 @@
-export { default as useApproveUser } from "./useApproveUser";
 export { default as useCreateUser } from "./useCreateUser";
-export { default as useMe } from "./useMe";
-export { default as useUsers } from "./useUsers";
+export { default as useUpdateMe } from "./useUpdateMe";
 export { default as useUpdateUser } from "./useUpdateUser";
+export { default as useUsers } from "./useUsers";
+export { default as useUserSessions } from "./useUserSessions";
