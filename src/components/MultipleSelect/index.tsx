@@ -40,7 +40,7 @@ const MultipleSelect: React.FC<SelectProps> = ({
             <Listbox.Button
               className={clsx(
                 "relative w-full cursor-pointer rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm",
-                "disabled:cursor-default disabled:bg-slate-100 disabled:text-slate-500"
+                "disabled:cursor-default disabled:bg-slate-100 disabled:text-slate-500",
               )}
             >
               <span className="flex h-5 items-center truncate">
@@ -60,7 +60,7 @@ const MultipleSelect: React.FC<SelectProps> = ({
                 className={clsx(
                   "flex flex-col gap-2",
                   "rounded-md border border-gray-200 bg-slate-50/90 px-3 py-2 text-base shadow backdrop-blur-sm sm:text-sm",
-                  "invisible absolute z-10 mt-1 transition-all group-hover:visible"
+                  "invisible absolute z-10 mt-1 transition-all group-hover:visible",
                 )}
               >
                 {value.map((item) => (
@@ -83,7 +83,7 @@ const MultipleSelect: React.FC<SelectProps> = ({
                     className={({ active }) =>
                       clsx(
                         active ? "bg-indigo-600 text-white" : "text-gray-900",
-                        "group relative cursor-pointer select-none overflow-hidden py-2 pl-3 pr-9"
+                        "group relative cursor-pointer select-none overflow-hidden py-2 pl-3 pr-9",
                       )
                     }
                     value={option.value}
@@ -94,7 +94,7 @@ const MultipleSelect: React.FC<SelectProps> = ({
                         <div
                           className={clsx(
                             "flex items-center",
-                            disabled && "opacity-50"
+                            disabled && "opacity-50",
                           )}
                         >
                           {disabled && (
@@ -107,7 +107,7 @@ const MultipleSelect: React.FC<SelectProps> = ({
                               selected ? "font-semibold" : "font-normal",
                               "block truncate",
                               disabled &&
-                                "transition-all group-hover:-translate-y-full group-hover:opacity-0"
+                                "transition-all group-hover:-translate-y-full group-hover:opacity-0",
                             )}
                           >
                             {option.label}
@@ -117,7 +117,7 @@ const MultipleSelect: React.FC<SelectProps> = ({
                               className={clsx(
                                 "absolute",
                                 disabled &&
-                                  "translate-y-full pl-5 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100"
+                                  "translate-y-full pl-5 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100",
                               )}
                             >
                               Sem permissão
@@ -129,7 +129,7 @@ const MultipleSelect: React.FC<SelectProps> = ({
                           <span
                             className={clsx(
                               active ? "text-white" : "text-indigo-600",
-                              "absolute inset-y-0 right-0 flex items-center pr-4"
+                              "absolute inset-y-0 right-0 flex items-center pr-4",
                             )}
                           >
                             <CheckIcon className="size-5" aria-hidden="true" />

@@ -15,7 +15,7 @@ import session from "./session";
 
 async function onNoMatchHandler(
   request: NextApiRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   const publicErrorObject = new NotFoundError({
     errorLocationCode: "MODELS:CONTROLLER:ON_NO_MATCH_HANDLER",
@@ -27,7 +27,7 @@ async function onNoMatchHandler(
 function onErrorHandler(
   error: any,
   request: NextApiRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   if (
     error instanceof ValidationError ||

@@ -63,7 +63,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
                 <button
                   type="button"
                   className={clsx(
-                    "rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    "rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
                   )}
                   onClick={() => {
                     reset();
@@ -92,7 +92,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
           <h3
             className={clsx(
               "text-lg font-medium leading-6 text-gray-900",
-              editing && "hidden sm:block"
+              editing && "hidden sm:block",
             )}
           >
             Informações pessoais
@@ -118,7 +118,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
             <div
               className={clsx(
                 "bg-white px-4 py-5 transition-all sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6",
-                editing && "opacity-40 blur-sm"
+                editing && "opacity-40 blur-sm",
               )}
             >
               <dt className="text-sm font-medium text-gray-500">E-mail</dt>
@@ -172,7 +172,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
             <div
               className={clsx(
                 "bg-white px-4 py-5 transition-all sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6",
-                editing && "opacity-40 blur-sm"
+                editing && "opacity-40 blur-sm",
               )}
             >
               <dt className="text-sm font-medium text-gray-500">Permissões</dt>

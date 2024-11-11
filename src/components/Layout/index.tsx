@@ -116,7 +116,7 @@ const Layout: React.FC<LayoutProps> = ({
                                   item.regExp.test(pathname)
                                     ? "bg-gray-900 text-white"
                                     : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                                  "rounded-md px-3 py-2 text-sm font-medium"
+                                  "rounded-md px-3 py-2 text-sm font-medium",
                                 )}
                                 aria-current={
                                   item.regExp.test(pathname)
@@ -126,7 +126,7 @@ const Layout: React.FC<LayoutProps> = ({
                               >
                                 {item.name}
                               </Link>
-                            )
+                            ),
                         )}
                       </div>
                     </div>
@@ -180,7 +180,7 @@ const Layout: React.FC<LayoutProps> = ({
                                       href={item.href}
                                       className={clsx(
                                         active ? "bg-gray-100" : "",
-                                        "block cursor-pointer px-4 py-2 text-sm text-gray-700"
+                                        "block cursor-pointer px-4 py-2 text-sm text-gray-700",
                                       )}
                                       onClick={item.onClick}
                                     >
@@ -232,7 +232,7 @@ const Layout: React.FC<LayoutProps> = ({
                           item.regExp.test(pathname)
                             ? "bg-gray-900 text-white"
                             : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          "block rounded-md px-3 py-2 text-base font-medium"
+                          "block rounded-md px-3 py-2 text-base font-medium",
                         )}
                         aria-current={
                           item.regExp.test(pathname) ? "page" : undefined
@@ -298,7 +298,7 @@ const Layout: React.FC<LayoutProps> = ({
                         >
                           {item.name}
                         </Disclosure.Button>
-                      )
+                      ),
                     )}
                   </div>
                 </div>

@@ -25,7 +25,7 @@ function PasswordRecovery() {
           .string()
           .email("E-mail inválido")
           .required("Campo obrigatório"),
-      })
+      }),
     ),
   });
 

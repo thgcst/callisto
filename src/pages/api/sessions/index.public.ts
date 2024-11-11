@@ -22,7 +22,7 @@ export default nextConnect({
 
 async function deleteHandler(
   request: InjectedRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   const sessionObject = request.context.session;
 
@@ -40,7 +40,7 @@ async function deleteHandler(
 
 async function postHandler(
   request: InjectedRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   const inputValues = {
     email: request.body.email,
@@ -69,7 +69,7 @@ async function postHandler(
   try {
     await authentication.comparePasswords(
       inputValues.password,
-      storedUser.password
+      storedUser.password,
     );
   } catch {
     throw new UnauthorizedError({
@@ -81,7 +81,7 @@ async function postHandler(
   const sessionObject = await authentication.createSessionAndSetCookies(
     storedUser.id,
     request,
-    response
+    response,
   );
 
   response.status(200).json({

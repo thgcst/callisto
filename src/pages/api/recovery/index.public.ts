@@ -14,7 +14,7 @@ export default nextConnect({
 
 async function postHandler(
   request: InjectedRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   const { email } = validator(request.body, {
     email: "required",

@@ -10,7 +10,7 @@ export type InputProps = {
 
 const Input: React.ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
   { label, touched, error, type = "text", ...rest },
-  ref
+  ref,
 ) => {
   const hasError = Boolean(touched && error);
 
@@ -29,7 +29,7 @@ const Input: React.ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
         className={clsx(
           "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
           "disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500",
-          hasError && "border-red-600 bg-red-50"
+          hasError && "border-red-600 bg-red-50",
         )}
         ref={ref}
         {...rest}

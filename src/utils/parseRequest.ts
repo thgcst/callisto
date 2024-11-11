@@ -14,7 +14,7 @@ const parse = (request: InjectedRequest) => {
           resolve({ fields, files });
         }
       });
-    }
+    },
   );
 };
 

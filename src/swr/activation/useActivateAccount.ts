@@ -26,7 +26,7 @@ function useActivateAccount() {
               return data.response?.data?.message || data.message;
             },
           },
-        }
+        },
       );
       push(`/empresas`);
     } catch {

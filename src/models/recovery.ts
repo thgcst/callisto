@@ -64,7 +64,7 @@ async function createAndSendRecoveryEmail(email: string) {
 
 async function sendEmailToUser(
   userEmail: string,
-  tokenId: RecoverPasswordToken["id"]
+  tokenId: RecoverPasswordToken["id"],
 ) {
   const recoverPageEndpoint = getRecoveryPageEndpoint(tokenId);
 

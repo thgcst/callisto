@@ -46,7 +46,7 @@ function useCreateUser() {
               return data.response?.data?.message || data.message;
             },
           },
-        }
+        },
       );
       push(`/usuarios`);
     } catch {
