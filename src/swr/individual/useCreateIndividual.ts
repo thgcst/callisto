@@ -45,7 +45,7 @@ function useCreateIndividual() {
               return data.response?.data?.message || data.message;
             },
           },
-        }
+        },
       );
       push(`/cadastro/pessoa/confirmacao/${res.data.id}`);
     } catch {

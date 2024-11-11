@@ -4,7 +4,7 @@ import ptBR from "date-fns/locale/pt-BR";
 export default function convertDateToTimezone(date: Date | string) {
   const dt = new Date(date);
   const dtDateOnly = new Date(
-    dt.valueOf() + dt.getTimezoneOffset() * 60 * 1000
+    dt.valueOf() + dt.getTimezoneOffset() * 60 * 1000,
   );
   return dtDateOnly;
 }
@@ -21,7 +21,7 @@ export const DDMMYYYYtoISO = (day: string, separator = "-") => {
   return parse(
     day,
     `dd${separator}MM${separator}yyyy`,
-    new Date()
+    new Date(),
   ).toISOString();
 };
 
@@ -29,7 +29,7 @@ export const YYYYMMDDtoISO = (day: string, separator = "-") => {
   return parse(
     day,
     `yyyy${separator}MM${separator}dd`,
-    new Date()
+    new Date(),
   ).toISOString();
 };
 

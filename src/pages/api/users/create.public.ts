@@ -21,7 +21,7 @@ export default nextConnect({
 
 async function postHandler(
   request: InjectedRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   const { files, fields } = await parseRequest(request);
 

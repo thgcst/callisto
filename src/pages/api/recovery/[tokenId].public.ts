@@ -36,14 +36,14 @@ async function getHandler(request: InjectedRequest, response: NextApiResponse) {
 
 async function patchHandler(
   request: InjectedRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   const cleanValues = validator(
     { ...request.body, ...request.query },
     {
       tokenId: "required",
       password: "required",
-    }
+    },
   );
   const tokenId = cleanValues.tokenId as string;
   const password = cleanValues.password as string;
@@ -52,13 +52,13 @@ async function patchHandler(
 
   const updatedUser = await user.updateUserPasswordById(
     tokenObject.userId,
-    password
+    password,
   );
 
   const sessionObject = await authentication.createSessionAndSetCookies(
     updatedUser.id,
     request,
-    response
+    response,
   );
 
   response.status(200).json({

@@ -26,7 +26,7 @@ function useRecoverPassword() {
               return data.response?.data?.message || data.message;
             },
           },
-        }
+        },
       );
       push(`/empresas`);
     } catch (error) {

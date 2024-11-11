@@ -17,7 +17,7 @@ export default nextConnect({
 
 async function patchHandler(
   request: InjectedRequest,
-  response: NextApiResponse
+  response: NextApiResponse,
 ) {
   const { id } = validator(request.query, {
     id: "required",
@@ -25,7 +25,7 @@ async function patchHandler(
 
   const updatedIndividual = await individual.approve(
     request.context.user.id,
-    id
+    id,
   );
 
   return response.status(200).json(updatedIndividual);

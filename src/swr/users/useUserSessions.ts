@@ -15,7 +15,7 @@ type Data = {
 
 function useUserSessions(userId: string) {
   const { data, error, isValidating, isLoading } = useSWR<Data>(
-    `/api/user/${userId}/sessions`
+    `/api/user/${userId}/sessions`,
   );
 
   return {

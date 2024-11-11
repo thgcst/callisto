@@ -19,7 +19,7 @@ function useSendRecoveryEmail() {
           },
           {
             timeout: 60000,
-          }
+          },
         ),
         {
           pending: "Carregando...",
@@ -30,7 +30,7 @@ function useSendRecoveryEmail() {
               return data.response?.data?.message || data.message;
             },
           },
-        }
+        },
       );
     } catch {
       //
