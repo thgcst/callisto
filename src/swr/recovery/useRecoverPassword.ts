@@ -28,8 +28,8 @@ function useRecoverPassword() {
           },
         },
       );
-      push(`/empresas`);
-    } catch (error) {
+      push(`/pessoas`);
+    } catch {
       //
     }
 

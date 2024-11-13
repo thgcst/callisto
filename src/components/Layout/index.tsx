@@ -39,9 +39,14 @@ const Layout: React.FC<LayoutProps> = ({
       // hide: me ? !authorization.roleIsAdmin(me) : true,
     },
     {
-      name: "Empresas",
-      href: "/empresas",
-      regExp: /^\/empresas$/,
+      name: "Empreendimentos",
+      href: "/empreendimentos",
+      regExp: /^\/empreendimentos$/,
+    },
+    {
+      name: "Fórum",
+      href: "/forum",
+      regExp: /^\/forum$/,
     },
     {
       name: "Usuários",
