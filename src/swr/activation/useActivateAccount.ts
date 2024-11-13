@@ -28,7 +28,7 @@ function useActivateAccount() {
           },
         },
       );
-      push(`/empresas`);
+      push(`/pessoas`);
     } catch {
       //
     }
