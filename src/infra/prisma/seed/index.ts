@@ -44,7 +44,7 @@ const generateCpf = (masked = false) => {
 };
 
 async function main() {
-  await prisma.user.upsert({
+  const user = await prisma.user.upsert({
     where: {
       email: "thiagodias2708@gmail.com",
     },
@@ -73,6 +73,20 @@ async function main() {
       cpf: generateCpf().toString(),
       phoneNumber: faker.phone.number({ style: "national" }),
       birthday: faker.date.past({ years: 18 }),
+    });
+  }
+
+  // get 4 random individuals and approve them
+  const individuals = await prisma.individual.findMany({
+    where: {
+      approvedBy: null,
+    },
+    take: 4,
+  });
+
+  for (const ind of individuals) {
+    await individual.approve(user.id, ind.id, {
+      sendEmail: false,
     });
   }
 }
