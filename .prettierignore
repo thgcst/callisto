@@ -5,3 +5,6 @@ coverage
 yarn.lock
 pre-commit
 .prettierignore
+
+**.sql
+**/schema.prisma

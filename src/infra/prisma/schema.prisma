@@ -93,6 +93,10 @@ model Individual {
   approvedByUserId String?
   approvedAt       DateTime? @db.Timestamptz
 
+  companiesAsPartner  Company[] @relation("CompanyPartners")
+  companyAsEmployee   Company?  @relation("CompanyEmployees", fields: [companyAsEmployeeId], references: [id])
+  companyAsEmployeeId String?
+
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
 
@@ -111,6 +115,29 @@ model Address {
   createdAt  DateTime    @default(now()) @db.Timestamptz
   updatedAt  DateTime    @updatedAt @db.Timestamptz
   Individual Individual?
+  Company    Company?
 
   @@map("addresses")
+}
+
+model Company {
+  id String @id @default(uuid())
+
+  name        String
+  formalized  Boolean
+  cnpj        String? @unique
+  fantasyName String?
+  email       String? @unique
+  phoneNumber String?
+
+  address   Address @relation(fields: [addressId], references: [id])
+  addressId String  @unique
+
+  partners  Individual[] @relation("CompanyPartners")
+  employees Individual[] @relation("CompanyEmployees")
+
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+
+  @@map("companies")
 }
