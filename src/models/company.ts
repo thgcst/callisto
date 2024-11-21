@@ -52,6 +52,11 @@ async function findAll(payload: { approved?: boolean } = {}) {
   const companies = await prisma.company.findMany({
     include: {
       address: true,
+      _count: {
+        select: {
+          employees: true,
+        },
+      },
     },
     where: whereClause,
   });

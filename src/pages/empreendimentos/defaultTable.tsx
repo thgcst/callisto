@@ -29,6 +29,9 @@ const DefaultTable: React.FC<{
       columnHelper.accessor("address.state", {
         header: "Estado",
       }),
+      columnHelper.accessor("_count.employees", {
+        header: "Nº de Funcionários",
+      }),
       columnHelper.accessor("createdAt", {
         header: "Criado em",
         cell: ({ getValue }) => (

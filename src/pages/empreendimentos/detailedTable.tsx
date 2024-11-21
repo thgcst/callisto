@@ -117,6 +117,9 @@ const DetailedTable: React.FC<{
         header: "Formalizado",
         cell: ({ getValue }) => <Checkbox checked={getValue()} disabled />,
       }),
+      columnHelper.accessor("_count.employees", {
+        header: "Nº de Funcionários",
+      }),
       columnHelper.accessor("createdAt", {
         header: "Criado em",
         cell: ({ getValue }) => (
