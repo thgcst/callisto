@@ -9,10 +9,10 @@ import api from "@/services/api";
 
 type CreateCompanyBody = {
   name: string;
-  email: string;
-  motherName?: string;
-  cpf: string;
-  birthday: string;
+  formalized: boolean;
+  cnpj?: string;
+  fantasyName?: string;
+  email?: string;
   phoneNumber?: string;
   address: {
     cep: string;

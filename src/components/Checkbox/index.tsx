@@ -17,9 +17,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
   ...props
 }) => {
   return (
-    <Field>
-      <Label>{label}</Label>
-      <Description>{description}</Description>
+    <Field className="flex items-center gap-2">
       <HLCheckbox
         checked={false}
         {...props}
@@ -40,6 +38,10 @@ const Checkbox: React.FC<CheckboxProps> = ({
           </svg>
         )}
       </HLCheckbox>
+      <Label className="text-sm/6 font-medium text-gray-900">{label}</Label>
+      <Description className="text-sm/6 text-gray-500">
+        {description}
+      </Description>
     </Field>
   );
 };
