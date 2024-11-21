@@ -9,7 +9,7 @@ import webserver from "@/infra/webserver";
 import validator from "./validator";
 
 async function findAllPublic() {
-  const individuals = await prisma.individual.findMany({
+  const companies = await prisma.company.findMany({
     select: {
       id: true,
       name: true,
@@ -17,6 +17,11 @@ async function findAllPublic() {
         select: {
           city: true,
           state: true,
+        },
+      },
+      _count: {
+        select: {
+          employees: true,
         },
       },
       createdAt: true,
@@ -28,13 +33,13 @@ async function findAllPublic() {
     },
   });
 
-  return individuals;
+  return companies;
 }
 
 async function findAll(payload: { approved?: boolean } = {}) {
   const { approved } = payload;
 
-  let whereClause: Prisma.IndividualWhereInput = {};
+  let whereClause: Prisma.CompanyWhereInput = {};
 
   if (approved !== undefined) {
     whereClause = {
@@ -44,60 +49,60 @@ async function findAll(payload: { approved?: boolean } = {}) {
     };
   }
 
-  const individuals = await prisma.individual.findMany({
+  const companies = await prisma.company.findMany({
     include: {
       address: true,
     },
     where: whereClause,
   });
 
-  return individuals;
+  return companies;
 }
 
-async function findOneById(individualId: string) {
-  const individual = await prisma.individual.findUnique({
+async function findOneById(companyId: string) {
+  const company = await prisma.company.findUnique({
     where: {
-      id: individualId,
+      id: companyId,
     },
     include: {
       address: true,
     },
   });
 
-  if (!individual) {
+  if (!company) {
     throw new NotFoundError({
-      message: `O id "${individualId}" não foi encontrado no sistema.`,
-      errorLocationCode: "MODEL:INDIVIDUAL:FIND_ONE_BY_ID:INDIVIDUAL_NOT_FOUND",
+      message: `O id "${companyId}" não foi encontrado no sistema.`,
+      errorLocationCode: "MODEL:COMPANY:FIND_ONE_BY_ID:COMPANY_NOT_FOUND",
     });
   }
 
-  return individual;
+  return company;
 }
 
 async function approve(
   userId: string,
-  individualId: string,
+  companyId: string,
   config: {
     sendEmail?: boolean;
   } = { sendEmail: false },
 ) {
   const webserverHost = webserver.getHost();
 
-  const individual = await findOneById(individualId);
+  const company = await findOneById(companyId);
 
-  if (individual.approvedAt) {
+  if (company.approvedAt) {
     throw new ConflictError({
       message: `O cadastro já foi aprovado em ${format(
-        individual.approvedAt,
+        company.approvedAt,
         "dd/MM/yyyy",
       )}.`,
-      errorLocationCode: "MODEL:INDIVIDUAL:APPROVE:INDIVIDUAL_ALREADY_APPROVED",
+      errorLocationCode: "MODEL:COMPANY:APPROVE:COMPANY_ALREADY_APPROVED",
     });
   }
 
-  const updatedIndividual = await prisma.individual.update({
+  const updatedCompany = await prisma.company.update({
     where: {
-      id: individualId,
+      id: companyId,
     },
     data: {
       approvedByUserId: userId,
@@ -105,15 +110,15 @@ async function approve(
     },
   });
 
-  if (config.sendEmail) {
+  if (config.sendEmail && company.email) {
     try {
       await email.send({
         from: {
           name: "Callisto",
           address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
         },
-        to: individual.email,
-        subject: "Conta aprovada no Callisto!",
+        to: company.email,
+        subject: "Empresa aprovada no Callisto!",
         text: `Clique no link abaixo para acessar:
       
 ${webserverHost}
@@ -124,24 +129,24 @@ Equipe de TI do Callisto`,
     } catch {
       throw new ServiceError({
         message: "Não foi possível enviar o e-mail de aprovação.",
-        errorLocationCode: "MODEL:INDIVIDUAL:APPROVE:EMAIL_SENDING_ERROR",
+        errorLocationCode: "MODEL:COMPANY:APPROVE:EMAIL_SENDING_ERROR",
       });
     }
   }
 
-  return updatedIndividual;
+  return updatedCompany;
 }
 
 async function approveMultiple(
   userId: string,
-  individualIds: string[],
+  companyIds: string[],
   config: { sendEmail?: boolean } = { sendEmail: false },
 ) {
   const webserverHost = webserver.getHost();
-  const updatedIndividuals = await prisma.individual.updateMany({
+  const updatedCompanies = await prisma.company.updateMany({
     where: {
       id: {
-        in: individualIds,
+        in: companyIds,
       },
       approvedAt: null,
     },
@@ -151,13 +156,13 @@ async function approveMultiple(
     },
   });
 
-  const individuals = await prisma.individual.findMany({
+  const companies = await prisma.company.findMany({
     select: {
       email: true,
     },
     where: {
       id: {
-        in: individualIds,
+        in: companyIds,
       },
     },
   });
@@ -169,8 +174,8 @@ async function approveMultiple(
           name: "Callisto",
           address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
         },
-        to: individuals.map((item) => item.email),
-        subject: "Conta aprovada no Callisto!",
+        to: companies.map((item) => item.email).filter((item) => item !== null),
+        subject: "Empresa aprovada no Callisto!",
         text: `Clique no link abaixo para acessar:
     
 ${webserverHost}
@@ -181,20 +186,20 @@ Equipe de TI do Callisto`,
     } catch {
       throw new ServiceError({
         message: "Não foi possível enviar o e-mail de aprovação.",
-        errorLocationCode: "MODEL:INDIVIDUAL:APPROVE:EMAIL_SENDING_ERROR",
+        errorLocationCode: "MODEL:COMPANY:APPROVE:EMAIL_SENDING_ERROR",
       });
     }
   }
 
-  return updatedIndividuals;
+  return updatedCompanies;
 }
 
 function create(payload: {
   name: string;
-  email: string;
-  motherName?: string;
-  cpf: string;
-  birthday: Date | string;
+  formalized: boolean;
+  cnpj?: string;
+  fantasyName?: string;
+  email?: string;
   phoneNumber?: string;
   address: {
     cep: string;
@@ -205,21 +210,32 @@ function create(payload: {
     state: string;
   };
 }) {
-  const individualBody: {
+  let companyBody: {
     name: string;
-    email: string;
-    motherName?: string;
-    cpf: string;
-    birthday: Date;
+    formalized: boolean;
+    cnpj?: string;
+    fantasyName?: string;
+    email?: string;
     phoneNumber?: string;
-  } = validator(payload, {
-    name: "required",
-    email: "required",
-    motherName: "optional",
-    cpf: "required",
-    birthday: "required",
-    phoneNumber: "optional",
-  });
+  };
+
+  if (payload.formalized) {
+    companyBody = validator(payload, {
+      name: "required",
+      formalized: "required",
+      cnpj: "required",
+      fantasyName: "optional",
+      email: "required",
+      phoneNumber: "optional",
+    });
+  } else {
+    companyBody = validator(payload, {
+      name: "required",
+      formalized: "required",
+      email: "optional",
+      phoneNumber: "optional",
+    });
+  }
 
   const addressBody: {
     cep: string;
@@ -237,9 +253,9 @@ function create(payload: {
     state: "required",
   });
 
-  return prisma.individual.create({
+  return prisma.company.create({
     data: {
-      ...individualBody,
+      ...companyBody,
       address: {
         create: addressBody,
       },

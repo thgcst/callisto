@@ -12,7 +12,7 @@ import Input from "@/components/Input";
 import Select from "@/components/Select";
 import useCreateIndividual from "@/swr/individual/useCreateIndividual";
 import { brazilStates } from "@/utils/brazilStates";
-import { isValidCPF } from "@/utils/cpf";
+import { isValidCpf } from "@/utils/cpf";
 
 const schema = z.object({
   name: z.string().min(5, { message: "Mínimo de 5 caracteres" }),
@@ -20,7 +20,7 @@ const schema = z.object({
   motherName: z
     .string()
     .refine((val) => val === "" || val.length >= 5, "Mínimo de 5 caracteres"),
-  cpf: z.string().refine((val) => isValidCPF(val), { message: "CPF inválido" }),
+  cpf: z.string().refine((val) => isValidCpf(val), { message: "CPF inválido" }),
   birthday: z
     .preprocess(
       (val) => {

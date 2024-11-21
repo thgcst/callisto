@@ -23,7 +23,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
       <HLCheckbox
         checked={false}
         {...props}
-        className="group block size-4 rounded border bg-white data-[checked]:bg-blue-500 data-[indeterminate]:bg-blue-500"
+        className="group block size-4 rounded border bg-white data-[checked]:bg-blue-500 data-[indeterminate]:bg-blue-500 data-[disabled]:opacity-70"
       >
         {({ indeterminate }) => (
           <svg

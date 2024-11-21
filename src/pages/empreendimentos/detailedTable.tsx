@@ -9,44 +9,40 @@ import {
   RowSelectionState,
   useReactTable,
 } from "@tanstack/react-table";
-import { format } from "date-fns";
 
-import ApproveIndividualsButton from "@/components/ApproveIndividualButton/multiple";
+import ApproveCompaniesButton from "@/components/ApproveCompanyButton/multiple";
 import Checkbox from "@/components/Checkbox";
 import Table from "@/components/Table";
 import Tabs, { Tab } from "@/components/Tabs";
 import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
 import { dayToDDMMYYYY, dayToLocaleString } from "@/utils/dates";
-import { formatPhoneNumber } from "@/utils/format";
+import { formatCnpj, formatPhoneNumber } from "@/utils/format";
 
-import { IndividualsProps } from "./index.public";
+import { CompaniesProps } from "./index.public";
 
-type IndividualsType = Exclude<
-  IndividualsProps["detailedIndividuals"],
-  undefined
->;
+type CompaniesType = Exclude<CompaniesProps["detailedCompanies"], undefined>;
 
 const DetailedTable: React.FC<{
-  individuals: IndividualsType;
-}> = ({ individuals }) => {
+  companies: CompaniesType;
+}> = ({ companies }) => {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const router = useRouter();
   const { user } = useUser();
 
   const columnHelper =
-    createColumnHelper<IndividualsType["approvedIndividuals"][number]>();
+    createColumnHelper<CompaniesType["approvedCompanies"][number]>();
 
-  const canReadIndividual = useMemo(
-    () => user && authorization.can(user, "read:individual"),
+  const canReadCompany = useMemo(
+    () => user && authorization.can(user, "read:company"),
     [user],
   );
-  const canEditIndividual = useMemo(
-    () => user && authorization.can(user, "edit:individual"),
+  const canEditCompany = useMemo(
+    () => user && authorization.can(user, "edit:company"),
     [user],
   );
-  const canApproveIndividual = useMemo(
-    () => user && authorization.can(user, "approve:individual"),
+  const canApproveCompany = useMemo(
+    () => user && authorization.can(user, "approve:company"),
     [user],
   );
 
@@ -76,9 +72,12 @@ const DetailedTable: React.FC<{
             <p className="text-sm font-medium text-gray-900">
               {row.original.name}
             </p>
-            <p className="text-sm text-gray-500">
-              {format(new Date(row.original.birthday), "dd/MM/yyyy")}
-            </p>
+            <p className="text-sm text-gray-500">{row.original.fantasyName}</p>
+            {row.original.cnpj ? (
+              <p className="text-sm text-gray-500">
+                {formatCnpj(row.original.cnpj)}
+              </p>
+            ) : null}
           </div>
         ),
         header: "Nome",
@@ -114,7 +113,10 @@ const DetailedTable: React.FC<{
           </div>
         ),
       }),
-
+      columnHelper.accessor("formalized", {
+        header: "Formalizado",
+        cell: ({ getValue }) => <Checkbox checked={getValue()} disabled />,
+      }),
       columnHelper.accessor("createdAt", {
         header: "Criado em",
         cell: ({ getValue }) => (
@@ -131,33 +133,33 @@ const DetailedTable: React.FC<{
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
-          if (!canReadIndividual) {
+          if (!canReadCompany) {
             return null;
           }
           return (
             <div className="flex items-center gap-4">
               <Link
-                href={`/pessoas/${row.original.id}`}
+                href={`/empreendimentos/${row.original.id}`}
                 className="text-indigo-600 hover:text-indigo-900"
               >
-                {canEditIndividual ? "Editar" : "Ver"}
+                {canEditCompany ? "Editar" : "Ver"}
               </Link>
             </div>
           );
         },
       }),
     ],
-    [canEditIndividual, canReadIndividual, columnHelper],
+    [canEditCompany, canReadCompany, columnHelper],
   );
 
   const approvedTable = useReactTable({
-    data: individuals.approvedIndividuals,
+    data: companies.approvedCompanies,
     columns: detailedColumns.filter((column) => column.id !== "checkbox"),
     getCoreRowModel: getCoreRowModel(),
   });
 
   const pendingApprovalTable = useReactTable({
-    data: individuals.individualsPendingApproval,
+    data: companies.companiesPendingApproval,
     columns: detailedColumns,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id,
@@ -182,11 +184,11 @@ const DetailedTable: React.FC<{
       defaultIndex={router.query.tab === "pendente" ? 0 : 1}
       rightSection={(tab) =>
         tab === "Pendentes" && (
-          <ApproveIndividualsButton
+          <ApproveCompaniesButton
             size="sm"
-            individualIds={Object.entries(rowSelection)
+            companyIds={Object.entries(rowSelection)
               .filter(([, selected]) => selected)
-              .map(([individualId]) => individualId)}
+              .map(([companyId]) => companyId)}
             onApprove={() => {
               setRowSelection({});
               router.replace(router.asPath);
@@ -195,7 +197,7 @@ const DetailedTable: React.FC<{
         )
       }
     >
-      {canApproveIndividual && (
+      {canApproveCompany && (
         <Tab label="Pendentes">
           <Table table={pendingApprovalTable} />
         </Tab>

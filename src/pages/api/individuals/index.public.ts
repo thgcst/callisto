@@ -15,7 +15,7 @@ export default nextConnect({
 })
   .post(postHandler)
   .use(authentication.injectUser)
-  .get(authorization.canRequest("read:individualsDetails"), getHandler);
+  .get(authorization.canRequest("read:individualDetails"), getHandler);
 
 async function getHandler(request: InjectedRequest, response: NextApiResponse) {
   const individuals = await individual.findAll();

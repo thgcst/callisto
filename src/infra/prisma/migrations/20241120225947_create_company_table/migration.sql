@@ -11,6 +11,8 @@ CREATE TABLE "companies" (
     "email" TEXT,
     "phoneNumber" TEXT,
     "addressId" TEXT NOT NULL,
+    "approvedByUserId" TEXT,
+    "approvedAt" TIMESTAMPTZ,
     "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ NOT NULL,
 
@@ -50,6 +52,9 @@ ALTER TABLE "individuals" ADD CONSTRAINT "individuals_companyAsEmployeeId_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "companies" ADD CONSTRAINT "companies_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "addresses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "companies" ADD CONSTRAINT "companies_approvedByUserId_fkey" FOREIGN KEY ("approvedByUserId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_CompanyPartners" ADD CONSTRAINT "_CompanyPartners_A_fkey" FOREIGN KEY ("A") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;

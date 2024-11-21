@@ -11,10 +11,15 @@ const systemFeaturesSet = new Set([
   "edit:user",
   "read:users",
 
-  "read:individualsDetails",
+  "read:individualDetails",
   "read:individual",
   "edit:individual",
   "approve:individual",
+
+  "read:companyDetails",
+  "read:company",
+  "edit:company",
+  "approve:company",
 ] as const);
 
 type SystemFeatureType =
