@@ -268,6 +268,48 @@ function create(payload: {
   });
 }
 
+async function updateById(
+  id: string,
+  body: Partial<{
+    name: string;
+    formalized: boolean;
+    cnpj: string;
+    fantasyName: string;
+    email: string;
+    phoneNumber: string;
+  }>,
+) {
+  validator({ id }, { id: "required" });
+
+  const data =
+    typeof body.formalized === "boolean" && body.formalized === false
+      ? {
+          name: body.name,
+          formalized: body.formalized,
+          email: body.email,
+          phoneNumber: body.phoneNumber,
+          cnpj: null,
+          fantasyName: null,
+        }
+      : {
+          name: body.name,
+          formalized: body.formalized,
+          cnpj: body.cnpj,
+          fantasyName: body.fantasyName,
+          email: body.email,
+          phoneNumber: body.phoneNumber,
+        };
+
+  const company = await prisma.company.update({
+    where: {
+      id,
+    },
+    data,
+  });
+
+  return company;
+}
+
 export default Object.freeze({
   findAllPublic,
   findAll,
@@ -275,4 +317,5 @@ export default Object.freeze({
   approveMultiple,
   findOneById,
   create,
+  updateById,
 });

@@ -8,10 +8,25 @@ import company from "@/models/company";
 import session from "@/models/session";
 import { serialize } from "@/utils/serialize";
 
-type CompanyPageProps = InferGetServerSidePropsType<typeof getServerSideProps>;
+import EditAddress from "./EditAddress";
+import EditCompany from "./EditCompany";
+
+export type CompanyPageProps = InferGetServerSidePropsType<
+  typeof getServerSideProps
+>;
 
 export default function CompanyPage({ company }: CompanyPageProps) {
-  return <Layout title={company.name} label={company.name}></Layout>;
+  return (
+    <Layout title={company.name} label={company.name}>
+      <EditCompany company={company} />
+      <div className="hidden sm:block" aria-hidden="true">
+        <div className="py-5">
+          <div className="border-t border-gray-200" />
+        </div>
+      </div>
+      <EditAddress company={company} />
+    </Layout>
+  );
 }
 
 export const getServerSideProps = (async (ctx) => {
