@@ -660,4 +660,23 @@ const schemas = {
         }),
     });
   },
+
+  partners: function () {
+    return Joi.object({
+      partners: Joi.array()
+        .items(Joi.string().guid({ version: "uuidv4" }))
+        .when("$required.partners", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"partners" é um campo obrigatório.`,
+          "string.empty": `"partners" não pode estar em branco.`,
+          "array.base": `"partners" deve ser do tipo Array.`,
+          "array.min": `"partners" deve conter no mínimo {#limit} itens.`,
+          "string.guid": `"partners" deve possuir um token UUID na versão 4.`,
+        }),
+    });
+  },
 };

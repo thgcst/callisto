@@ -8,8 +8,40 @@ import webserver from "@/infra/webserver";
 
 import validator from "./validator";
 
-async function findAllPublic() {
-  const individuals = await prisma.individual.findMany({
+const extendedPrisma = prisma.$extends({
+  result: {
+    individual: {
+      maskedCpf: {
+        needs: { cpf: true },
+        compute({ cpf }) {
+          return `***.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-**`;
+        },
+      },
+    },
+  },
+});
+
+async function findAllPublic(
+  payload: {
+    take?: number;
+    name?: string;
+  } = {},
+) {
+  const { take, name } = payload;
+
+  let whereClause: Prisma.IndividualWhereInput = {};
+
+  if (name !== undefined) {
+    whereClause = {
+      ...whereClause,
+      name: {
+        contains: name,
+        mode: "insensitive",
+      },
+    };
+  }
+
+  const individuals = await extendedPrisma.individual.findMany({
     select: {
       id: true,
       name: true,
@@ -19,27 +51,40 @@ async function findAllPublic() {
           state: true,
         },
       },
+      maskedCpf: true,
       createdAt: true,
     },
     where: {
+      ...whereClause,
       approvedBy: {
         isNot: null,
       },
     },
+    take,
   });
 
   return individuals;
 }
 
-async function findAll(payload: { approved?: boolean } = {}) {
-  const { approved } = payload;
+async function findAll(payload: { approved?: boolean; name?: string } = {}) {
+  const { approved, name } = payload;
 
   let whereClause: Prisma.IndividualWhereInput = {};
 
   if (approved !== undefined) {
     whereClause = {
+      ...whereClause,
       approvedBy: {
         [approved ? "isNot" : "is"]: null,
+      },
+    };
+  }
+  if (name !== undefined) {
+    whereClause = {
+      ...whereClause,
+      name: {
+        contains: name,
+        mode: "insensitive",
       },
     };
   }

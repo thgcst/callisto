@@ -71,6 +71,12 @@ async function findOneById(companyId: string) {
     },
     include: {
       address: true,
+      partners: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      employees: true,
     },
   });
 
@@ -277,28 +283,31 @@ async function updateById(
     fantasyName: string;
     email: string;
     phoneNumber: string;
+    partners?: string[];
   }>,
 ) {
   validator({ id }, { id: "required" });
 
-  const data =
-    typeof body.formalized === "boolean" && body.formalized === false
-      ? {
-          name: body.name,
-          formalized: body.formalized,
-          email: body.email,
-          phoneNumber: body.phoneNumber,
-          cnpj: null,
-          fantasyName: null,
-        }
-      : {
-          name: body.name,
-          formalized: body.formalized,
-          cnpj: body.cnpj,
-          fantasyName: body.fantasyName,
-          email: body.email,
-          phoneNumber: body.phoneNumber,
-        };
+  const data: Prisma.CompanyUpdateArgs["data"] = {
+    name: body.name,
+    formalized: body.formalized,
+    cnpj: body.cnpj,
+    fantasyName: body.fantasyName,
+    email: body.email,
+    phoneNumber: body.phoneNumber,
+    partners: {
+      set: body.partners
+        ? body.partners.map((partnerId) => ({
+            id: partnerId,
+          }))
+        : undefined,
+    },
+  };
+
+  if (typeof data.formalized === "boolean" && data.formalized === false) {
+    data.cnpj = null;
+    data.fantasyName = null;
+  }
 
   const company = await prisma.company.update({
     where: {
