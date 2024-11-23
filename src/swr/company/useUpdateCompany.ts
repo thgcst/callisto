@@ -14,9 +14,7 @@ type UpdateCompanyBody = Partial<{
   phoneNumber: string;
 }>;
 
-type UpdatePartnersBody = {
-  partners: string[];
-};
+type UpdatePartnersBody = string[];
 
 function useUpdateCompany() {
   const [loading, setLoading] = useState(false);
@@ -47,16 +45,17 @@ function useUpdateCompany() {
     setLoading(false);
   };
 
-  const updatePartners = async (
-    companyId: string,
-    body: UpdatePartnersBody,
-  ) => {
+  const updatePartners = async (companyId: string, partners: string[]) => {
     setLoading(true);
 
     try {
-      await api.patch<Company>(`/api/companies/${companyId}`, body, {
-        timeout: 60000,
-      });
+      await api.patch<Company>(
+        `/api/companies/${companyId}`,
+        { partners },
+        {
+          timeout: 60000,
+        },
+      );
     } catch {
       toast.error("Erro ao atualizar sócios");
     }

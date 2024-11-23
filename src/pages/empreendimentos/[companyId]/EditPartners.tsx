@@ -1,3 +1,5 @@
+import { TrashIcon } from "@heroicons/react/24/outline";
+
 import SelectIndividual from "@/components/SelectIndividual";
 import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
@@ -32,7 +34,7 @@ const EditPartners: React.FC<EditPartnersProps> = ({ companyId }) => {
           ...company.partners,
           {
             ...company.partners[0],
-            id: individual.id,
+            id: "new-partner",
             name: individual.name,
           },
         ],
@@ -45,10 +47,33 @@ const EditPartners: React.FC<EditPartnersProps> = ({ companyId }) => {
       )[0] as HTMLInputElement;
       input.focus();
     }, 50);
-    await updatePartners(companyId, {
-      partners: [...partners.map((item) => item.id), individual.id],
-    });
+    await updatePartners(companyId, [
+      ...partners.map((item) => item.id),
+      individual.id,
+    ]);
 
+    mutate();
+  };
+
+  const handleDeletePartner = async (partner: { id: string; name: string }) => {
+    if (!company) return;
+
+    const partnersCopy = [...company?.partners];
+
+    const index = partnersCopy.findIndex((item) => item.id === partner.id);
+    partnersCopy.splice(index, 1);
+
+    mutate(
+      { ...company, partners: partnersCopy },
+      {
+        revalidate: false,
+      },
+    );
+
+    await updatePartners(
+      company.id,
+      partnersCopy.map((item) => item.id),
+    );
     mutate();
   };
 
@@ -75,8 +100,10 @@ const EditPartners: React.FC<EditPartnersProps> = ({ companyId }) => {
                       <div className="flex-1">
                         <SelectIndividual
                           name="add-partner"
+                          key={partners.length}
                           onChange={handleAddPartner}
                           label="Adicionar sócio"
+                          idsToExclude={partners.map((item) => item.id)}
                         />
                       </div>
                     </div>
@@ -93,6 +120,13 @@ const EditPartners: React.FC<EditPartnersProps> = ({ companyId }) => {
                           {item.name}
                         </div>
                       </div>
+                      <button
+                        className="flex size-[38px] items-center justify-center rounded-md border border-transparent bg-red-600 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-red-100"
+                        onClick={() => handleDeletePartner(item)}
+                        disabled={item.id === "new-partner"}
+                      >
+                        <TrashIcon className="size-6" />
+                      </button>
                     </div>
                   </div>
                 ))}

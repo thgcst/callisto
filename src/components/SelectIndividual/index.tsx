@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useIndividuals } from "@/swr/individual";
 
@@ -9,6 +9,7 @@ interface SelectIndividualProps {
   name?: string;
   label?: string;
   onChange: (individual: { id: string; name: string } | null) => void;
+  idsToExclude?: string[];
 }
 
 const SelectIndividual: React.FC<SelectIndividualProps> = ({
@@ -16,15 +17,22 @@ const SelectIndividual: React.FC<SelectIndividualProps> = ({
   name,
   label,
   onChange,
+  idsToExclude = [],
 }) => {
   const [query, setQuery] = useState("");
   const { individuals } = useIndividuals({ name: query });
+
+  const individualsFiltered = useMemo(
+    () =>
+      individuals.filter((individual) => !idsToExclude.includes(individual.id)),
+    [],
+  );
 
   return (
     <Autocomplete
       id={id}
       name={name}
-      options={individuals.map((item) => ({
+      options={individualsFiltered.map((item) => ({
         ...item,
         label: item.name,
         value: item.id,

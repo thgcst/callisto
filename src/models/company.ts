@@ -71,11 +71,7 @@ async function findOneById(companyId: string) {
     },
     include: {
       address: true,
-      partners: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
+      partners: true,
       employees: true,
     },
   });
