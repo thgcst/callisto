@@ -25,9 +25,12 @@ model User {
   recoverPasswordToken RecoverPasswordToken[]
   session              Session[]
 
+  CreatorOfCompanyPartner CompanyPartners[]
+
   createdAt           DateTime     @default(now()) @db.Timestamptz
   updatedAt           DateTime     @updatedAt @db.Timestamptz
   ApprovedIndividuals Individual[]
+  ApprovedCompanies   Company[]
 
   @@map("users")
 }
@@ -93,6 +96,11 @@ model Individual {
   approvedByUserId String?
   approvedAt       DateTime? @db.Timestamptz
 
+  companiesPartnerWith CompanyPartners[]
+
+  companyAsEmployee   Company? @relation("CompanyEmployees", fields: [companyAsEmployeeId], references: [id])
+  companyAsEmployeeId String?
+
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
 
@@ -111,6 +119,48 @@ model Address {
   createdAt  DateTime    @default(now()) @db.Timestamptz
   updatedAt  DateTime    @updatedAt @db.Timestamptz
   Individual Individual?
+  Company    Company?
 
   @@map("addresses")
+}
+
+model Company {
+  id String @id @default(uuid())
+
+  name        String
+  formalized  Boolean
+  cnpj        String? @unique
+  fantasyName String?
+  email       String? @unique
+  phoneNumber String?
+
+  address   Address @relation(fields: [addressId], references: [id])
+  addressId String  @unique
+
+  partners  CompanyPartners[]
+  employees Individual[]      @relation("CompanyEmployees")
+
+  approvedBy       User?     @relation(fields: [approvedByUserId], references: [id])
+  approvedByUserId String?
+  approvedAt       DateTime? @db.Timestamptz
+
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+
+  @@map("companies")
+}
+
+model CompanyPartners {
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
+
+  individual   Individual @relation(fields: [individualId], references: [id])
+  individualId String
+
+  assignedAt   DateTime @default(now()) @db.Timestamptz
+  assignedBy   User     @relation(fields: [assignedById], references: [id])
+  assignedById String
+
+  @@id([companyId, individualId])
+  @@map("company_partners")
 }

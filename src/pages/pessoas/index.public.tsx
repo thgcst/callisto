@@ -19,7 +19,7 @@ export const getServerSideProps = (async (ctx) => {
 
   if (
     sessionValid &&
-    authorization.can(sessionValid.user, `read:individualsDetails`)
+    authorization.can(sessionValid.user, `read:individualDetails`)
   ) {
     const approvedIndividuals = await individual.findAll({ approved: true });
     const individualsPendingApproval = await individual.findAll({
