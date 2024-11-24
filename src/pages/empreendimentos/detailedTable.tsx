@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
+import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -115,7 +116,15 @@ const DetailedTable: React.FC<{
       }),
       columnHelper.accessor("formalized", {
         header: "Formalizado",
-        cell: ({ getValue }) => <Checkbox checked={getValue()} disabled />,
+        cell: ({ getValue }) =>
+          getValue() ? (
+            <CheckCircleIcon
+              className="size-8 text-green-500"
+              accentHeight={24}
+            />
+          ) : (
+            <XCircleIcon className="size-8 text-red-500" />
+          ),
       }),
       columnHelper.accessor("_count.employees", {
         header: "Nº de Funcionários",

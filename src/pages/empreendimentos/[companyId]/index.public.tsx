@@ -10,6 +10,7 @@ import { serialize } from "@/utils/serialize";
 
 import EditAddress from "./EditAddress";
 import EditCompany from "./EditCompany";
+import EditEmployees from "./EditEmployees";
 import EditPartners from "./EditPartners";
 
 export type CompanyPageProps = InferGetServerSidePropsType<
@@ -32,6 +33,12 @@ export default function CompanyPage({ company }: CompanyPageProps) {
         </div>
       </div>
       <EditPartners companyId={company.id} />
+      <div className="hidden sm:block" aria-hidden="true">
+        <div className="py-5">
+          <div className="border-t border-gray-200" />
+        </div>
+      </div>
+      <EditEmployees companyId={company.id} />
     </Layout>
   );
 }

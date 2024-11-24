@@ -355,6 +355,28 @@ async function removePartner(companyId: string, partnerId: string) {
   });
 }
 
+async function addEmployee(companyId: string, employeeId: string) {
+  await prisma.individual.update({
+    where: {
+      id: employeeId,
+    },
+    data: {
+      companyAsEmployeeId: companyId,
+    },
+  });
+}
+
+async function removeEmployee(employeeId: string) {
+  await prisma.individual.update({
+    where: {
+      id: employeeId,
+    },
+    data: {
+      companyAsEmployeeId: null,
+    },
+  });
+}
+
 export default Object.freeze({
   findAllPublic,
   findAll,
@@ -365,4 +387,6 @@ export default Object.freeze({
   updateById,
   addPartner,
   removePartner,
+  addEmployee,
+  removeEmployee,
 });
