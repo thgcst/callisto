@@ -53,10 +53,7 @@ async function deleteHandler(
     },
   );
 
-  const newPartner = await company.removePartner(
-    request.query.companyId as string,
-    body.id,
-  );
+  await company.removePartner(request.query.companyId as string, body.id);
 
-  response.status(201).json(newPartner);
+  response.status(204).end();
 }

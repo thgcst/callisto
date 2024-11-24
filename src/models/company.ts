@@ -288,7 +288,18 @@ async function updateById(
     phoneNumber: string;
   }>,
 ) {
-  validator({ id }, { id: "required" });
+  let company = await prisma.company.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!company) {
+    throw new NotFoundError({
+      message: `O id "${id}" não foi encontrado no sistema.`,
+      errorLocationCode: "MODEL:COMPANY:UPDATE_BY_ID:COMPANY_NOT_FOUND",
+    });
+  }
 
   const data: Prisma.CompanyUpdateArgs["data"] = {
     name: body.name,
@@ -304,7 +315,7 @@ async function updateById(
     data.fantasyName = null;
   }
 
-  const company = await prisma.company.update({
+  company = await prisma.company.update({
     where: {
       id,
     },

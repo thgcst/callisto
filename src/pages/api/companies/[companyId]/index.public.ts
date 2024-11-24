@@ -44,7 +44,6 @@ async function patchHandler(
     fantasyName?: string;
     email?: string;
     phoneNumber?: string;
-    partners?: string[];
   } = validator(request.body, {
     name: "optional",
     formalized: "optional",
@@ -52,7 +51,6 @@ async function patchHandler(
     fantasyName: "optional",
     email: "optional",
     phoneNumber: "optional",
-    partners: "optional",
   });
 
   const newCompany = await company.updateById(
