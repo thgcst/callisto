@@ -3,77 +3,88 @@ import Image from "next/image";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import cep from "cep-promise";
-import { isBefore, subYears } from "date-fns";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useHookFormMask } from "use-mask-input";
 import * as z from "zod";
 
+import Checkbox from "@/components/Checkbox";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
-import useCreateIndividual from "@/swr/individual/useCreateIndividual";
+import useCreateCompany from "@/swr/company/useCreateCompany";
 import { brazilStates } from "@/utils/brazilStates";
-import { isValidCpf } from "@/utils/cpf";
+import { isValidCnpj } from "@/utils/cnpj";
 
-const schema = z.object({
-  name: z.string().min(5, { message: "Mínimo de 5 caracteres" }),
-  email: z.string().email({ message: "Email inválido" }),
-  motherName: z
-    .string()
-    .refine((val) => val === "" || val.length >= 5, "Mínimo de 5 caracteres"),
-  cpf: z.string().refine((val) => isValidCpf(val), { message: "CPF inválido" }),
-  birthday: z
-    .preprocess(
-      (val) => {
-        if (typeof val === "string") {
-          return new Date(val);
-        }
-        return val;
-      },
-      z.date({ message: "Data de nascimento inválida" }),
-    )
-    .refine(
-      (val) => {
-        return isBefore(val, subYears(new Date(), 18));
-      },
-      { message: "Você deve ter pelo menos 18 anos" },
-    )
-    .transform(String),
-  phoneNumber: z.union([
-    z.string().regex(/^\([1-9]{2}\) (?:[2-8]|9[0-9])[0-9]{3}\-[0-9]{4}$/, {
-      message: "Número inválido",
-    }),
-    z.string().optional(),
-  ]),
-  address: z.object({
-    cep: z.string().regex(/^\d{5}-\d{3}$/, {
-      message: "CEP inválido",
-    }),
-    street: z.string().min(5, { message: "Mínimo de 5 caracteres" }),
-    number: z.string().min(1, { message: "Campo obrigatório" }),
-    complement: z.string().optional(),
-    city: z.string().min(5, { message: "Mínimo de 5 caracteres" }),
-    state: z
+const schema = z
+  .object({
+    name: z.string().min(5, { message: "Mínimo de 5 caracteres" }),
+    formalized: z.boolean(),
+    cnpj: z
       .string()
-      .length(2, { message: "Estado deve ter 2 caracteres (UF)" }),
-  }),
-});
+      .refine((val) => isValidCnpj(val), { message: "CNPJ inválido" }),
+    fantasyName: z.string(),
+    email: z.string().email({ message: "Email inválido" }),
+    phoneNumber: z.union([
+      z.string().regex(/^\([1-9]{2}\) (?:[2-8]|9[0-9])[0-9]{3}\-[0-9]{4}$/, {
+        message: "Número inválido",
+      }),
+      z.string().optional(),
+    ]),
+    address: z.object({
+      cep: z.string().regex(/^\d{5}-\d{3}$/, {
+        message: "CEP inválido",
+      }),
+      street: z.string().min(5, { message: "Mínimo de 5 caracteres" }),
+      number: z.string().min(1, { message: "Campo obrigatório" }),
+      complement: z.string().optional(),
+      city: z.string().min(5, { message: "Mínimo de 5 caracteres" }),
+      state: z
+        .string()
+        .length(2, { message: "Estado deve ter 2 caracteres (UF)" }),
+    }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.formalized) {
+      if (data.cnpj === undefined || data.cnpj === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Campo obrigatório",
+          path: ["cnpj"],
+        });
+      }
+      if (data.email === undefined || data.email === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Campo obrigatório",
+          path: ["email"],
+        });
+      }
+      if (data.phoneNumber === undefined || data.phoneNumber === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Campo obrigatório",
+          path: ["phoneNumber"],
+        });
+      }
+    }
+  });
 
 type Schema = z.infer<typeof schema>;
 
-export default function RegisterIndividual() {
-  const { createIndividual, loading } = useCreateIndividual();
+export default function RegisterCompany() {
+  const { createCompany, loading } = useCreateCompany();
   const {
+    control,
     register,
     formState: { errors, touchedFields },
     handleSubmit,
     setValue,
+    watch,
   } = useForm<Schema>({
     defaultValues: {
       name: "",
+      formalized: false,
+      cnpj: "",
       email: "",
-      motherName: "",
-      cpf: "",
-      birthday: "",
       phoneNumber: "",
       address: {
         cep: "",
@@ -87,13 +98,15 @@ export default function RegisterIndividual() {
     resolver: zodResolver(schema),
   });
 
+  const watchFormalized = watch("formalized");
+
   const onSubmit: SubmitHandler<z.infer<typeof schema>> = async (values) => {
-    await createIndividual({
+    await createCompany({
       name: values.name,
+      formalized: values.formalized,
+      cnpj: values.cnpj,
+      fantasyName: values.fantasyName,
       email: values.email,
-      motherName: values.motherName,
-      cpf: values.cpf,
-      birthday: values.birthday,
       phoneNumber: values.phoneNumber,
       address: {
         cep: values.address.cep,
@@ -136,7 +149,7 @@ export default function RegisterIndividual() {
               />
             </div>
             <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-              Cadastro
+              Cadastro de empreendimento
             </h2>
           </div>
           <form
@@ -144,10 +157,10 @@ export default function RegisterIndividual() {
             onSubmit={handleSubmit(onSubmit)}
           >
             <p className="m-0 text-xl font-bold text-gray-900">
-              Informações pessoais
+              Informações do empreendimento
             </p>
             <div className="grid grid-cols-6 gap-4">
-              <div className="col-span-6 sm:col-span-3">
+              <div className="col-span-6">
                 <Input
                   label="Nome"
                   {...register("name")}
@@ -155,7 +168,41 @@ export default function RegisterIndividual() {
                   touched={touchedFields.name}
                 />
               </div>
-
+              <div className="col-span-6">
+                <Controller
+                  name="formalized"
+                  control={control}
+                  render={({ field: { value, ...rest } }) => (
+                    <Checkbox
+                      label="A empresa é formalizada?"
+                      checked={value}
+                      {...rest}
+                    />
+                  )}
+                />
+              </div>
+              {watchFormalized && (
+                <>
+                  <div className="col-span-6 sm:col-span-3">
+                    <Input
+                      label="CNPJ"
+                      {...registerWithMask("cnpj", "cnpj", {
+                        jitMasking: true,
+                      })}
+                      error={errors.cnpj?.message}
+                      touched={touchedFields.cnpj}
+                    />
+                  </div>
+                  <div className="col-span-6 sm:col-span-3">
+                    <Input
+                      label="Nome fantasia"
+                      {...register("fantasyName")}
+                      error={errors.fantasyName?.message}
+                      touched={touchedFields.fantasyName}
+                    />
+                  </div>
+                </>
+              )}
               <div className="col-span-6 sm:col-span-3">
                 <Input
                   label="E-mail"
@@ -163,34 +210,6 @@ export default function RegisterIndividual() {
                   {...register("email")}
                   error={errors.email?.message}
                   touched={touchedFields.email}
-                />
-              </div>
-
-              <div className="col-span-6 sm:col-span-3">
-                <Input
-                  label="Nome da mãe"
-                  {...register("motherName")}
-                  error={errors.motherName?.message}
-                  touched={touchedFields.motherName}
-                />
-              </div>
-              <div className="col-span-6 sm:col-span-3">
-                <Input
-                  label="CPF"
-                  {...registerWithMask("cpf", "cpf", {
-                    jitMasking: true,
-                  })}
-                  error={errors.cpf?.message}
-                  touched={touchedFields.cpf}
-                />
-              </div>
-              <div className="col-span-6 sm:col-span-3">
-                <Input
-                  label="Data de nascimento"
-                  type="date"
-                  {...register("birthday")}
-                  error={errors.birthday?.message}
-                  touched={touchedFields.birthday}
                 />
               </div>
               <div className="col-span-6 sm:col-span-3">

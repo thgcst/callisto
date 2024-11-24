@@ -1,7 +1,8 @@
 import Joi from "joi";
 
 import { ValidationError } from "@/errors";
-import { isValidCPF } from "@/utils/cpf";
+import { isValidCnpj } from "@/utils/cnpj";
+import { isValidCpf } from "@/utils/cpf";
 
 type ValidatorSchemas = keyof typeof schemas;
 
@@ -397,7 +398,7 @@ const schemas = {
         .length(11)
         .invalid(null)
         .custom((value, helpers) => {
-          if (!isValidCPF(value)) {
+          if (!isValidCpf(value)) {
             return helpers.error("string.invalidCPF");
           }
           return value;
@@ -414,6 +415,75 @@ const schemas = {
           "string.length": `"cpf" deve conter {#limit} caracteres.`,
           "any.invalid": `"cpf" possui o valor inválido "null".`,
           "string.invalidCPF": `"cpf" inválido.`,
+        }),
+    });
+  },
+
+  cnpj: function () {
+    return Joi.object({
+      cnpj: Joi.string()
+        .replace(/\D/g, "")
+        .trim()
+        .length(14)
+        .invalid(null)
+        .custom((value, helpers) => {
+          if (!isValidCnpj(value)) {
+            return helpers.error("string.invalidCNPJ");
+          }
+          return value;
+        })
+        .when("$required.cnpj", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"cnpj" é um campo obrigatório.`,
+          "string.empty": `"cnpj" não pode estar em branco.`,
+          "string.base": `"cnpj" deve ser do tipo String.`,
+          "string.length": `"cnpj" deve conter {#limit} caracteres.`,
+          "any.invalid": `"cnpj" possui o valor inválido "null".`,
+          "string.invalidCNPJ": `"cnpj" inválido.`,
+        }),
+    });
+  },
+
+  formalized: function () {
+    return Joi.object({
+      formalized: Joi.boolean()
+        .when("$required.formalized", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"formalized" é um campo obrigatório.`,
+          "string.empty": `"formalized" não pode estar em branco.`,
+          "boolean.base": `"formalized" deve ser do tipo Boolean.`,
+        }),
+    });
+  },
+
+  fantasyName: function () {
+    return Joi.object({
+      fantasyName: Joi.string()
+        .allow("")
+        .empty("")
+        .min(5)
+        .max(50)
+        .trim()
+        .when("$required.fantasyName", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"fantasyName" é um campo obrigatório.`,
+          "string.empty": `"fantasyName" não pode estar em branco.`,
+          "string.base": `"fantasyName" deve ser do tipo String.`,
+          "string.min": `"fantasyName" deve conter no mínimo {#limit} caracteres.`,
+          "string.max": `"fantasyName" deve conter no máximo {#limit} caracteres.`,
+          "any.invalid": `"fantasyName" possui o valor inválido "null".`,
         }),
     });
   },
@@ -587,6 +657,25 @@ const schemas = {
           "string.base": `"state" deve ser do tipo String.`,
           "string.length": `"state" deve conter {#limit} caracteres.`,
           "any.invalid": `"state" possui o valor inválido "null".`,
+        }),
+    });
+  },
+
+  partners: function () {
+    return Joi.object({
+      partners: Joi.array()
+        .items(Joi.string().guid({ version: "uuidv4" }))
+        .when("$required.partners", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "any.required": `"partners" é um campo obrigatório.`,
+          "string.empty": `"partners" não pode estar em branco.`,
+          "array.base": `"partners" deve ser do tipo Array.`,
+          "array.min": `"partners" deve conter no mínimo {#limit} itens.`,
+          "string.guid": `"partners" deve possuir um token UUID na versão 4.`,
         }),
     });
   },

@@ -4,10 +4,10 @@ import Link from "next/link";
 
 import { CheckIcon } from "@heroicons/react/24/outline";
 
-import individual from "@/models/individual";
+import company from "@/models/company";
 
 export default function RegisterConfirmation({
-  individualEmail,
+  companyEmail,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
@@ -24,11 +24,11 @@ export default function RegisterConfirmation({
               Cadastro realizado
             </p>
             <p className="mt-2 text-center text-sm text-gray-500">
-              Seus dados serão analisados e, caso aprovados, você receberá um
-              e-mail de confirmação em:
+              Os dados do seu empreendimento serão analisados e, caso aprovados,
+              você receberá um e-mail de confirmação em:
             </p>
             <p className="mt-2 text-center text-sm font-semibold text-gray-500">
-              {individualEmail}
+              {companyEmail}
             </p>
             <Link
               href="/"
@@ -44,19 +44,19 @@ export default function RegisterConfirmation({
 }
 
 export const getServerSideProps = (async (ctx) => {
-  const individualId = ctx.params?.individualId;
+  const companyId = ctx.params?.companyId;
 
-  if (typeof individualId !== "string") {
+  if (typeof companyId !== "string") {
     return {
       notFound: true,
     };
   }
 
-  const { email } = await individual.findOneById(individualId);
+  const { email } = await company.findOneById(companyId);
 
   return {
     props: {
-      individualEmail: email,
+      companyEmail: email,
     },
   };
 }) satisfies GetServerSideProps;

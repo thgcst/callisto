@@ -21,7 +21,26 @@ const extendedPrisma = prisma.$extends({
   },
 });
 
-async function findAllPublic() {
+async function findAllPublic(
+  payload: {
+    take?: number;
+    name?: string;
+  } = {},
+) {
+  const { take, name } = payload;
+
+  let whereClause: Prisma.IndividualWhereInput = {};
+
+  if (name !== undefined) {
+    whereClause = {
+      ...whereClause,
+      name: {
+        contains: name,
+        mode: "insensitive",
+      },
+    };
+  }
+
   const individuals = await extendedPrisma.individual.findMany({
     select: {
       id: true,
@@ -32,32 +51,45 @@ async function findAllPublic() {
           state: true,
         },
       },
+      maskedCpf: true,
       createdAt: true,
     },
     where: {
+      ...whereClause,
       approvedBy: {
         isNot: null,
       },
     },
+    take,
   });
 
   return individuals;
 }
 
-async function findAll(payload: { approved?: boolean } = {}) {
-  const { approved } = payload;
+async function findAll(payload: { approved?: boolean; name?: string } = {}) {
+  const { approved, name } = payload;
 
   let whereClause: Prisma.IndividualWhereInput = {};
 
   if (approved !== undefined) {
     whereClause = {
+      ...whereClause,
       approvedBy: {
         [approved ? "isNot" : "is"]: null,
       },
     };
   }
+  if (name !== undefined) {
+    whereClause = {
+      ...whereClause,
+      name: {
+        contains: name,
+        mode: "insensitive",
+      },
+    };
+  }
 
-  const individuals = await extendedPrisma.individual.findMany({
+  const individuals = await prisma.individual.findMany({
     include: {
       address: true,
     },
@@ -87,7 +119,13 @@ async function findOneById(individualId: string) {
   return individual;
 }
 
-async function approve(userId: string, individualId: string) {
+async function approve(
+  userId: string,
+  individualId: string,
+  config: {
+    sendEmail?: boolean;
+  } = { sendEmail: false },
+) {
   const webserverHost = webserver.getHost();
 
   const individual = await findOneById(individualId);
@@ -112,32 +150,38 @@ async function approve(userId: string, individualId: string) {
     },
   });
 
-  try {
-    await email.send({
-      from: {
-        name: "Callisto",
-        address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
-      },
-      to: individual.email,
-      subject: "Conta aprovada no Callisto!",
-      text: `Clique no link abaixo para acessar sua conta:
+  if (config.sendEmail) {
+    try {
+      await email.send({
+        from: {
+          name: "Callisto",
+          address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
+        },
+        to: individual.email,
+        subject: "Conta aprovada no Callisto!",
+        text: `Clique no link abaixo para acessar:
       
 ${webserverHost}
 
 Atenciosamente,
 Equipe de TI do Callisto`,
-    });
-  } catch {
-    throw new ServiceError({
-      message: "Não foi possível enviar o e-mail de aprovação.",
-      errorLocationCode: "MODEL:INDIVIDUAL:APPROVE:EMAIL_SENDING_ERROR",
-    });
+      });
+    } catch {
+      throw new ServiceError({
+        message: "Não foi possível enviar o e-mail de aprovação.",
+        errorLocationCode: "MODEL:INDIVIDUAL:APPROVE:EMAIL_SENDING_ERROR",
+      });
+    }
   }
 
   return updatedIndividual;
 }
 
-async function approveMultiple(userId: string, individualIds: string[]) {
+async function approveMultiple(
+  userId: string,
+  individualIds: string[],
+  config: { sendEmail?: boolean } = { sendEmail: false },
+) {
   const webserverHost = webserver.getHost();
   const updatedIndividuals = await prisma.individual.updateMany({
     where: {
@@ -163,28 +207,28 @@ async function approveMultiple(userId: string, individualIds: string[]) {
     },
   });
 
-  try {
-    individuals.forEach(async (individual) => {
+  if (config.sendEmail) {
+    try {
       await email.send({
         from: {
           name: "Callisto",
           address: "nao_responda@trial-yzkq3405pq6gd796.mlsender.net",
         },
-        to: individual.email,
+        to: individuals.map((item) => item.email),
         subject: "Conta aprovada no Callisto!",
-        text: `Clique no link abaixo para acessar sua conta:
-      
+        text: `Clique no link abaixo para acessar:
+    
 ${webserverHost}
 
 Atenciosamente,
 Equipe de TI do Callisto`,
       });
-    });
-  } catch {
-    throw new ServiceError({
-      message: "Não foi possível enviar o e-mail de aprovação.",
-      errorLocationCode: "MODEL:INDIVIDUAL:APPROVE:EMAIL_SENDING_ERROR",
-    });
+    } catch {
+      throw new ServiceError({
+        message: "Não foi possível enviar o e-mail de aprovação.",
+        errorLocationCode: "MODEL:INDIVIDUAL:APPROVE:EMAIL_SENDING_ERROR",
+      });
+    }
   }
 
   return updatedIndividuals;

@@ -5,7 +5,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import { Disclosure, Menu, Transition } from "@headlessui/react";
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  Transition,
+} from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
@@ -27,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({
   rightAccessory,
 }) => {
   const { user, logout } = useUser();
-  const { pathname, push } = useRouter();
+  const { pathname, push, route } = useRouter();
   const showNotificationsMenu = false;
 
   const navigation = [
@@ -76,13 +85,15 @@ const Layout: React.FC<LayoutProps> = ({
       pages = [
         {
           name: "Entrar",
-          href: "/login",
+          onClick: async () => {
+            push("/login?redirect=" + route);
+          },
         },
       ];
     }
 
     return pages;
-  }, [logout, user]);
+  }, [logout, push, route, user]);
 
   return (
     <>
@@ -152,7 +163,7 @@ const Layout: React.FC<LayoutProps> = ({
                       {user ? (
                         <Menu as="div" className="relative ml-4">
                           <div>
-                            <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                            <MenuButton className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                               <span className="sr-only">Open user menu</span>
                               <div className="relative size-8">
                                 <Image
@@ -166,7 +177,7 @@ const Layout: React.FC<LayoutProps> = ({
                                   height={32}
                                 />
                               </div>
-                            </Menu.Button>
+                            </MenuButton>
                           </div>
                           <Transition
                             as={Fragment}
@@ -177,39 +188,39 @@ const Layout: React.FC<LayoutProps> = ({
                             leaveFrom="transform opacity-100 scale-100"
                             leaveTo="transform opacity-0 scale-95"
                           >
-                            <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                            <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
                               {userNavigation.map((item) => (
-                                <Menu.Item key={item.name}>
-                                  {({ active }) => (
+                                <MenuItem key={item.name}>
+                                  {({ focus }) => (
                                     <LinkOrButton
                                       href={item.href}
                                       className={clsx(
-                                        active ? "bg-gray-100" : "",
-                                        "block cursor-pointer px-4 py-2 text-sm text-gray-700",
+                                        focus ? "bg-gray-100" : "",
+                                        "block w-full cursor-pointer px-4 py-2 text-left text-sm text-gray-700",
                                       )}
                                       onClick={item.onClick}
                                     >
                                       {item.name}
                                     </LinkOrButton>
                                   )}
-                                </Menu.Item>
+                                </MenuItem>
                               ))}
-                            </Menu.Items>
+                            </MenuItems>
                           </Transition>
                         </Menu>
                       ) : (
-                        <Link
-                          href="/login"
+                        <button
+                          onClick={() => push("/login?redirect=" + route)}
                           className="text-sm/6 font-semibold text-white"
                         >
-                          Log in <span aria-hidden="true">&rarr;</span>
-                        </Link>
+                          Entrar <span aria-hidden="true">&rarr;</span>
+                        </button>
                       )}
                     </div>
                   </div>
                   <div className="-mr-2 flex md:hidden">
                     {/* Mobile menu button */}
-                    <Disclosure.Button className="ml-4 inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                    <DisclosureButton className="ml-4 inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                       <span className="sr-only">Open main menu</span>
                       {open ? (
                         <XMarkIcon
@@ -222,29 +233,28 @@ const Layout: React.FC<LayoutProps> = ({
                           aria-hidden="true"
                         />
                       )}
-                    </Disclosure.Button>
+                    </DisclosureButton>
                   </div>
                 </div>
               </div>
 
-              <Disclosure.Panel className="md:hidden">
+              <DisclosurePanel className="md:hidden">
                 <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
                   {navigation.map((item) => (
                     <Link href={item.href} key={item.name} passHref>
-                      <Disclosure.Button
-                        as="a"
+                      <DisclosureButton
                         className={clsx(
                           item.regExp.test(pathname)
                             ? "bg-gray-900 text-white"
                             : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          "block rounded-md px-3 py-2 text-base font-medium",
+                          "block w-full rounded-md px-3 py-2 text-left text-base font-medium",
                         )}
                         aria-current={
                           item.regExp.test(pathname) ? "page" : undefined
                         }
                       >
                         {item.name}
-                      </Disclosure.Button>
+                      </DisclosureButton>
                     </Link>
                   ))}
                 </div>
@@ -288,26 +298,23 @@ const Layout: React.FC<LayoutProps> = ({
                     {userNavigation.map((item) =>
                       item.href ? (
                         <Link passHref key={item.name} href={item.href}>
-                          <Disclosure.Button
-                            as="a"
-                            className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
-                          >
+                          <DisclosureButton className="block w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">
                             {item.name}
-                          </Disclosure.Button>
+                          </DisclosureButton>
                         </Link>
                       ) : (
-                        <Disclosure.Button
+                        <DisclosureButton
                           key={item.name}
-                          className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
+                          className="block w-full rounded-md px-3 py-2 text-left text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
                           onClick={item.onClick}
                         >
                           {item.name}
-                        </Disclosure.Button>
+                        </DisclosureButton>
                       ),
                     )}
                   </div>
                 </div>
-              </Disclosure.Panel>
+              </DisclosurePanel>
             </>
           )}
         </Disclosure>

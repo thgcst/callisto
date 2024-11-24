@@ -9,6 +9,8 @@ import {
 } from "@headlessui/react";
 import clsx from "clsx";
 
+import Select from "../Select";
+
 type TabProps = {
   label: string;
   children: React.ReactNode;
@@ -34,54 +36,109 @@ const Tabs: React.FC<TabsProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(defaultIndex);
 
   return (
-    <TabGroup
-      selectedIndex={selectedIndex}
-      onChange={(e) => {
-        setSelectedIndex(e);
-        onChange?.(e);
-      }}
-    >
-      <TabList className="mb-4 flex items-start justify-between  border-b border-b-gray-200">
-        <div className="flex items-center gap-x-8">
-          {React.Children.map(children, (child) => {
+    <>
+      <div className="flex w-full flex-col gap-4 md:hidden">
+        <div className="mx-4 flex flex-col gap-2 sm:mx-0">
+          <Select
+            label=""
+            onChange={(e) => {
+              setSelectedIndex(Number(e.target.value));
+              onChange?.(Number(e.target.value));
+            }}
+            value={selectedIndex}
+          >
+            {React.Children.map(children, (child, index) => {
+              if (React.isValidElement<TabProps>(child)) {
+                if (!child.props.label) {
+                  throw new Error(
+                    "All children of Tabs must be Tab components",
+                  );
+                }
+                return <option value={index}>{child.props.label}</option>;
+              }
+              return null;
+            })}
+          </Select>
+          {rightSection instanceof Function
+            ? rightSection(
+                ((children[selectedIndex] as ReactElement)?.props as TabProps)
+                  ?.label,
+              )
+            : rightSection}
+        </div>
+        <div>
+          {React.Children.map(children, (child, index) => {
             if (React.isValidElement<TabProps>(child)) {
-              if (!child.props.label) {
+              if (!child.props.children) {
                 throw new Error("All children of Tabs must be Tab components");
               }
               return (
-                <HLTab
+                <div
                   className={clsx(
-                    "border-b-2 border-b-transparent pb-4 text-sm font-medium text-gray-500 outline-0  disabled:opacity-50",
-                    "data-[selected]:border-b-indigo-600 data-[selected]:text-indigo-600",
-                    "hover:border-b-gray-300 hover:text-black",
+                    "mt-4",
+                    index === selectedIndex ? "" : "hidden",
                   )}
                 >
-                  {child.props.label}
-                </HLTab>
+                  {child.props.children}
+                </div>
               );
             }
             return null;
           })}
         </div>
-        {rightSection instanceof Function
-          ? rightSection(
-              ((children[selectedIndex] as ReactElement)?.props as TabProps)
-                ?.label,
-            )
-          : rightSection}
-      </TabList>
-      <TabPanels>
-        {React.Children.map(children, (child) => {
-          if (React.isValidElement<TabProps>(child)) {
-            if (!child.props.children) {
-              throw new Error("All children of Tabs must be Tab components");
+      </div>
+      <TabGroup
+        selectedIndex={selectedIndex}
+        onChange={(e) => {
+          setSelectedIndex(e);
+          onChange?.(e);
+        }}
+        className="hidden md:block"
+      >
+        <TabList className="mb-4 flex items-start justify-between  border-b border-b-gray-200">
+          <div className="flex items-center gap-x-8">
+            {React.Children.map(children, (child) => {
+              if (React.isValidElement<TabProps>(child)) {
+                if (!child.props.label) {
+                  throw new Error(
+                    "All children of Tabs must be Tab components",
+                  );
+                }
+                return (
+                  <HLTab
+                    className={clsx(
+                      "border-b-2 border-b-transparent pb-4 text-sm font-medium text-gray-500 outline-0  disabled:opacity-50",
+                      "data-[selected]:border-b-indigo-600 data-[selected]:text-indigo-600",
+                      "hover:border-b-gray-300 hover:text-black",
+                    )}
+                  >
+                    {child.props.label}
+                  </HLTab>
+                );
+              }
+              return null;
+            })}
+          </div>
+          {rightSection instanceof Function
+            ? rightSection(
+                ((children[selectedIndex] as ReactElement)?.props as TabProps)
+                  ?.label,
+              )
+            : rightSection}
+        </TabList>
+        <TabPanels>
+          {React.Children.map(children, (child) => {
+            if (React.isValidElement<TabProps>(child)) {
+              if (!child.props.children) {
+                throw new Error("All children of Tabs must be Tab components");
+              }
+              return <TabPanel>{child.props.children}</TabPanel>;
             }
-            return <TabPanel>{child.props.children}</TabPanel>;
-          }
-          return null;
-        })}
-      </TabPanels>
-    </TabGroup>
+            return null;
+          })}
+        </TabPanels>
+      </TabGroup>
+    </>
   );
 };
 
