@@ -16,7 +16,14 @@ CREATE TABLE "companies" (
     "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ NOT NULL,
 
-    CONSTRAINT "companies_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "companies_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "formalized_check" CHECK (
+        NOT "formalized" OR (
+            "cnpj" IS NOT NULL AND
+            "email" IS NOT NULL AND
+            "phoneNumber" IS NOT NULL
+        )
+    )
 );
 
 -- CreateTable
