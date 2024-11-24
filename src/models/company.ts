@@ -71,7 +71,14 @@ async function findOneById(companyId: string) {
     },
     include: {
       address: true,
-      partners: true,
+      partners: {
+        orderBy: {
+          assignedAt: "asc",
+        },
+        include: {
+          individual: true,
+        },
+      },
       employees: true,
     },
   });
@@ -279,7 +286,6 @@ async function updateById(
     fantasyName: string;
     email: string;
     phoneNumber: string;
-    partners?: string[];
   }>,
 ) {
   validator({ id }, { id: "required" });
@@ -291,13 +297,6 @@ async function updateById(
     fantasyName: body.fantasyName,
     email: body.email,
     phoneNumber: body.phoneNumber,
-    partners: {
-      set: body.partners
-        ? body.partners.map((partnerId) => ({
-            id: partnerId,
-          }))
-        : undefined,
-    },
   };
 
   if (typeof data.formalized === "boolean" && data.formalized === false) {
@@ -315,6 +314,47 @@ async function updateById(
   return company;
 }
 
+async function addPartner(
+  companyId: string,
+  userId: string,
+  partnerId: string,
+) {
+  const partner = await prisma.company.update({
+    data: {
+      partners: {
+        create: {
+          assignedBy: {
+            connect: {
+              id: userId,
+            },
+          },
+          individual: {
+            connect: {
+              id: partnerId,
+            },
+          },
+        },
+      },
+    },
+    where: {
+      id: companyId,
+    },
+  });
+
+  return partner;
+}
+
+async function removePartner(companyId: string, partnerId: string) {
+  await prisma.companyPartners.delete({
+    where: {
+      companyId_individualId: {
+        companyId: companyId,
+        individualId: partnerId,
+      },
+    },
+  });
+}
+
 export default Object.freeze({
   findAllPublic,
   findAll,
@@ -323,4 +363,6 @@ export default Object.freeze({
   findOneById,
   create,
   updateById,
+  addPartner,
+  removePartner,
 });

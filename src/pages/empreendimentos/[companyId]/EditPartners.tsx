@@ -3,7 +3,11 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import SelectIndividual from "@/components/SelectIndividual";
 import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
-import { useCompany, useUpdateCompany } from "@/swr/company";
+import {
+  useAddPartner,
+  useCompany,
+  useRemovePartner,
+} from "@/swr/company";
 
 import { CompanyPageProps } from "./index.public";
 
@@ -15,11 +19,12 @@ const EditPartners: React.FC<EditPartnersProps> = ({ companyId }) => {
   const { user } = useUser();
   const canWrite = user && authorization.can(user, `edit:company`);
   const { company, mutate } = useCompany(companyId);
-  const { updatePartners } = useUpdateCompany();
+  const { addPartner } = useAddPartner();
+  const { removePartner } = useRemovePartner();
 
   const partners = (company?.partners || []).map((item) => ({
-    id: item.id,
-    name: item.name,
+    id: item.individual.id,
+    name: item.individual.name,
   }));
 
   const handleAddPartner = async (
@@ -34,8 +39,11 @@ const EditPartners: React.FC<EditPartnersProps> = ({ companyId }) => {
           ...company.partners,
           {
             ...company.partners[0],
-            id: "new-partner",
-            name: individual.name,
+            individual: {
+              ...company.partners[0]?.individual,
+              id: "new-partner",
+              name: individual.name,
+            },
           },
         ],
       },
@@ -47,10 +55,7 @@ const EditPartners: React.FC<EditPartnersProps> = ({ companyId }) => {
       )[0] as HTMLInputElement;
       input.focus();
     }, 50);
-    await updatePartners(companyId, [
-      ...partners.map((item) => item.id),
-      individual.id,
-    ]);
+    await addPartner(companyId, individual.id);
 
     mutate();
   };
@@ -60,7 +65,9 @@ const EditPartners: React.FC<EditPartnersProps> = ({ companyId }) => {
 
     const partnersCopy = [...company?.partners];
 
-    const index = partnersCopy.findIndex((item) => item.id === partner.id);
+    const index = partnersCopy.findIndex(
+      (item) => item.individual.id === partner.id,
+    );
     partnersCopy.splice(index, 1);
 
     mutate(
@@ -70,10 +77,7 @@ const EditPartners: React.FC<EditPartnersProps> = ({ companyId }) => {
       },
     );
 
-    await updatePartners(
-      company.id,
-      partnersCopy.map((item) => item.id),
-    );
+    await removePartner(company.id, partner.id);
     mutate();
   };
 

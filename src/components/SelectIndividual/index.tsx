@@ -25,7 +25,7 @@ const SelectIndividual: React.FC<SelectIndividualProps> = ({
   const individualsFiltered = useMemo(
     () =>
       individuals.filter((individual) => !idsToExclude.includes(individual.id)),
-    [],
+    [individuals],
   );
 
   return (

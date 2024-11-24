@@ -25,6 +25,8 @@ model User {
   recoverPasswordToken RecoverPasswordToken[]
   session              Session[]
 
+  CreatorOfCompanyPartner CompanyPartners[]
+
   createdAt           DateTime     @default(now()) @db.Timestamptz
   updatedAt           DateTime     @updatedAt @db.Timestamptz
   ApprovedIndividuals Individual[]
@@ -94,8 +96,9 @@ model Individual {
   approvedByUserId String?
   approvedAt       DateTime? @db.Timestamptz
 
-  companiesAsPartner  Company[] @relation("CompanyPartners")
-  companyAsEmployee   Company?  @relation("CompanyEmployees", fields: [companyAsEmployeeId], references: [id])
+  companiesPartnerWith CompanyPartners[]
+
+  companyAsEmployee   Company? @relation("CompanyEmployees", fields: [companyAsEmployeeId], references: [id])
   companyAsEmployeeId String?
 
   createdAt DateTime @default(now()) @db.Timestamptz
@@ -134,8 +137,8 @@ model Company {
   address   Address @relation(fields: [addressId], references: [id])
   addressId String  @unique
 
-  partners  Individual[] @relation("CompanyPartners")
-  employees Individual[] @relation("CompanyEmployees")
+  partners  CompanyPartners[]
+  employees Individual[]      @relation("CompanyEmployees")
 
   approvedBy       User?     @relation(fields: [approvedByUserId], references: [id])
   approvedByUserId String?
@@ -145,4 +148,19 @@ model Company {
   updatedAt DateTime @updatedAt @db.Timestamptz
 
   @@map("companies")
+}
+
+model CompanyPartners {
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
+
+  individual   Individual @relation(fields: [individualId], references: [id])
+  individualId String
+
+  assignedAt   DateTime @default(now()) @db.Timestamptz
+  assignedBy   User     @relation(fields: [assignedById], references: [id])
+  assignedById String
+
+  @@id([companyId, individualId])
+  @@map("company_partners")
 }
