@@ -130,6 +130,9 @@ const EditPartners: React.FC<EditPartnersProps> = ({ companyId }) => {
                     </div>
                   </div>
                 ))}
+                {partners.length === 0 && (
+                  <div className="col-span-6 text-gray-400">Nenhum sócio</div>
+                )}
               </div>
             </div>
           </div>

@@ -128,6 +128,11 @@ const EditEmployees: React.FC<EditEmployeesProps> = ({ companyId }) => {
                     </div>
                   </div>
                 ))}
+                {employees.length === 0 && (
+                  <div className="col-span-6 text-gray-400">
+                    Nenhum funcionário
+                  </div>
+                )}
               </div>
             </div>
           </div>
