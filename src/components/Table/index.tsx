@@ -1,5 +1,7 @@
 import { flexRender, Table as ReactTable } from "@tanstack/react-table";
 
+import Pagination from "../Pagination";
+
 interface TableProps<TData> {
   table: ReactTable<TData>;
   loading?: boolean;
@@ -84,6 +86,16 @@ function Table<TData>({
             ))}
         </tbody>
       </table>
+      {rowCount > table.getState().pagination.pageSize && (
+        <Pagination
+          totalRows={rowCount}
+          page={table.getState().pagination.pageIndex + 1}
+          rowsPerPage={table.getState().pagination.pageSize}
+          onPageChange={(page) => {
+            table.setPageIndex(page - 1);
+          }}
+        />
+      )}
     </div>
   );
 }

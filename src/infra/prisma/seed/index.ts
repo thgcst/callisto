@@ -110,8 +110,8 @@ async function createManyCompanies(
 async function main() {
   const user = await createMainUser();
 
-  await createManyIndividuals(user, 10, 4);
-  await createManyCompanies(user, 10, 4);
+  await createManyIndividuals(user, 100, 62);
+  await createManyCompanies(user, 80, 35);
 }
 main()
   .then(async () => {

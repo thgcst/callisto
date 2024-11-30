@@ -470,7 +470,7 @@ const schemas = {
         .allow("")
         .empty("")
         .min(5)
-        .max(50)
+        .max(100)
         .trim()
         .when("$required.fantasyName", {
           is: "required",
