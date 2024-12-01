@@ -88,6 +88,7 @@ function Table<TData>({
             ))}
         </tbody>
       </table>
+
       {!!pagination && (
         <Pagination
           totalRows={rowCount}

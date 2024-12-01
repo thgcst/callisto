@@ -83,9 +83,13 @@ const Pagination: React.FC<PaginationProps> = ({
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-gray-700">
-            Mostrando <span className="font-medium">1</span> a{" "}
-            <span className="font-medium">10</span> de{" "}
-            <span className="font-medium">{totalRows}</span> resultados
+            Mostrando{" "}
+            <span className="font-medium">{(page - 1) * rowsPerPage + 1}</span>{" "}
+            a{" "}
+            <span className="font-medium">
+              {Math.min(page * rowsPerPage, totalRows)}
+            </span>{" "}
+            de <span className="font-medium">{totalRows}</span> resultados
           </p>
         </div>
         <div>

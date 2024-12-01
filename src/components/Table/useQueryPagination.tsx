@@ -17,7 +17,7 @@ export function useQueryPagination(
   meta: PageNumberPagination & PageNumberCounters,
 ): UsePaginationReturn {
   const { replace, query } = useRouter();
-  const pageSize = Math.ceil(meta.totalCount / meta.pageCount);
+  const pageSize = Math.floor(meta.totalCount / (meta.pageCount - 1));
 
   const currentPage = query.page ? parseInt(query.page as string) : 1;
 
