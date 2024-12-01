@@ -14,6 +14,7 @@ import {
 import ApproveCompaniesButton from "@/components/ApproveCompanyButton/multiple";
 import Checkbox from "@/components/Checkbox";
 import Table from "@/components/Table";
+import { useQueryPagination } from "@/components/Table/useQueryPagination";
 import Tabs, { Tab } from "@/components/Tabs";
 import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
@@ -22,17 +23,19 @@ import { formatCnpj, formatPhoneNumber } from "@/utils/format";
 
 import { CompaniesProps } from "./index.public";
 
-type CompaniesType = Exclude<CompaniesProps["detailedCompanies"], undefined>;
+interface DetailedTableProps {
+  companies: Exclude<CompaniesProps["detailedCompanies"], undefined>[0];
+  meta: Exclude<CompaniesProps["detailedCompanies"], undefined>[1];
+}
 
-const DetailedTable: React.FC<{
-  companies: CompaniesType;
-}> = ({ companies }) => {
+const DetailedTable: React.FC<DetailedTableProps> = ({ companies, meta }) => {
+  const { pagination, onPaginationChange } = useQueryPagination(meta);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const router = useRouter();
+  const { query, replace, asPath } = useRouter();
+  const tab = (query.tab ?? "aprovados") as "pendente" | "aprovados";
   const { user } = useUser();
 
-  const columnHelper =
-    createColumnHelper<CompaniesType["approvedCompanies"][number]>();
+  const columnHelper = createColumnHelper<(typeof companies)[number]>();
 
   const canReadCompany = useMemo(
     () => user && authorization.can(user, "read:company"),
@@ -40,10 +43,6 @@ const DetailedTable: React.FC<{
   );
   const canEditCompany = useMemo(
     () => user && authorization.can(user, "edit:company"),
-    [user],
-  );
-  const canApproveCompany = useMemo(
-    () => user && authorization.can(user, "approve:company"),
     [user],
   );
 
@@ -164,19 +163,21 @@ const DetailedTable: React.FC<{
     [canEditCompany, canReadCompany, columnHelper],
   );
 
-  const approvedTable = useReactTable({
-    data: companies.approvedCompanies,
-    columns: detailedColumns.filter((column) => column.id !== "checkbox"),
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  const pendingApprovalTable = useReactTable({
-    data: companies.companiesPendingApproval,
-    columns: detailedColumns,
+  const table = useReactTable({
+    data: companies,
+    columns:
+      tab === "aprovados"
+        ? detailedColumns.filter((column) => column.id !== "checkbox")
+        : detailedColumns,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id,
     onRowSelectionChange: setRowSelection,
+    manualPagination: true,
+    onPaginationChange,
+    pageCount: meta.pageCount,
+    rowCount: meta.totalCount,
     state: {
+      pagination,
       rowSelection,
     },
   });
@@ -184,18 +185,14 @@ const DetailedTable: React.FC<{
   return (
     <Tabs
       onChange={(e) => {
-        const tab = e === 0 ? "pendente" : "aprovados";
-        router.replace(
-          router.asPath,
-          {
-            query: { tab },
-          },
-          { shallow: false },
-        );
+        const newTab = ["pendente", "aprovados"][e];
+        replace({
+          query: { tab: newTab },
+        });
       }}
-      defaultIndex={router.query.tab === "pendente" ? 0 : 1}
-      rightSection={(tab) =>
-        tab === "Pendentes" && (
+      defaultIndex={tab === "pendente" ? 0 : 1}
+      rightSection={(t) =>
+        t === "Pendentes" && (
           <ApproveCompaniesButton
             size="sm"
             companyIds={Object.entries(rowSelection)
@@ -203,19 +200,17 @@ const DetailedTable: React.FC<{
               .map(([companyId]) => companyId)}
             onApprove={() => {
               setRowSelection({});
-              router.replace(router.asPath);
+              replace(asPath);
             }}
           />
         )
       }
     >
-      {canApproveCompany && (
-        <Tab label="Pendentes">
-          <Table table={pendingApprovalTable} />
-        </Tab>
-      )}
+      <Tab label="Pendentes">
+        <Table table={table} pagination />
+      </Tab>
       <Tab label="Aprovados">
-        <Table table={approvedTable} />
+        <Table table={table} pagination />
       </Tab>
     </Tabs>
   );

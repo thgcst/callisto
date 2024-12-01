@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import ApproveIndividualsButton from "@/components/ApproveIndividualButton/multiple";
 import Checkbox from "@/components/Checkbox";
 import Table from "@/components/Table";
+import { useQueryPagination } from "@/components/Table/useQueryPagination";
 import Tabs, { Tab } from "@/components/Tabs";
 import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
@@ -22,20 +23,18 @@ import { formatPhoneNumber } from "@/utils/format";
 
 import { IndividualsProps } from "./index.public";
 
-type IndividualsType = Exclude<
-  IndividualsProps["detailedIndividuals"],
-  undefined
->;
-
-const DetailedTable: React.FC<{
-  individuals: IndividualsType;
-}> = ({ individuals }) => {
+interface DetailedTableProps {
+  individuals: Exclude<IndividualsProps["detailedIndividuals"], undefined>[0];
+  meta: Exclude<IndividualsProps["detailedIndividuals"], undefined>[1];
+}
+const DetailedTable: React.FC<DetailedTableProps> = ({ individuals, meta }) => {
+  const { pagination, onPaginationChange } = useQueryPagination(meta);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const router = useRouter();
+  const { query, replace, asPath } = useRouter();
+  const tab = (query.tab ?? "aprovados") as "pendente" | "aprovados";
   const { user } = useUser();
 
-  const columnHelper =
-    createColumnHelper<IndividualsType["approvedIndividuals"][number]>();
+  const columnHelper = createColumnHelper<(typeof individuals)[number]>();
 
   const canReadIndividual = useMemo(
     () => user && authorization.can(user, "read:individual"),
@@ -43,10 +42,6 @@ const DetailedTable: React.FC<{
   );
   const canEditIndividual = useMemo(
     () => user && authorization.can(user, "edit:individual"),
-    [user],
-  );
-  const canApproveIndividual = useMemo(
-    () => user && authorization.can(user, "approve:individual"),
     [user],
   );
 
@@ -150,19 +145,21 @@ const DetailedTable: React.FC<{
     [canEditIndividual, canReadIndividual, columnHelper],
   );
 
-  const approvedTable = useReactTable({
-    data: individuals.approvedIndividuals,
-    columns: detailedColumns.filter((column) => column.id !== "checkbox"),
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  const pendingApprovalTable = useReactTable({
-    data: individuals.individualsPendingApproval,
-    columns: detailedColumns,
+  const table = useReactTable({
+    data: individuals,
+    columns:
+      tab === "aprovados"
+        ? detailedColumns.filter((column) => column.id !== "checkbox")
+        : detailedColumns,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id,
     onRowSelectionChange: setRowSelection,
+    manualPagination: true,
+    onPaginationChange,
+    pageCount: meta.pageCount,
+    rowCount: meta.totalCount,
     state: {
+      pagination,
       rowSelection,
     },
   });
@@ -170,18 +167,14 @@ const DetailedTable: React.FC<{
   return (
     <Tabs
       onChange={(e) => {
-        const tab = e === 0 ? "pendente" : "aprovados";
-        router.replace(
-          router.asPath,
-          {
-            query: { tab },
-          },
-          { shallow: false },
-        );
+        const newTab = ["pendente", "aprovados"][e];
+        replace({
+          query: { tab: newTab },
+        });
       }}
-      defaultIndex={router.query.tab === "pendente" ? 0 : 1}
-      rightSection={(tab) =>
-        tab === "Pendentes" && (
+      defaultIndex={tab === "pendente" ? 0 : 1}
+      rightSection={(t) =>
+        t === "Pendentes" && (
           <ApproveIndividualsButton
             size="sm"
             individualIds={Object.entries(rowSelection)
@@ -189,19 +182,17 @@ const DetailedTable: React.FC<{
               .map(([individualId]) => individualId)}
             onApprove={() => {
               setRowSelection({});
-              router.replace(router.asPath);
+              replace(asPath);
             }}
           />
         )
       }
     >
-      {canApproveIndividual && (
-        <Tab label="Pendentes">
-          <Table table={pendingApprovalTable} />
-        </Tab>
-      )}
+      <Tab label="Pendentes">
+        <Table table={table} pagination />
+      </Tab>
       <Tab label="Aprovados">
-        <Table table={approvedTable} />
+        <Table table={table} pagination />
       </Tab>
     </Tabs>
   );

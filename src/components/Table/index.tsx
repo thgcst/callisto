@@ -6,12 +6,14 @@ interface TableProps<TData> {
   table: ReactTable<TData>;
   loading?: boolean;
   emptyContent?: React.ReactNode;
+  pagination?: boolean;
 }
 
 function Table<TData>({
   table,
   loading = false,
   emptyContent = "Não foram encontrados dados",
+  pagination,
 }: TableProps<TData>) {
   const rowCount = loading ? 0 : table.getRowCount();
   const rows = table.getRowModel().rows;
@@ -86,7 +88,7 @@ function Table<TData>({
             ))}
         </tbody>
       </table>
-      {rowCount > table.getState().pagination.pageSize && (
+      {!!pagination && (
         <Pagination
           totalRows={rowCount}
           page={table.getState().pagination.pageIndex + 1}

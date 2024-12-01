@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import { useIndividuals } from "@/swr/individual";
+import { useSearchIndividuals } from "@/swr/individual";
 
 import Autocomplete from "../Autocomplete";
 
@@ -20,12 +20,12 @@ const SelectIndividual: React.FC<SelectIndividualProps> = ({
   idsToExclude = [],
 }) => {
   const [query, setQuery] = useState("");
-  const { individuals } = useIndividuals({ name: query });
+  const { individuals } = useSearchIndividuals({ name: query });
 
   const individualsFiltered = useMemo(
     () =>
       individuals.filter((individual) => !idsToExclude.includes(individual.id)),
-    [individuals],
+    [idsToExclude, individuals],
   );
 
   return (
