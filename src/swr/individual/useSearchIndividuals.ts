@@ -2,7 +2,7 @@ import useSWR from "swr";
 
 import individual from "@/models/individual";
 
-export type Data = Awaited<ReturnType<typeof individual.findAll>>;
+export type Data = Awaited<ReturnType<typeof individual.searchAll>>;
 
 type Payload = {
   name?: string;
@@ -10,7 +10,7 @@ type Payload = {
 
 function useIndividuals(payload: Payload = {}) {
   const { data, error, isValidating, isLoading } = useSWR<Data>([
-    `/api/individuals`,
+    `/api/individuals/search`,
     {
       name: payload.name,
     },

@@ -1,8 +1,6 @@
 import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
-import * as z from "zod";
-
 import authentication from "@/models/authentication";
 import controller from "@/models/controller";
 import individual from "@/models/individual";
@@ -15,26 +13,7 @@ export default nextConnect({
   onError: controller.onErrorHandler,
 })
   .post(postHandler)
-  .use(authentication.injectUser)
-  .get(getHandler);
-
-async function getHandler(request: InjectedRequest, response: NextApiResponse) {
-  const schema = z.object({
-    name: z.string().optional(),
-    take: z.coerce.number().optional(),
-  });
-
-  const query = schema.safeParse(request.query);
-
-  if (!query.success) {
-    response.status(400).json(query.error);
-    return;
-  }
-
-  const individuals = await individual.findAllPublic(query.data);
-
-  response.status(200).json(individuals);
-}
+  .use(authentication.injectUser);
 
 async function postHandler(
   request: InjectedRequest,

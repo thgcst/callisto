@@ -5,17 +5,19 @@ import {
 } from "@tanstack/react-table";
 
 import Table from "@/components/Table";
+import { useQueryPagination } from "@/components/Table/useQueryPagination";
 import { dayToDDMMYYYY, dayToLocaleString } from "@/utils/dates";
 
 import { IndividualsProps } from "./index.public";
 
-const DefaultTable: React.FC<{
-  individuals: Exclude<IndividualsProps["individuals"], undefined>;
-}> = ({ individuals }) => {
-  const columnHelper =
-    createColumnHelper<
-      Exclude<IndividualsProps["individuals"], undefined>[number]
-    >();
+interface DefaultTableProps {
+  individuals: Exclude<IndividualsProps["individuals"], undefined>[0];
+  meta: Exclude<IndividualsProps["individuals"], undefined>[1];
+}
+
+const DefaultTable: React.FC<DefaultTableProps> = ({ individuals, meta }) => {
+  const { pagination, onPaginationChange } = useQueryPagination(meta);
+  const columnHelper = createColumnHelper<(typeof individuals)[number]>();
 
   const table = useReactTable({
     data: individuals,
@@ -44,9 +46,16 @@ const DefaultTable: React.FC<{
       }),
     ],
     getCoreRowModel: getCoreRowModel(),
+    manualPagination: true,
+    onPaginationChange,
+    pageCount: meta.pageCount,
+    rowCount: meta.totalCount,
+    state: {
+      pagination,
+    },
   });
 
-  return <Table table={table} />;
+  return <Table table={table} pagination />;
 };
 
 export default DefaultTable;

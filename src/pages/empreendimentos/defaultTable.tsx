@@ -5,17 +5,19 @@ import {
 } from "@tanstack/react-table";
 
 import Table from "@/components/Table";
+import { useQueryPagination } from "@/components/Table/useQueryPagination";
 import { dayToDDMMYYYY, dayToLocaleString } from "@/utils/dates";
 
 import { CompaniesProps } from "./index.public";
 
-const DefaultTable: React.FC<{
-  companies: Exclude<CompaniesProps["companies"], undefined>;
-}> = ({ companies }) => {
-  const columnHelper =
-    createColumnHelper<
-      Exclude<CompaniesProps["companies"], undefined>[number]
-    >();
+interface DefaultTableProps {
+  companies: Exclude<CompaniesProps["companies"], undefined>[0];
+  meta: Exclude<CompaniesProps["companies"], undefined>[1];
+}
+
+const DefaultTable: React.FC<DefaultTableProps> = ({ companies, meta }) => {
+  const { pagination, onPaginationChange } = useQueryPagination(meta);
+  const columnHelper = createColumnHelper<(typeof companies)[number]>();
 
   const table = useReactTable({
     data: companies,
@@ -47,9 +49,16 @@ const DefaultTable: React.FC<{
       }),
     ],
     getCoreRowModel: getCoreRowModel(),
+    manualPagination: true,
+    onPaginationChange,
+    pageCount: meta.pageCount,
+    rowCount: meta.totalCount,
+    state: {
+      pagination,
+    },
   });
 
-  return <Table table={table} />;
+  return <Table table={table} pagination />;
 };
 
 export default DefaultTable;

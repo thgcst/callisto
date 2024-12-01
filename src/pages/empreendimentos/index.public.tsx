@@ -1,6 +1,7 @@
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 
 import { parse } from "cookie";
+import * as z from "zod";
 
 import AddCompanyButton from "@/components/AddCompanyButton";
 import Layout from "@/components/Layout";
@@ -17,25 +18,30 @@ export const getServerSideProps = (async (ctx) => {
 
   const sessionValid = await session.isSessionValid(sessionToken);
 
+  const querySchema = z.object({
+    page: z.coerce.number().optional(),
+    tab: z.union([z.literal("pendente"), z.literal("aprovados")]).optional(),
+  });
+
+  const { page = 1, tab = "aprovados" } = querySchema.parse(ctx.query);
+
   if (
     sessionValid &&
     authorization.can(sessionValid.user, `read:companyDetails`)
   ) {
-    const approvedCompanies = await company.findAll({ approved: true });
-    const companiesPendingApproval = await company.findAll({
-      approved: false,
-    });
     return {
       props: {
-        detailedCompanies: {
-          approvedCompanies: serialize(approvedCompanies),
-          companiesPendingApproval: serialize(companiesPendingApproval),
-        },
+        detailedCompanies: serialize(
+          await company.findAllPaginated({
+            approved: tab === "aprovados",
+            page: page,
+          }),
+        ),
       },
     };
   }
 
-  const companies = await company.findAllPublic();
+  const companies = await company.findAllPublicPaginated({ page });
   return {
     props: {
       companies: serialize(companies),
@@ -53,8 +59,15 @@ const Companies: React.FC<CompaniesProps> = ({
 }) => {
   return (
     <Layout label="Empreendimentos" rightAccessory={<AddCompanyButton />}>
-      {detailedCompanies && <DetailedTable companies={detailedCompanies} />}
-      {companies && <DefaultTable companies={companies} />}
+      {detailedCompanies && (
+        <DetailedTable
+          companies={detailedCompanies[0]}
+          meta={detailedCompanies[1]}
+        />
+      )}
+      {companies && (
+        <DefaultTable companies={companies[0]} meta={companies[1]} />
+      )}
     </Layout>
   );
 };

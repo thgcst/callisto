@@ -21,13 +21,19 @@ const extendedPrisma = prisma.$extends({
   },
 });
 
-async function findAllPublic(
+async function findAllPublicPaginated(
   payload: {
-    take?: number;
+    page?: number;
+    limit?: number;
     name?: string;
   } = {},
 ) {
-  const { take, name } = payload;
+  const { page, name } = payload;
+  let { limit = null } = payload;
+
+  if (page && !limit) {
+    limit = 10;
+  }
 
   let whereClause: Prisma.IndividualWhereInput = {};
 
@@ -41,18 +47,56 @@ async function findAllPublic(
     };
   }
 
-  const individuals = await extendedPrisma.individual.findMany({
+  const individuals = await extendedPrisma.individual
+    .paginate({
+      select: {
+        id: true,
+        name: true,
+        address: {
+          select: {
+            city: true,
+            state: true,
+          },
+        },
+        maskedCpf: true,
+        createdAt: true,
+      },
+      where: {
+        ...whereClause,
+        approvedBy: {
+          isNot: null,
+        },
+      },
+    })
+    .withPages({
+      limit,
+      page,
+    });
+
+  return individuals;
+}
+
+async function searchAll(payload: { name?: string } = {}) {
+  const { name } = payload;
+
+  let whereClause: Prisma.IndividualWhereInput = {};
+
+  if (name !== undefined) {
+    whereClause = {
+      ...whereClause,
+      name: {
+        contains: name,
+        mode: "insensitive",
+      },
+    };
+  }
+
+  const individuals = await prisma.individual.findMany({
     select: {
       id: true,
       name: true,
-      address: {
-        select: {
-          city: true,
-          state: true,
-        },
-      },
-      maskedCpf: true,
-      createdAt: true,
+      birthday: true,
+      cpf: true,
     },
     where: {
       ...whereClause,
@@ -60,14 +104,26 @@ async function findAllPublic(
         isNot: null,
       },
     },
-    take,
+    take: 10,
   });
 
   return individuals;
 }
 
-async function findAll(payload: { approved?: boolean; name?: string } = {}) {
-  const { approved, name } = payload;
+async function findAllPaginated(
+  payload: {
+    approved?: boolean;
+    name?: string;
+    page?: number;
+    limit?: number;
+  } = {},
+) {
+  const { approved, name, page } = payload;
+  let { limit = null } = payload;
+
+  if (page && !limit) {
+    limit = 10;
+  }
 
   let whereClause: Prisma.IndividualWhereInput = {};
 
@@ -89,12 +145,17 @@ async function findAll(payload: { approved?: boolean; name?: string } = {}) {
     };
   }
 
-  const individuals = await prisma.individual.findMany({
-    include: {
-      address: true,
-    },
-    where: whereClause,
-  });
+  const individuals = await prisma.individual
+    .paginate({
+      include: {
+        address: true,
+      },
+      where: whereClause,
+    })
+    .withPages({
+      page,
+      limit,
+    });
 
   return individuals;
 }
@@ -293,8 +354,9 @@ function create(payload: {
 }
 
 export default Object.freeze({
-  findAllPublic,
-  findAll,
+  findAllPublicPaginated,
+  searchAll,
+  findAllPaginated,
   approve,
   approveMultiple,
   findOneById,

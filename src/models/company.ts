@@ -8,58 +8,115 @@ import webserver from "@/infra/webserver";
 
 import validator from "./validator";
 
-async function findAllPublic() {
-  const companies = await prisma.company.findMany({
-    select: {
-      id: true,
-      name: true,
-      address: {
-        select: {
-          city: true,
-          state: true,
+async function findAllPublicPaginated(
+  payload: {
+    page?: number;
+    limit?: number;
+    name?: string;
+  } = {},
+) {
+  const { page, name } = payload;
+  let { limit = null } = payload;
+
+  if (page && !limit) {
+    limit = 10;
+  }
+
+  let whereClause: Prisma.CompanyWhereInput = {};
+
+  if (name !== undefined) {
+    whereClause = {
+      ...whereClause,
+      name: {
+        contains: name,
+        mode: "insensitive",
+      },
+    };
+  }
+  const companies = await prisma.company
+    .paginate({
+      select: {
+        id: true,
+        name: true,
+        address: {
+          select: {
+            city: true,
+            state: true,
+          },
+        },
+        _count: {
+          select: {
+            employees: true,
+          },
+        },
+        createdAt: true,
+      },
+      where: {
+        ...whereClause,
+        approvedBy: {
+          isNot: null,
         },
       },
-      _count: {
-        select: {
-          employees: true,
-        },
-      },
-      createdAt: true,
-    },
-    where: {
-      approvedBy: {
-        isNot: null,
-      },
-    },
-  });
+    })
+    .withPages({
+      limit,
+      page,
+    });
 
   return companies;
 }
 
-async function findAll(payload: { approved?: boolean } = {}) {
-  const { approved } = payload;
+async function findAllPaginated(
+  payload: {
+    approved?: boolean;
+    name?: string;
+    page?: number;
+    limit?: number;
+  } = {},
+) {
+  const { approved, name, page } = payload;
+  let { limit = null } = payload;
+
+  if (page && !limit) {
+    limit = 10;
+  }
 
   let whereClause: Prisma.CompanyWhereInput = {};
 
   if (approved !== undefined) {
     whereClause = {
+      ...whereClause,
       approvedBy: {
         [approved ? "isNot" : "is"]: null,
       },
     };
   }
+  if (name !== undefined) {
+    whereClause = {
+      ...whereClause,
+      name: {
+        contains: name,
+        mode: "insensitive",
+      },
+    };
+  }
 
-  const companies = await prisma.company.findMany({
-    include: {
-      address: true,
-      _count: {
-        select: {
-          employees: true,
+  const companies = await prisma.company
+    .paginate({
+      include: {
+        address: true,
+        _count: {
+          select: {
+            employees: true,
+          },
         },
       },
-    },
-    where: whereClause,
-  });
+      where: whereClause,
+    })
+    .withPages({
+      page,
+      limit,
+    });
 
   return companies;
 }
@@ -389,8 +446,8 @@ async function removeEmployee(employeeId: string) {
 }
 
 export default Object.freeze({
-  findAllPublic,
-  findAll,
+  findAllPublicPaginated,
+  findAllPaginated,
   approve,
   approveMultiple,
   findOneById,
