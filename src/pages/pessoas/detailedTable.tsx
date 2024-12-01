@@ -206,7 +206,7 @@ const DetailedTable: React.FC<DetailedTableProps> = ({ individuals, meta }) => {
         <div className="space-y-4">
           <div className="max-w-80">
             <Input
-              label="Busca"
+              placeholder="Busca"
               onChange={onSearchChange}
               defaultValue={query.search}
             />
@@ -218,7 +218,7 @@ const DetailedTable: React.FC<DetailedTableProps> = ({ individuals, meta }) => {
         <div className="space-y-4">
           <div className="max-w-80">
             <Input
-              label="Busca"
+              placeholder="Busca"
               onChange={onSearchChange}
               defaultValue={query.search}
             />

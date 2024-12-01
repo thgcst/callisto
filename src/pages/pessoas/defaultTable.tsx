@@ -78,7 +78,7 @@ const DefaultTable: React.FC<DefaultTableProps> = ({ individuals, meta }) => {
     <div className="space-y-4">
       <div className="max-w-80">
         <Input
-          label="Busca"
+          placeholder="Busca"
           onChange={onSearchChange}
           defaultValue={query.search}
         />
