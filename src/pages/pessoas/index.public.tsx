@@ -21,9 +21,10 @@ export const getServerSideProps = (async (ctx) => {
   const querySchema = z.object({
     page: z.coerce.number().optional(),
     tab: z.union([z.literal("pendente"), z.literal("aprovados")]).optional(),
+    search: z.string().optional(),
   });
 
-  const { page = 1, tab = "aprovados" } = querySchema.parse(ctx.query);
+  const { page = 1, tab = "aprovados", search } = querySchema.parse(ctx.query);
 
   if (
     sessionValid &&
@@ -35,13 +36,17 @@ export const getServerSideProps = (async (ctx) => {
           await individual.findAllPaginated({
             approved: tab === "aprovados",
             page: page,
+            name: search,
           }),
         ),
       },
     };
   }
 
-  const individuals = await individual.findAllPublicPaginated({ page });
+  const individuals = await individual.findAllPublicPaginated({
+    page,
+    name: search,
+  });
   return {
     props: {
       individuals: serialize(individuals),

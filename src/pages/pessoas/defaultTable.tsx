@@ -1,9 +1,15 @@
+import { ChangeEvent } from "react";
+
+import { useRouter } from "next/router";
+
 import {
   createColumnHelper,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useDebounceCallback } from "usehooks-ts";
 
+import Input from "@/components/Input";
 import Table from "@/components/Table";
 import { useQueryPagination } from "@/components/Table/useQueryPagination";
 import { dayToDDMMYYYY, dayToLocaleString } from "@/utils/dates";
@@ -16,6 +22,7 @@ interface DefaultTableProps {
 }
 
 const DefaultTable: React.FC<DefaultTableProps> = ({ individuals, meta }) => {
+  const { replace, query } = useRouter();
   const { pagination, onPaginationChange } = useQueryPagination(meta);
   const columnHelper = createColumnHelper<(typeof individuals)[number]>();
 
@@ -55,7 +62,30 @@ const DefaultTable: React.FC<DefaultTableProps> = ({ individuals, meta }) => {
     },
   });
 
-  return <Table table={table} pagination />;
+  const onSearchChange = useDebounceCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      if (!e.target.value) {
+        delete query.search;
+        return replace({ query });
+      }
+
+      replace({ query: { ...query, search: e.target.value || undefined } });
+    },
+    500,
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="max-w-80">
+        <Input
+          label="Busca"
+          onChange={onSearchChange}
+          defaultValue={query.search}
+        />
+      </div>
+      <Table table={table} pagination />
+    </div>
+  );
 };
 
 export default DefaultTable;

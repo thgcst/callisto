@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -10,9 +10,11 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { format } from "date-fns";
+import { useDebounceCallback } from "usehooks-ts";
 
 import ApproveIndividualsButton from "@/components/ApproveIndividualButton/multiple";
 import Checkbox from "@/components/Checkbox";
+import Input from "@/components/Input";
 import Table from "@/components/Table";
 import { useQueryPagination } from "@/components/Table/useQueryPagination";
 import Tabs, { Tab } from "@/components/Tabs";
@@ -164,6 +166,18 @@ const DetailedTable: React.FC<DetailedTableProps> = ({ individuals, meta }) => {
     },
   });
 
+  const onSearchChange = useDebounceCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      if (!e.target.value) {
+        delete query.search;
+        return replace({ query });
+      }
+
+      replace({ query: { ...query, search: e.target.value || undefined } });
+    },
+    500,
+  );
+
   return (
     <Tabs
       onChange={(e) => {
@@ -189,10 +203,28 @@ const DetailedTable: React.FC<DetailedTableProps> = ({ individuals, meta }) => {
       }
     >
       <Tab label="Pendentes">
-        <Table table={table} pagination />
+        <div className="space-y-4">
+          <div className="max-w-80">
+            <Input
+              label="Busca"
+              onChange={onSearchChange}
+              defaultValue={query.search}
+            />
+          </div>
+          <Table table={table} pagination />
+        </div>
       </Tab>
       <Tab label="Aprovados">
-        <Table table={table} pagination />
+        <div className="space-y-4">
+          <div className="max-w-80">
+            <Input
+              label="Busca"
+              onChange={onSearchChange}
+              defaultValue={query.search}
+            />
+          </div>
+          <Table table={table} pagination />
+        </div>
       </Tab>
     </Tabs>
   );
