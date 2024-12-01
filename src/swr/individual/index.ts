@@ -5,3 +5,5 @@ export {
   default as useSearchIndividuals,
   type Data as UseSearchIndividualsData,
 } from "./useSearchIndividuals";
+
+export { default as useUpdateIndividual } from "./useUpdateIndividual";

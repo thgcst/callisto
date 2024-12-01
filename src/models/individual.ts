@@ -353,6 +353,49 @@ function create(payload: {
   });
 }
 
+async function updateById(
+  id: string,
+  body: Partial<{
+    name: string;
+    email: string;
+    motherName: string;
+    cpf: string;
+    birthday: Date | string;
+    phoneNumber: string;
+  }>,
+) {
+  let individual = await prisma.individual.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!individual) {
+    throw new NotFoundError({
+      message: `O id "${id}" não foi encontrado no sistema.`,
+      errorLocationCode: "MODEL:INDIVIDUAL:UPDATE_BY_ID:INDIVIDUAL_NOT_FOUND",
+    });
+  }
+
+  const data: Prisma.IndividualUpdateArgs["data"] = {
+    name: body.name,
+    email: body.email,
+    motherName: body.motherName,
+    cpf: body.cpf,
+    birthday: body.birthday,
+    phoneNumber: body.phoneNumber,
+  };
+
+  individual = await prisma.individual.update({
+    where: {
+      id,
+    },
+    data,
+  });
+
+  return individual;
+}
+
 export default Object.freeze({
   findAllPublicPaginated,
   searchAll,
@@ -361,4 +404,5 @@ export default Object.freeze({
   approveMultiple,
   findOneById,
   create,
+  updateById,
 });

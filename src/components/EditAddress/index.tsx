@@ -1,6 +1,7 @@
 import React from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Address } from "@prisma/client";
 import cep from "cep-promise";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useHookFormMask } from "use-mask-input";
@@ -12,11 +13,11 @@ import { useUser } from "@/contexts/userContext";
 import authorization from "@/models/authorization";
 import { useUpdateAddress } from "@/swr/address";
 import { brazilStates } from "@/utils/brazilStates";
-
-import { CompanyPageProps } from "./index.public";
+import { formatCep } from "@/utils/format";
+import { DeepSerialize } from "@/utils/serialize";
 
 type EditAddressProps = {
-  company: CompanyPageProps["company"];
+  address: Address | DeepSerialize<Address>;
 };
 
 const schema = z.object({
@@ -30,7 +31,7 @@ const schema = z.object({
   state: z.string().length(2, { message: "Estado deve ter 2 caracteres (UF)" }),
 });
 
-const EditAddress: React.FC<EditAddressProps> = ({ company }) => {
+const EditAddress: React.FC<EditAddressProps> = ({ address }) => {
   const { user: me } = useUser();
   const { updateAddress, loading } = useUpdateAddress();
 
@@ -44,12 +45,12 @@ const EditAddress: React.FC<EditAddressProps> = ({ company }) => {
   } = useForm<z.infer<typeof schema>>({
     mode: "onTouched",
     defaultValues: {
-      cep: company.address.cep,
-      street: company.address.street,
-      number: company.address.number,
-      complement: company.address.complement || "",
-      city: company.address.city,
-      state: company.address.state,
+      cep: formatCep(address.cep),
+      street: address.street,
+      number: address.number,
+      complement: address.complement || "",
+      city: address.city,
+      state: address.state,
     },
     resolver: zodResolver(schema),
   });
@@ -57,7 +58,7 @@ const EditAddress: React.FC<EditAddressProps> = ({ company }) => {
   const registerWithMask = useHookFormMask(register);
 
   const onSubmit: SubmitHandler<z.infer<typeof schema>> = async (e) => {
-    await updateAddress(company.address.id, e);
+    await updateAddress(address.id, e);
   };
 
   async function fetchAddressFromCep(cepString: string) {

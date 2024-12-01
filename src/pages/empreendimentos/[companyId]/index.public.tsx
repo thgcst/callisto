@@ -8,10 +8,11 @@ import company from "@/models/company";
 import session from "@/models/session";
 import { serialize } from "@/utils/serialize";
 
-import EditAddress from "./EditAddress";
 import EditCompany from "./EditCompany";
 import EditEmployees from "./EditEmployees";
 import EditPartners from "./EditPartners";
+
+import EditAddress from "../../../components/EditAddress";
 
 export type CompanyPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
@@ -26,7 +27,7 @@ export default function CompanyPage({ company }: CompanyPageProps) {
           <div className="border-t border-gray-200" />
         </div>
       </div>
-      <EditAddress company={company} />
+      <EditAddress address={company.address} />
       <div className="hidden sm:block" aria-hidden="true">
         <div className="py-5">
           <div className="border-t border-gray-200" />

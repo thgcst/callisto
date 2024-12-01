@@ -2,19 +2,18 @@ import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 
 import { parse } from "cookie";
 
+import EditAddress from "@/components/EditAddress";
 import Layout from "@/components/Layout";
 import authorization from "@/models/authorization";
 import individual from "@/models/individual";
 import session from "@/models/session";
 import { serialize } from "@/utils/serialize";
 
-type IndividualPageProps = InferGetServerSidePropsType<
+import EditIndividual from "./EditIndividual";
+
+export type IndividualPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >;
-
-export default function IndividualPage({ individual }: IndividualPageProps) {
-  return <Layout title={individual.name} label={individual.name}></Layout>;
-}
 
 export const getServerSideProps = (async (ctx) => {
   const { sessionToken } = parse(ctx.req.headers.cookie || "");
@@ -53,3 +52,17 @@ export const getServerSideProps = (async (ctx) => {
     },
   };
 }) satisfies GetServerSideProps;
+
+export default function IndividualPage({ individual }: IndividualPageProps) {
+  return (
+    <Layout title={individual.name} label={individual.name}>
+      <EditIndividual individual={individual} />
+      <div className="hidden sm:block" aria-hidden="true">
+        <div className="py-5">
+          <div className="border-t border-gray-200" />
+        </div>
+      </div>
+      <EditAddress address={individual.address} />
+    </Layout>
+  );
+}
