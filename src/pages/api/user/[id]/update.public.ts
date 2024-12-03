@@ -1,6 +1,9 @@
 import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
+import formidable from "formidable";
+
+import { ServiceError } from "@/errors";
 import authentication from "@/models/authentication";
 import controller from "@/models/controller";
 import supabaseModel from "@/models/supabase";
@@ -28,23 +31,38 @@ async function patchHandler(
   });
 
   const body: {
-    name?: string;
-    features?: string[];
-    avatar?: string;
-  } = validator(fields, {
-    name: "optional",
-    features: "optional",
-  });
+    name: string;
+    features: string[];
+  } = validator(
+    {
+      ...fields,
+      features: fields?.features
+        ? JSON.parse(fields.features as string)
+        : undefined,
+    },
+    {
+      name: "optional",
+      features: "optional",
+    },
+  );
 
   let updatedUser = await user.updateById(id, body);
 
-  const avatar = files.avatar?.[0];
+  const avatar = files.avatar as formidable.File;
 
-  if (avatar) {
-    const avatarUrl = await supabaseModel.uploadAvatar(avatar, "users");
+  try {
+    if (avatar) {
+      const avatarUrl = await supabaseModel.uploadAvatar(avatar, "users");
 
-    updatedUser = await user.updateById(updatedUser.id, {
-      avatar: avatarUrl,
+      updatedUser = await user.updateById(updatedUser.id, {
+        avatar: avatarUrl,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    throw new ServiceError({
+      message: "Erro ao atualizar foto de perfil",
+      errorLocationCode: "CONTROLLER:USER:UPDATE:UPDATE_AVATAR",
     });
   }
 

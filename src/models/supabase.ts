@@ -8,7 +8,9 @@ import { supabase } from "@/infra/supabase";
 async function uploadAvatar(avatar: formidable.File, folder: string) {
   const { data: uploadData } = await supabase.storage
     .from("avatars")
-    .upload(`${folder}/${randomUUID()}`, fs.createReadStream(avatar.filepath));
+    .upload(`${folder}/${randomUUID()}`, fs.createReadStream(avatar.filepath), {
+      duplex: "half",
+    });
 
   if (uploadData) {
     const path = uploadData.path;

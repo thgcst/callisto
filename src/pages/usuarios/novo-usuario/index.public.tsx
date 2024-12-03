@@ -6,7 +6,7 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parse } from "cookie";
 import { Controller, useForm } from "react-hook-form";
-import * as zod from "zod";
+import * as z from "zod";
 
 import Input from "@/components/Input";
 import Layout from "@/components/Layout";
@@ -16,12 +16,14 @@ import session from "@/models/session";
 import { useCreateUser } from "@/swr/users";
 import { capitalizeFirstLetter } from "@/utils/string";
 
-const schema = zod.object({
-  name: zod.string().min(5, "Mínimo 5 caracteres"),
-  email: zod.string().email(),
-  features: zod.array(zod.string()),
-  avatar: zod.instanceof(File).optional(),
+const schema = z.object({
+  name: z.string().min(5, "Mínimo 5 caracteres"),
+  email: z.string().email(),
+  features: z.array(z.string()),
+  avatar: (z.any() as z.ZodType<FileList>).nullable(),
 });
+
+type Schema = z.infer<typeof schema>;
 
 const NewUser: React.FC = () => {
   const inputAvatarRef = useRef<HTMLInputElement>(null);
@@ -37,12 +39,12 @@ const NewUser: React.FC = () => {
     getValues,
     formState: { errors, touchedFields },
     trigger,
-  } = useForm({
+  } = useForm<Schema>({
     mode: "onTouched",
     defaultValues: {
       name: "",
       email: "",
-      features: [],
+      features: [] as string[],
       avatar: null as FileList | null,
     },
     resolver: zodResolver(schema),
@@ -105,6 +107,13 @@ const NewUser: React.FC = () => {
                         name="features"
                         render={({ field }) => (
                           <MultipleSelect
+                            error={errors.features
+                              ?.map?.((m) => m?.message)
+                              .filter(Boolean)
+                              .join(", ")}
+                            touched={touchedFields.features?.some(
+                              (touched) => touched,
+                            )}
                             label="Permissões de sistema"
                             options={[...authorization.systemFeaturesSet].map(
                               (feature) => ({
@@ -140,15 +149,22 @@ const NewUser: React.FC = () => {
                           />
                         </span>
 
-                        <button
-                          type="button"
-                          className="ml-5 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                          onClick={() => {
-                            inputAvatarRef.current?.click();
-                          }}
-                        >
-                          Trocar
-                        </button>
+                        <div className="relative ml-5 flex w-full flex-col">
+                          <button
+                            type="button"
+                            className="w-fit rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            onClick={() => {
+                              inputAvatarRef.current?.click();
+                            }}
+                          >
+                            Trocar
+                          </button>
+                          {errors.avatar?.message ? (
+                            <p className="absolute -bottom-6 w-full text-sm text-red-600">
+                              {errors.avatar?.message}
+                            </p>
+                          ) : null}
+                        </div>
                         <input
                           {...avatarFields}
                           ref={(instance) => {

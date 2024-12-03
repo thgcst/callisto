@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@prisma/client";
 import { Controller, useForm } from "react-hook-form";
-import * as zod from "zod";
+import * as z from "zod";
 
 import Input from "@/components/Input";
 import MultipleSelect from "@/components/MultipleSelect";
@@ -19,11 +19,12 @@ type EditUserProps = {
   user: Omit<User, "password">;
 };
 
-const schema = zod.object({
-  name: zod.string().min(5, "Mínimo 5 caracteres"),
-  features: zod.array(zod.string()),
-  avatar: zod.instanceof(File).optional(),
+const schema = z.object({
+  name: z.string().min(5, "Mínimo 5 caracteres"),
+  features: z.array(z.string()),
+  avatar: (z.any() as z.ZodType<FileList>).nullable(),
 });
+type Schema = z.infer<typeof schema>;
 
 const EditUser: React.FC<EditUserProps> = ({ user }) => {
   const { query } = useRouter();
@@ -41,7 +42,7 @@ const EditUser: React.FC<EditUserProps> = ({ user }) => {
     getValues,
     formState: { errors, touchedFields },
     trigger,
-  } = useForm({
+  } = useForm<Schema>({
     mode: "onTouched",
     defaultValues: {
       name: user.name,
@@ -105,6 +106,13 @@ const EditUser: React.FC<EditUserProps> = ({ user }) => {
                     name="features"
                     render={({ field }) => (
                       <MultipleSelect
+                        error={errors.features
+                          ?.map?.((m) => m?.message)
+                          .filter(Boolean)
+                          .join(", ")}
+                        touched={touchedFields.features?.some(
+                          (touched) => touched,
+                        )}
                         label="Permissões de sistema"
                         options={[...authorization.systemFeaturesSet].map(
                           (feature) => ({
@@ -143,15 +151,22 @@ const EditUser: React.FC<EditUserProps> = ({ user }) => {
                     </span>
                     {canEdit && (
                       <>
-                        <button
-                          type="button"
-                          className="ml-5 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                          onClick={() => {
-                            inputAvatarRef.current?.click();
-                          }}
-                        >
-                          Trocar
-                        </button>
+                        <div className="relative ml-5 flex w-full flex-col">
+                          <button
+                            type="button"
+                            className="w-fit rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            onClick={() => {
+                              inputAvatarRef.current?.click();
+                            }}
+                          >
+                            Trocar
+                          </button>
+                          {errors.avatar?.message ? (
+                            <p className="absolute -bottom-6 w-full text-sm text-red-600">
+                              {errors.avatar?.message}
+                            </p>
+                          ) : null}
+                        </div>
                         <input
                           {...avatarFields}
                           ref={(instance) => {

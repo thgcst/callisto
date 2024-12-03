@@ -1,6 +1,8 @@
 import { NextApiResponse } from "next";
 import nextConnect from "next-connect";
 
+import formidable from "formidable";
+
 import activation from "@/models/activation";
 import authentication from "@/models/authentication";
 import authorization from "@/models/authorization";
@@ -29,18 +31,25 @@ async function postHandler(
     name: string;
     email: string;
     features: string[];
-    avatar?: string;
-  } = validator(fields, {
-    name: "required",
-    email: "required",
-    features: "required",
-  });
+  } = validator(
+    {
+      ...fields,
+      features: fields?.features
+        ? JSON.parse(fields.features as string)
+        : undefined,
+    },
+    {
+      name: "required",
+      email: "required",
+      features: "required",
+    },
+  );
 
   let newUser = await user.create(body);
 
   await activation.createAndSendActivationEmail(newUser);
 
-  const avatar = files.avatar?.[0];
+  const avatar = files.avatar as formidable.File;
 
   // when creating an user, avatar uploading errors are not critical
   try {

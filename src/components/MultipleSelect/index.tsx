@@ -1,6 +1,13 @@
 import { Fragment } from "react";
 
-import { Listbox, Transition } from "@headlessui/react";
+import {
+  Label,
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+  Transition,
+} from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { LockClosedIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
@@ -30,14 +37,14 @@ const MultipleSelect: React.FC<SelectProps> = ({
   return (
     <Listbox value={value} onChange={onChange} multiple disabled={disabled}>
       {({ open }) => (
-        <>
+        <div>
           {label && (
-            <Listbox.Label className="mb-1 block text-sm font-medium text-gray-700">
+            <Label className="mb-1 block text-sm font-medium text-gray-700">
               {label}
-            </Listbox.Label>
+            </Label>
           )}
           <div className="group relative">
-            <Listbox.Button
+            <ListboxButton
               className={clsx(
                 "relative w-full cursor-pointer rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm",
                 "disabled:cursor-default disabled:bg-slate-100 disabled:text-slate-500",
@@ -54,7 +61,7 @@ const MultipleSelect: React.FC<SelectProps> = ({
                   aria-hidden="true"
                 />
               </span>
-            </Listbox.Button>
+            </ListboxButton>
             {disabled && (
               <div
                 className={clsx(
@@ -71,25 +78,25 @@ const MultipleSelect: React.FC<SelectProps> = ({
 
             <Transition
               show={open}
-              as={Fragment}
+              as="div"
               leave="transition ease-in duration-100"
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+              <ListboxOptions className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
                 {options.map((option) => (
-                  <Listbox.Option
+                  <ListboxOption
                     key={option.value}
-                    className={({ active }) =>
+                    className={({ focus }) =>
                       clsx(
-                        active ? "bg-indigo-600 text-white" : "text-gray-900",
+                        focus ? "bg-indigo-600 text-white" : "text-gray-900",
                         "group relative cursor-pointer select-none overflow-hidden py-2 pl-3 pr-9",
                       )
                     }
                     value={option.value}
                     disabled={option.disabled}
                   >
-                    {({ selected, active, disabled }) => (
+                    {({ selected, focus, disabled }) => (
                       <>
                         <div
                           className={clsx(
@@ -128,7 +135,7 @@ const MultipleSelect: React.FC<SelectProps> = ({
                         {selected ? (
                           <span
                             className={clsx(
-                              active ? "text-white" : "text-indigo-600",
+                              focus ? "text-white" : "text-indigo-600",
                               "absolute inset-y-0 right-0 flex items-center pr-4",
                             )}
                           >
@@ -137,17 +144,17 @@ const MultipleSelect: React.FC<SelectProps> = ({
                         ) : null}
                       </>
                     )}
-                  </Listbox.Option>
+                  </ListboxOption>
                 ))}
                 {options.length === 0 && (
                   <div className="p-2 px-3 text-gray-500">
                     Nenhuma opção disponível
                   </div>
                 )}
-              </Listbox.Options>
+              </ListboxOptions>
             </Transition>
           </div>
-        </>
+        </div>
       )}
     </Listbox>
   );

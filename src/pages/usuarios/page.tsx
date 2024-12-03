@@ -33,7 +33,6 @@ const Page: React.FC = () => {
         <div className="flex items-center">
           <div className="size-10 shrink-0">
             <Image
-              unoptimized={process.env.ENVIRONMENT !== "PRODUCTION"}
               src={row.original.avatar}
               className="size-10 rounded-full object-cover"
               alt={row.original.name}

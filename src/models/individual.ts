@@ -185,7 +185,7 @@ async function approve(
   individualId: string,
   config: {
     sendEmail?: boolean;
-  } = { sendEmail: false },
+  } = { sendEmail: true },
 ) {
   const webserverHost = webserver.getHost();
 
@@ -241,7 +241,7 @@ Equipe de TI do Callisto`,
 async function approveMultiple(
   userId: string,
   individualIds: string[],
-  config: { sendEmail?: boolean } = { sendEmail: false },
+  config: { sendEmail?: boolean } = { sendEmail: true },
 ) {
   const webserverHost = webserver.getHost();
   const updatedIndividuals = await prisma.individual.updateMany({
